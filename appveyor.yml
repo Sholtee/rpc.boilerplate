@@ -10,7 +10,7 @@ clone_script:
 
 before_test:
   - ps: |
-      @{Server=@{Host="127.0.0.1:1986";SessionTimeoutInMinutes=10;AllowedOrigins=@("http://127.0.0.1:8080")};ConnectionString="";Redis=@{Host="127.0.0.1";Port=6379}} | convertto-json | set-content -path ".\BIN\net5.0\config.test.json"
+      @{Server=@{Host="127.0.0.1:1986";SessionTimeoutInMinutes=10;AllowedOrigins=@("http://127.0.0.1:8080")};ConnectionString="";Redis=@{Host="127.0.0.1";Port=6379}} | convertto-json | set-content -path ".\SRC\TestsBase\config.test.json"
       
 test_script:
   - ps: .\test.ps1
