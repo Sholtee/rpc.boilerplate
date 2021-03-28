@@ -12,7 +12,7 @@ test_script:
   - ps: .\test.ps1
 
 after_test:
-  - ps:
+  - ps: |
       $client=New-Object System.Net.WebClient
       Get-ChildItem -Path ([System.IO.Path]::Combine("Artifacts", "*.xml")) foreach {
         Write-Host "Uploading test result: $($_.Name)"
