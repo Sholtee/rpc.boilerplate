@@ -11,6 +11,7 @@ clone_script:
 install:
   - nuget install redis-64 -Version 3.0.503 -OutputDirectory "Vendor"
   - .\Vendor\redis-64.3.0.503\tools\redis-server.exe --service-install
+  - .\Vendor\redis-64.3.0.503\tools\redis-server.exe --service-start
 
 before_test:
   - ps: |     
