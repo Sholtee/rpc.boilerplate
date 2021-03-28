@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="..\..\Tests.Common.targets" />
+  
+  <PropertyGroup>
+    <AssemblyName>$(AppName).Services.Cache.Tests</AssemblyName>
+    <RootNamespace>Services.Cache.Tests</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\TestsBase\TestsBase.csproj" />
+    <ProjectReference Include="..\Cache.API\Cache.API.csproj" />
+    <ProjectReference Include="..\Cache\Cache.csproj" />
+  </ItemGroup>
+
+</Project>

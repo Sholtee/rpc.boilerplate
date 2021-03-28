@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="..\..\Common.targets" />
+
+  <PropertyGroup>
+    <AssemblyName>$(AppName).Services..DbConnection</AssemblyName>
+    <RootNamespace>Services</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ServiceStack.OrmLite.MySql.Core" Version="5.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Config.API\Config.API.csproj" />
+  </ItemGroup>
+
+</Project>

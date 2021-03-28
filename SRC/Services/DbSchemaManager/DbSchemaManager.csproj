@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="..\..\Common.targets" />
+
+  <PropertyGroup>
+    <AssemblyName>$(AppName).Services.DbSchemaManager</AssemblyName>
+    <RootNamespace>Services</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ServiceStack.OrmLite.Core" Version="5.*" />
+    <PackageReference Include="Solti.Utils.OrmLite.Extensions" Version="2.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DbSchemaManager.API\DbSchemaManager.API.csproj" />
+  </ItemGroup>
+  
+</Project>

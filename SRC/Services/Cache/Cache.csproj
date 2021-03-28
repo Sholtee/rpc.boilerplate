@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="../../Common.targets" />
+  
+  <PropertyGroup>
+    <AssemblyName>$(AppName).Services.Cache</AssemblyName>
+    <RootNamespace>Services</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Injector.NET.Interfaces" Version="4.*" />
+    <PackageReference Include="ServiceStack.Redis.Core" Version="5.*" />
+    <PackageReference Include="Solti.Utils.Primitives" Version="2.*" />
+    <PackageReference Include="System.Runtime.Caching" Version="5.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Cache.API\Cache.API.csproj" />
+    <ProjectReference Include="..\Config.API\Config.API.csproj" />
+  </ItemGroup>
+
+</Project>

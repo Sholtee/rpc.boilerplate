@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\Common.targets" />
+
+  <PropertyGroup>
+    <OutputPath>..\..\BIN</OutputPath>
+    <AssemblyName>$(AppName).Tests.Base</AssemblyName>
+    <RootNamespace>Tests.Base</RootNamespace>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="nunit" Version="3.*" />
+    <PackageReference Include="Injector.NET" Version="4.*" />
+    <PackageReference Include="RPC.NET.Server" Version="3.*" />
+    <PackageReference Include="ServiceStack.Interfaces.Core" Version="5.*" />
+  </ItemGroup>
+      
+  <ItemGroup>
+    <None Update="config.test.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Services\Cache.API\Cache.API.csproj" />
+    <ProjectReference Include="..\Services\Cache\Cache.csproj" />
+    <ProjectReference Include="..\Services\Config.API\Config.API.csproj" />
+    <ProjectReference Include="..\Services\Config\Config.csproj" />
+    <ProjectReference Include="..\Services\DbConnection\DbConnection.csproj" />
+    <ProjectReference Include="..\Services\DbSchemaManager.API\DbSchemaManager.API.csproj" />
+    <ProjectReference Include="..\Services\DbSchemaManager\DbSchemaManager.csproj" />
+  </ItemGroup>
+</Project>

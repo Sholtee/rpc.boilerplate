@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="..\Common.targets" />
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <OutputPath>..\..\BIN</OutputPath>
+    <TargetFramework>net5.0</TargetFramework>
+    <AssemblyName>$(AppName).Server</AssemblyName>
+    <RootNamespace>Server</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Injector.NET.Interfaces" Version="4.*" />
+    <PackageReference Include="RPC.NET.Interfaces" Version="3.*" />
+    <PackageReference Include="RPC.NET.Server" Version="3.*" />
+    <PackageReference Include="ServiceStack.Interfaces.Core" Version="5.*" />
+  </ItemGroup>
+</Project>

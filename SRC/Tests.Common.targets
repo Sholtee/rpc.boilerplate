@@ -1,0 +1,16 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <AppName>MyApp</AppName>
+    <TargetFramework>net5.0</TargetFramework>
+    <OutputPath>..\..\..\BIN</OutputPath>
+    <IsTestProject>true</IsTestProject>
+    <LangVersion>9</LangVersion>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="nunit" Version="3.*" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.*" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.*" />
+    <PackageReference Include="NunitXml.TestLogger" Version="2.*" />
+  </ItemGroup>
+</Project>
