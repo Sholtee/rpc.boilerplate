@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 
 using ServiceStack.Redis;
 
@@ -11,7 +12,7 @@ namespace Services
     
     public class RedisCache : Disposable, ICache
     {
-        const string KEY_PREFIX = "erettsegi_";
+        private static readonly string KEY_PREFIX = $"{Path.GetFileNameWithoutExtension(typeof(RedisCache).Assembly.Location)}_";
 
         private readonly IRedisClient FClient;
 

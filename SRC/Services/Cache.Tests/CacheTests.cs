@@ -12,8 +12,8 @@ namespace Services.Cache.Tests
 {
     using API;
 
-    [TestFixture]
-    public class CacheTests: TestsBase
+   
+    public abstract class CacheTestsBase<TImpl>: TestsBase where TImpl: class, ICache
     {
         const string key = nameof(key);
         const int val = 1986;
@@ -23,7 +23,7 @@ namespace Services.Cache.Tests
         public override void Setup()
         {
             base.Setup();
-            Cache = Injector!.Get<ICache>();
+            Cache = Injector.Instantiate<TImpl>();
         }
 
         public override void TearDown() 
@@ -120,4 +120,10 @@ namespace Services.Cache.Tests
             Assert.That(Cache.TryGetValue(key, out int _));
         }
     }
+
+    [TestFixture]
+    public class RedisCacheTests : CacheTestsBase<RedisCache> { }
+
+    [TestFixture]
+    public class MemoryCacheTests : CacheTestsBase<MemoryCache> { }
 }

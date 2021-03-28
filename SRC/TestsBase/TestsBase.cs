@@ -24,11 +24,10 @@ namespace Tests.Base
             Container = new ServiceContainer();
 
             Container
+                .Service<ICache, MemoryCache>(Lifetime.Singleton)              
                 .Instance<IConfig>(Config.Read("config.test.json"))
                 .Provider<IDbConnectionFactory, MySqlDbConnectionFactoryProvider>(Lifetime.Singleton)
                 .Provider<IDbConnection, SqlConnectionProvider>(Lifetime.Scoped)
-                //.Service<ICache, RedisCache>(Lifetime.Scoped)
-                .Service<ICache, MemoryCache>(Lifetime.Singleton)
                 .Service<IDbSchemaManager, SqlDbSchemaManager>(Lifetime.Scoped);
         }
 
