@@ -10,7 +10,7 @@
     <Nullable>enable</Nullable>
     <AnalysisMode>AllEnabledByDefault</AnalysisMode>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <NoWarn>CA1014;</NoWarn>
+    <NoWarn>CA1014;CA1824;CA2007</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
