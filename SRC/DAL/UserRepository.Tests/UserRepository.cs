@@ -53,10 +53,12 @@ namespace DAL.Tests
         {
             long id = 0;
             Assert.DoesNotThrowAsync(async() => id = await UserRepository.Create(new API.User { FullName = "cica1", EmailOrUserName = "abc@def.hu"}, "mica1"));
+            Assert.That(id, Is.GreaterThan(0));
 
             DAL.User user = Connection.SingleById<DAL.User>(id);
 
             Assert.That(user.FullName, Is.EqualTo("cica1"));
+            Assert.That(user.LoginId, Is.GreaterThan(0));
 
             DAL.Login login = Connection.SingleById<DAL.Login>(user.LoginId);
 
@@ -75,12 +77,25 @@ namespace DAL.Tests
         {
             await UserRepository.Create(new API.User { FullName = "cica1", EmailOrUserName = "abc@def.hu" }, "mica1");
 
-            API.User felhasznalo = null;
-            Assert.DoesNotThrowAsync(async () => felhasznalo = await UserRepository.QueryByCredentials("abc@def.hu", "mica1"));
+            API.User user = null;
+            Assert.DoesNotThrowAsync(async () => user = await UserRepository.QueryByCredentials("abc@def.hu", "mica1"));
 
-            Assert.That(felhasznalo, Is.Not.Null);
-            Assert.That(felhasznalo.EmailOrUserName, Is.EqualTo("abc@def.hu"));
-            Assert.That(felhasznalo.FullName, Is.EqualTo("cica1"));
+            Assert.That(user, Is.Not.Null);
+            Assert.That(user.EmailOrUserName, Is.EqualTo("abc@def.hu"));
+            Assert.That(user.FullName, Is.EqualTo("cica1"));
+        }
+
+        [Test]
+        public async Task QueryById_ShouldReturnTheProperEntry()
+        {
+            long id = await UserRepository.Create(new API.User { FullName = "cica1", EmailOrUserName = "abc@def.hu" }, "mica1");
+
+            API.User user = null;            
+            Assert.DoesNotThrowAsync(async () => user = await UserRepository.QueryById(id));
+
+            Assert.That(user, Is.Not.Null);
+            Assert.That(user.EmailOrUserName, Is.EqualTo("abc@def.hu"));
+            Assert.That(user.FullName, Is.EqualTo("cica1"));
         }
 
         [Test]
