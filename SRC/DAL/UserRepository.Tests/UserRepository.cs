@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using System.Security.Authentication;
 using System.Threading.Tasks;
 
 using NUnit.Framework;
@@ -86,6 +87,15 @@ namespace DAL.Tests
         }
 
         [Test]
+        public async Task QueryByCredentials_ShouldThrowOnInvalidCredentials()
+        {
+            await UserRepository.Create(new API.User { FullName = "cica1", EmailOrUserName = "abc@def.hu" }, "mica1");
+
+            Assert.ThrowsAsync<InvalidCredentialException>(() => UserRepository.QueryByCredentials("abc@def.hu", "kutya12"));
+            Assert.ThrowsAsync<InvalidCredentialException>(() => UserRepository.QueryByCredentials("abc@def.hu_", "mica1"));
+        }
+
+        [Test]
         public async Task QueryById_ShouldReturnTheProperEntry()
         {
             long id = await UserRepository.Create(new API.User { FullName = "cica1", EmailOrUserName = "abc@def.hu" }, "mica1");
@@ -96,15 +106,6 @@ namespace DAL.Tests
             Assert.That(user, Is.Not.Null);
             Assert.That(user.EmailOrUserName, Is.EqualTo("abc@def.hu"));
             Assert.That(user.FullName, Is.EqualTo("cica1"));
-        }
-
-        [Test]
-        public async Task Create_ShouldThrowOnInvalidCredentials()
-        {
-            await UserRepository.Create(new API.User { FullName = "cica1", EmailOrUserName = "abc@def.hu" }, "mica1");
-
-            Assert.ThrowsAsync<InvalidOperationException>(() => UserRepository.QueryByCredentials("abc@def.hu", "kutya12"));
-            Assert.ThrowsAsync<InvalidOperationException>(() => UserRepository.QueryByCredentials("abc@def.hu_", "mica1"));
         }
 
         [Test]

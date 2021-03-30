@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
+using System.Security.Authentication;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -56,7 +57,7 @@ namespace DAL
 
             UserView? user = await Connection.QuerySingleOrDefaultAsync<UserView?>(sql, cancellation);
             if (user is null || !Verify(password, user.PasswordHash))
-                throw new InvalidOperationException(Resources.INVALID_CREDENTIALS);
+                throw new InvalidCredentialException(Resources.INVALID_CREDENTIALS);
 
             return Mapper.Map<API.User>(user);
         }
