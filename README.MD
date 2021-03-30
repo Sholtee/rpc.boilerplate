@@ -1,1 +1,3 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/nbuhmb49fu7mtvfd/branch/master?svg=true)](https://ci.appveyor.com/project/Sholtee/rpc-boilerplate/branch/master) ![AppVeyor tests](https://img.shields.io/appveyor/tests/sholtee/rpc-boilerplate)
+
+**W.I.P.**, don't use it!
