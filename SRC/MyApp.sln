@@ -31,6 +31,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UserRepository.API", "DAL\U
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UserRepository", "DAL\UserRepository\UserRepository.csproj", "{D374CE43-5C58-4321-9F83-BBC401F9D201}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UserRepository.Tests", "DAL\UserRepository.Tests\UserRepository.Tests.csproj", "{0E2EB494-6A6A-4AE0-B4F0-D9D5CA872C33}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -83,6 +85,9 @@ Global
 		{D374CE43-5C58-4321-9F83-BBC401F9D201}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D374CE43-5C58-4321-9F83-BBC401F9D201}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D374CE43-5C58-4321-9F83-BBC401F9D201}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0E2EB494-6A6A-4AE0-B4F0-D9D5CA872C33}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E2EB494-6A6A-4AE0-B4F0-D9D5CA872C33}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E2EB494-6A6A-4AE0-B4F0-D9D5CA872C33}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -98,6 +103,7 @@ Global
 		{1838FF43-3C25-4D37-B0B6-3443897DA6E9} = {F8E0A7AF-F133-4975-8792-CB46C345F1D5}
 		{5D6DC7A5-5D22-4AD0-8F7C-CA9375626A67} = {A9C0B100-0758-4200-9C1A-D799D3FD1859}
 		{D374CE43-5C58-4321-9F83-BBC401F9D201} = {A9C0B100-0758-4200-9C1A-D799D3FD1859}
+		{0E2EB494-6A6A-4AE0-B4F0-D9D5CA872C33} = {A9C0B100-0758-4200-9C1A-D799D3FD1859}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {12977405-909D-4F7A-9C43-856D52ACB84A}

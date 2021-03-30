@@ -15,6 +15,6 @@ namespace DAL.API
 
         Task<User> QueryById(long userId, CancellationToken cancellation = default);
 
-        Task Delete(long id, CancellationToken cancellation = default);
+        Task Delete(long userId, CancellationToken cancellation = default);
     }
 }

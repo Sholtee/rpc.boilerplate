@@ -12,14 +12,13 @@ namespace DAL
         [PrimaryKey, AutoIncrement]
         public long Id { get; set; }
 
-        [References(typeof(User)), Index(Unique = true)]
-        public long UserId { get; set; }
-
+        #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         [Required, Index]
-        public string EmailOrUserName { get; set; } = string.Empty;
+        public string EmailOrUserName { get; set; }
 
         [Required]
-        public string PasswordHash { get; set; } = string.Empty;
+        public string PasswordHash { get; set; }
+        #pragma warning restore CS8618
 
         public DateTime? Deleted { get; set; }
     }

@@ -17,13 +17,13 @@ namespace DAL
     using API;
     using Properties;
 
-    public class UserRepository : IUserRepository
+    public class SqlUserRepository : IUserRepository
     {
         public IDbConnection Connection { get; }
 
         public IMapper Mapper { get; }
 
-        public UserRepository(IDbConnection connection) 
+        public SqlUserRepository(IDbConnection connection) 
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             Mapper = new MapperConfiguration(cfg => cfg.AddProfiles(new Profile[]
@@ -45,9 +45,8 @@ namespace DAL
 
         private SqlExpression<DAL.User> UserQueryBase => Connection
             .From<DAL.User>()
-            .Join<DAL.User, DAL.Login>((u, l) => u.Id == l.UserId && l.Deleted == null)
-            .Select<DAL.Login>(l => new { l.EmailOrUserName, l.PasswordHash })
-            .Select<DAL.User>(u => new { u.Id, u.FullName });
+            .Join<DAL.User, DAL.Login>((u, l) => u.LoginId == l.Id && l.Deleted == null)
+            .Select<DAL.Login, DAL.User>((l, u) => new { l.EmailOrUserName, l.PasswordHash, u.Id, u.FullName });
 
         public async Task<API.User> QueryByCredentials(string emailOrUserName, string password, CancellationToken cancellation)
         {
@@ -75,9 +74,14 @@ namespace DAL
             return Mapper.Map<API.User>(user);
         }
 
-        public async Task Delete(long id, CancellationToken cancellation)
+        public async Task Delete(long userId, CancellationToken cancellation)
         {
-            if (await Connection.UpdateAsync<DAL.Login>(new Dictionary<string, object> { [nameof(DAL.Login.Deleted)] = DateTime.UtcNow}, l => l.UserId == id, token: cancellation) == 0)
+            SqlExpression<DAL.User> userSelector = Connection
+                .From<DAL.User>()
+                .Select(u => u.LoginId)
+                .Where(u => u.Id == userId);
+
+            if (await Connection.UpdateOnlyAsync<DAL.Login>(new Dictionary<string, object> { [nameof(DAL.Login.Deleted)] = DateTime.UtcNow}, where: l => Sql.In(l.Id, userSelector), token: cancellation) == 0)
                 throw new InvalidOperationException(Resources.ENTRY_NOT_FOUND);
         }
     }

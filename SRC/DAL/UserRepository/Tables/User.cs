@@ -1,5 +1,4 @@
-﻿
-using ServiceStack.DataAnnotations;
+﻿using ServiceStack.DataAnnotations;
 
 namespace DAL
 {
@@ -14,7 +13,9 @@ namespace DAL
         [References(typeof(DAL.Login)), Index(Unique = true)]
         public long LoginId { get; set; }
 
+        #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         [Required]
-        public string FullName { get; set; } = string.Empty;
+        public string FullName { get; set; }
+        #pragma warning restore CS8618
     }
 }
