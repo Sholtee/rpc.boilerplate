@@ -11,6 +11,6 @@
     <PackageReference Include="nunit" Version="3.*" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.*" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.*" />
-    <PackageReference Include="NunitXml.TestLogger" Version="2.*" />
+    <PackageReference Include="NunitXml.TestLogger" Version="3.*" />
   </ItemGroup>
 </Project>
