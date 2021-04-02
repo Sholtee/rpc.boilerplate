@@ -4,7 +4,7 @@
   
   <PropertyGroup>
     <AssemblyName>$(AppName).Services.Cache.Tests</AssemblyName>
-    <RootNamespace>Services.Cache.Tests</RootNamespace>
+    <RootNamespace>Services.Tests</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

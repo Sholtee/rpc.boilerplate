@@ -41,6 +41,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoleManager.API", "Services
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoleManager", "Services\RoleManager\RoleManager.csproj", "{B4D097AC-A3CB-4318-AB09-B4B2B8E1E4B9}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoleManager.Tests", "Services\RoleManager.Tests\RoleManager.Tests.csproj", "{264A2864-19DF-49AA-960A-3E921F09A0CD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -108,6 +110,10 @@ Global
 		{B4D097AC-A3CB-4318-AB09-B4B2B8E1E4B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B4D097AC-A3CB-4318-AB09-B4B2B8E1E4B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B4D097AC-A3CB-4318-AB09-B4B2B8E1E4B9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{264A2864-19DF-49AA-960A-3E921F09A0CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{264A2864-19DF-49AA-960A-3E921F09A0CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{264A2864-19DF-49AA-960A-3E921F09A0CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{264A2864-19DF-49AA-960A-3E921F09A0CD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -127,6 +133,7 @@ Global
 		{14155396-DB1E-4BD5-A8E1-B5CC924A9938} = {2D407D69-C578-4886-B443-9A6E0D3170D1}
 		{17FAB242-1C67-408D-A59A-308DCBC4D8E8} = {F8E0A7AF-F133-4975-8792-CB46C345F1D5}
 		{B4D097AC-A3CB-4318-AB09-B4B2B8E1E4B9} = {F8E0A7AF-F133-4975-8792-CB46C345F1D5}
+		{264A2864-19DF-49AA-960A-3E921F09A0CD} = {F8E0A7AF-F133-4975-8792-CB46C345F1D5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {12977405-909D-4F7A-9C43-856D52ACB84A}

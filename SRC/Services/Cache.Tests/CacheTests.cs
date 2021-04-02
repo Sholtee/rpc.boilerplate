@@ -8,11 +8,10 @@ using Solti.Utils.DI.Interfaces;
 
 using Tests.Base;
 
-namespace Services.Cache.Tests
+namespace Services.Tests
 {
     using API;
-
-   
+ 
     public abstract class CacheTestsBase<TImpl>: TestsBase where TImpl: class, ICache
     {
         const string key = nameof(key);
