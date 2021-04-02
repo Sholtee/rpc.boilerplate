@@ -42,6 +42,7 @@ namespace Tests.Base
         public virtual void Setup()
         {
             Injector = Container!.CreateInjector();
+            Injector.Get<ICache>().Clear();
         }
 
         [TearDown]
