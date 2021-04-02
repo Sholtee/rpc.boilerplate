@@ -1,5 +1,10 @@
 image: Visual Studio 2019
 
+environment:
+  # mysql CLI reads the default password from this variable if you don't use the --password swtich
+  MYSQL_PWD:
+    secure: H8uzUOmYDz7QbfG9kv6XnA==
+
 # prevent MSBuild from running
 build: off
 
@@ -19,10 +24,10 @@ install:
       .\Vendor\redis-64.3.0.503\tools\redis-server.exe --service-start
 
 before_test:
-  - ps: |     
-      @{Server=@{Host="127.0.0.1:1986";SessionTimeoutInMinutes=10;AllowedOrigins=@("http://127.0.0.1:8080")};ConnectionString="Server=127.0.0.1;Port=3306;Database=myapp_test;UId=root;PWd=Password12!";Redis=@{Host="127.0.0.1";Port=6379}} | convertto-json | set-content -path ".\SRC\TestsBase\config.test.json"
-  - cmd: | 
-      "C:\Program Files\MySQL\MySQL Server 5.7\bin\mysql" -e "create database myapp_test;" --user=root --password=Password12!
+  - ps: |    
+      @{Server=@{Host="127.0.0.1:1986";SessionTimeoutInMinutes=10;AllowedOrigins=@("http://127.0.0.1:8080")};ConnectionString="Server=127.0.0.1;Port=3306;Database=myapp_test;UId=root;PWd=${$env:MYSQL_PWD}";Redis=@{Host="127.0.0.1";Port=6379}} | convertto-json | set-content -path ".\SRC\TestsBase\config.test.json"
+  - cmd: |
+      "C:\Program Files\MySQL\MySQL Server 5.7\bin\mysql" -e "create database myapp_test;" --user=root
 
 test_script:
   - ps: .\test.ps1
