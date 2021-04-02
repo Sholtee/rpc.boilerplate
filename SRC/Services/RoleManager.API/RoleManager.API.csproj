@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="..\..\Common.targets" />
+
+  <PropertyGroup>
+    <AssemblyName>$(AppName).Services.RoleManager.API</AssemblyName>
+    <RootNamespace>Services.API</RootNamespace>
+  </PropertyGroup>
+</Project>
