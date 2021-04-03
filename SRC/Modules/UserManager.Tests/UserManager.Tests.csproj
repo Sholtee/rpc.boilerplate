@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="..\..\Tests.Common.targets" />
+  
+  <PropertyGroup>
+    <AssemblyName>$(AppName).Modules.UserManager.Tests</AssemblyName>
+    <RootNamespace>Modules.Tests</RootNamespace>
+  </PropertyGroup>
+
+
+  <ItemGroup>
+    <PackageReference Include="Moq" Version="4.*" />
+    <PackageReference Include="RPC.NET.Interfaces" Version="3.*" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\..\DAL\UserRepository.API\UserRepository.API.csproj" />
+    <ProjectReference Include="..\..\Services\Cache.API\Cache.API.csproj" />
+    <ProjectReference Include="..\..\Services\Config.API\Config.API.csproj" />
+    <ProjectReference Include="..\UserManager\UserManager.csproj" />
+  </ItemGroup>
+
+</Project>
