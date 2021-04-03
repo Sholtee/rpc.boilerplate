@@ -3,7 +3,7 @@
   
   <PropertyGroup>
     <AssemblyName>$(AppName).Modules.UserManager.API</AssemblyName>
-    <RootNamespace>Modules.UserManager.API</RootNamespace>
+    <RootNamespace>Modules.API</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

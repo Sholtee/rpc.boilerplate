@@ -1,0 +1,37 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="..\..\Common.targets" />
+  
+  <PropertyGroup>
+    <AssemblyName>$(AppName).Modules.UserManager</AssemblyName>
+    <RootNamespace>Modules</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\DAL\UserRepository.API\UserRepository.API.csproj" />
+    <ProjectReference Include="..\..\Services\Cache.API\Cache.API.csproj" />
+    <ProjectReference Include="..\..\Services\Config.API\Config.API.csproj" />
+    <ProjectReference Include="..\UserManager.API\UserManager.API.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="10.*" />
+    <PackageReference Include="RPC.NET.Interfaces" Version="3.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+</Project>

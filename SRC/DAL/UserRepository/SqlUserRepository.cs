@@ -85,5 +85,14 @@ namespace DAL
             if (await Connection.UpdateOnlyAsync<DAL.Login>(new Dictionary<string, object> { [nameof(DAL.Login.Deleted)] = DateTime.UtcNow}, where: l => Sql.In(l.Id, userSelector), token: cancellation) == 0)
                 throw new InvalidOperationException(Resources.ENTRY_NOT_FOUND);
         }
+
+        public async Task<PartialUserList> List(int skip, int count) => new PartialUserList
+        {
+            Entries = await Connection.SelectAsync<API.User>(UserQueryBase
+                .OrderBy<DAL.Login>(l => l.EmailOrUserName)
+                .Limit(skip, count)
+                .ToMergedParamsSelectStatement()),
+            AllEntries = await Connection.CountAsync<DAL.Login>(l => l.Deleted == null)
+        };
     }
 }

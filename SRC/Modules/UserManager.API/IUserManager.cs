@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 using System.Threading.Tasks;
 
 using Solti.Utils.Rpc.Interfaces;
@@ -7,16 +8,19 @@ namespace Modules.API
 {
     using Services.API;
 
-    [ParameterValidatorAspect, TransactionAspect, RoleValidatorAspect]
-    public interface IFelhasznaloKezelo
+    [ParameterValidatorAspect, RoleValidatorAspect, TransactionAspect]
+    public interface IUserManager
     {
         [RequiredRoles(Roles.AuthenticatedUser), Transactional]
-        Task<long> Letrehoz([NotNull, LengthBetween(min: 5)] string user, [NotNull, LengthBetween(min: 5)] string pw);
+        Task<long> Create([NotNull, ValidateProperties] User user, [NotNull, LengthBetween(min: 5)] string pw);
+
+        [RequiredRoles(Roles.AuthenticatedUser), Transactional(IsolationLevel = IsolationLevel.Serializable)]
+        Task<PartialUserList> List(int skip, int count);
 
         [RequiredRoles(Roles.AnonymousUser)]
-        Task<Guid> Belep([NotNull, LengthBetween(min: 5)] string user, [NotNull, LengthBetween(min: 5)] string pw);
+        Task<Guid> Login([NotNull, LengthBetween(min: 5)] string emailOrUserName, [NotNull, LengthBetween(min: 5)] string pw);
 
         [RequiredRoles(Roles.AuthenticatedUser)]
-        void Kilep();
+        void Logout();
     }
 }

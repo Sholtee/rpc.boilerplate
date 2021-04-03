@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using System.Linq;
 using System.Security.Authentication;
 using System.Threading.Tasks;
 
@@ -50,10 +51,10 @@ namespace DAL.Tests
         }
 
         [Test]
-        public void Create_ShouldCreateTheAppropriateEntries() 
+        public void Create_ShouldCreateTheAppropriateEntries()
         {
             long id = 0;
-            Assert.DoesNotThrowAsync(async() => id = await UserRepository.Create(new API.User { FullName = "cica1", EmailOrUserName = "abc@def.hu"}, "mica1"));
+            Assert.DoesNotThrowAsync(async () => id = await UserRepository.Create(new API.User { FullName = "cica1", EmailOrUserName = "abc@def.hu" }, "mica1"));
             Assert.That(id, Is.GreaterThan(0));
 
             DAL.User user = Connection.SingleById<DAL.User>(id);
@@ -74,7 +75,7 @@ namespace DAL.Tests
         }
 
         [Test]
-        public async Task QueryByCredentials_ShouldReturnTheProperEntry() 
+        public async Task QueryByCredentials_ShouldReturnTheProperEntry()
         {
             await UserRepository.Create(new API.User { FullName = "cica1", EmailOrUserName = "abc@def.hu" }, "mica1");
 
@@ -100,7 +101,7 @@ namespace DAL.Tests
         {
             long id = await UserRepository.Create(new API.User { FullName = "cica1", EmailOrUserName = "abc@def.hu" }, "mica1");
 
-            API.User user = null;            
+            API.User user = null;
             Assert.DoesNotThrowAsync(async () => user = await UserRepository.QueryById(id));
 
             Assert.That(user, Is.Not.Null);
@@ -124,5 +125,33 @@ namespace DAL.Tests
 
         [Test]
         public void Delete_ShouldThrowOnInvalidId() => Assert.ThrowsAsync<InvalidOperationException>(() => UserRepository.Delete(0));
+
+        [Test]
+        public async Task List_ShouldPaging()
+        {
+            await UserRepository.Create(new API.User { FullName = "cica1", EmailOrUserName = "abc@def.hu" }, "mica1");
+            await UserRepository.Create(new API.User { FullName = "kutya", EmailOrUserName = "def@def.hu" }, "kutya");
+
+            PartialUserList lst = await UserRepository.List(0, 1);
+            Assert.That(lst.AllEntries, Is.EqualTo(2));
+            Assert.That(lst.Entries.Single().EmailOrUserName, Is.EqualTo("abc@def.hu"));
+
+            lst = await UserRepository.List(1, 1);
+            Assert.That(lst.AllEntries, Is.EqualTo(2));
+            Assert.That(lst.Entries.Single().EmailOrUserName, Is.EqualTo("def@def.hu"));
+        }
+
+        [Test]
+        public async Task List_ShouldNotReturnDeletedEntries()
+        {
+            await UserRepository.Create(new API.User { FullName = "cica1", EmailOrUserName = "abc@def.hu" }, "mica1");
+            long id = await UserRepository.Create(new API.User { FullName = "kutya", EmailOrUserName = "def@def.hu" }, "kutya");
+
+            await UserRepository.Delete(id);
+
+            PartialUserList lst = await UserRepository.List(0, int.MaxValue);
+            Assert.That(lst.AllEntries, Is.EqualTo(1));
+            Assert.That(lst.Entries.Single().EmailOrUserName, Is.EqualTo("abc@def.hu"));
+        }
     }
 }
