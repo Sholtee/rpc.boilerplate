@@ -9,7 +9,7 @@ namespace DAL
     [DataTable]
     public class User 
     {
-        [PrimaryKey/*, AutoId*/]
+        [PrimaryKey, AutoId]
         public Guid Id { get; set; }
 
         [References(typeof(DAL.Login)), Index(Unique = true)]

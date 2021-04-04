@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Security.Authentication;
 using System.Threading;
@@ -43,13 +44,23 @@ namespace DAL
             if (await Connection.ExistsAsync<DAL.Login>(l => l.EmailOrUserName == user.EmailOrUserName && l.Deleted == null, cancellation))
                 throw new InvalidOperationException(Resources.USER_ALREADY_EXISTS);
 
-            Guid loginId = Guid.NewGuid();
-            await Connection.InsertAsync(new DAL.Login{Id = loginId, EmailOrUserName = user.EmailOrUserName, PasswordHash = HashPassword(password, GenerateSalt()) }, selectIdentity: true, cancellation);
+            var loginEntry = new DAL.Login
+            {
+                EmailOrUserName = user.EmailOrUserName,
+                PasswordHash = HashPassword(password, GenerateSalt())
+            };
+            await Connection.InsertAsync(loginEntry, token: cancellation);
+            Debug.Assert(loginEntry.Id != Guid.Empty);
 
-            Guid userId = Guid.NewGuid();
-            await Connection.InsertAsync(new DAL.User {Id = userId, LoginId = loginId, FullName = user.FullName }, selectIdentity: true, cancellation);
+            var userEntry = new DAL.User 
+            {
+                LoginId = loginEntry.Id, 
+                FullName = user.FullName 
+            };
+            await Connection.InsertAsync(userEntry, selectIdentity: true, cancellation);
+            Debug.Assert(userEntry.Id != Guid.Empty);
 
-            return userId;
+            return userEntry.Id;
         }
 
         private SqlExpression<DAL.User> UserQueryBase => Connection
@@ -128,22 +139,22 @@ namespace DAL
                 .Where(s => s.UserId == userId && s.ExpiredUtc > DateTime.UtcNow)
                 .ToMergedParamsSelectStatement();
 
-            DAL.UserSession? session = await Connection.QuerySingleOrDefaultAsync<DAL.UserSession?>(sql, cancellation);
-            if (session is not null)
-                await Connection.UpdateOnlyAsync<DAL.UserSession>(new Dictionary<string, object> { [nameof(DAL.UserSession.ExpiredUtc)] = DateTime.UtcNow.AddMinutes(Config.Server.SessionTimeoutInMinutes) }, where: s => s.Id == session.Id, token: cancellation);
+            DAL.UserSession? sessionEntry = await Connection.QuerySingleOrDefaultAsync<DAL.UserSession?>(sql, cancellation);
+            if (sessionEntry is not null)
+                await Connection.UpdateOnlyAsync<DAL.UserSession>(new Dictionary<string, object> { [nameof(DAL.UserSession.ExpiredUtc)] = DateTime.UtcNow.AddMinutes(Config.Server.SessionTimeoutInMinutes) }, where: s => s.Id == sessionEntry.Id, token: cancellation);
             else
             {
-
-                session = new UserSession
+                sessionEntry = new UserSession
                 {
                     CreatedUtc = DateTime.UtcNow,
                     UserId     = userId,
                     ExpiredUtc = DateTime.UtcNow.AddMinutes(Config.Server.SessionTimeoutInMinutes)
                 };
-                await Connection.InsertAsync(session, token: cancellation);
+                await Connection.InsertAsync(sessionEntry, token: cancellation);
+                Debug.Assert(sessionEntry.Id != Guid.Empty);
             }
 
-            return session.Id;
+            return sessionEntry.Id;
         }
 
         public async Task DeleteSession(Guid sessionId, CancellationToken cancellation = default) =>
