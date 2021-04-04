@@ -40,7 +40,7 @@ namespace Modules
             })).CreateMapper();
         }
 
-        public async Task<long> Create(API.User user, string pw) => await UserRepository
+        public async Task<Guid> Create(API.User user, string pw) => await UserRepository
             .Create(Mapper.Map<DAL.API.User>(user), pw, RequestContext.Cancellation);
 
         public async Task<Guid> Login(string emailOrUserName, string pw)

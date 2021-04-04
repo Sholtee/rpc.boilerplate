@@ -22,7 +22,7 @@ namespace Modules.Tests
             var mockRepo = new Mock<IUserRepository>(MockBehavior.Strict);
             mockRepo
                 .Setup(r => r.Create(It.Is<DAL.API.User>(u => u.EmailOrUserName == "cica@mica.hu" && u.FullName == "cica"), "kutya", default))
-                .Returns(Task.FromResult<long>(1));
+                .Returns(Task.FromResult(Guid.NewGuid()));
 
             var mockContext = new Mock<IRequestContext>(MockBehavior.Strict);
             mockContext
@@ -60,7 +60,7 @@ namespace Modules.Tests
         {
             var user = new DAL.API.User
             {
-                Id = 1,
+                Id = Guid.NewGuid(),
                 EmailOrUserName = "cica"
             };
 

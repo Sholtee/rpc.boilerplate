@@ -38,14 +38,18 @@ namespace DAL
         }
 
         [SuppressMessage("Design", "CA1062:Validate arguments of public methods", Justification = "Parameters are validated by aspects")]
-        public async Task<long> Create(API.User user, string password, CancellationToken cancellation)
+        public async Task<Guid> Create(API.User user, string password, CancellationToken cancellation)
         {
             if (await Connection.ExistsAsync<DAL.Login>(l => l.EmailOrUserName == user.EmailOrUserName && l.Deleted == null, cancellation))
                 throw new InvalidOperationException(Resources.USER_ALREADY_EXISTS);
 
-            long loginId = await Connection.InsertAsync(new DAL.Login{ EmailOrUserName = user.EmailOrUserName, PasswordHash = HashPassword(password, GenerateSalt()) }, selectIdentity: true, cancellation);
+            Guid loginId = Guid.NewGuid();
+            await Connection.InsertAsync(new DAL.Login{Id = loginId, EmailOrUserName = user.EmailOrUserName, PasswordHash = HashPassword(password, GenerateSalt()) }, selectIdentity: true, cancellation);
 
-            return await Connection.InsertAsync(new DAL.User { LoginId = loginId, FullName = user.FullName }, selectIdentity: true, cancellation);
+            Guid userId = Guid.NewGuid();
+            await Connection.InsertAsync(new DAL.User {Id = userId, LoginId = loginId, FullName = user.FullName }, selectIdentity: true, cancellation);
+
+            return userId;
         }
 
         private SqlExpression<DAL.User> UserQueryBase => Connection
@@ -66,7 +70,7 @@ namespace DAL
             return Mapper.Map<API.User>(user);
         }
 
-        public async Task<API.User> QueryById(long userId, CancellationToken cancellation = default)
+        public async Task<API.User> QueryById(Guid userId, CancellationToken cancellation = default)
         {
             string sql = UserQueryBase
                 .And<DAL.User>(u => u.Id == userId)
@@ -94,7 +98,7 @@ namespace DAL
             return Mapper.Map<API.User>(user);
         }
 
-        public async Task Delete(long userId, CancellationToken cancellation)
+        public async Task Delete(Guid userId, CancellationToken cancellation)
         {
             SqlExpression<DAL.User> userSelector = Connection
                 .From<DAL.User>()
@@ -116,7 +120,7 @@ namespace DAL
             AllEntries = await Connection.CountAsync<DAL.Login>(l => l.Deleted == null, cancellation)
         };
 
-        public async Task<Guid> CreateSession(long userId, CancellationToken cancellation = default)
+        public async Task<Guid> CreateSession(Guid userId, CancellationToken cancellation = default)
         {
             string sql = Connection
                 .From<DAL.UserSession>()

@@ -12,7 +12,7 @@ namespace Modules.API
     public interface IUserManager
     {
         [RequiredRoles(Roles.AuthenticatedUser), Transactional]
-        Task<long> Create([NotNull, ValidateProperties] User user, [NotNull, LengthBetween(min: 5)] string pw);
+        Task<Guid> Create([NotNull, ValidateProperties] User user, [NotNull, LengthBetween(min: 5)] string pw);
 
         [RequiredRoles(Roles.AuthenticatedUser), Transactional(IsolationLevel = IsolationLevel.Serializable)]
         Task<PartialUserList> List(int skip, int count);

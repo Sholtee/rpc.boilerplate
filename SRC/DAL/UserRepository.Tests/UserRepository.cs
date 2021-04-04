@@ -53,14 +53,14 @@ namespace DAL.Tests
         [Test]
         public void Create_ShouldCreateTheAppropriateEntries()
         {
-            long id = 0;
+            Guid id = Guid.Empty;
             Assert.DoesNotThrowAsync(async () => id = await UserRepository.Create(new API.User { FullName = "cica1", EmailOrUserName = "abc@def.hu" }, "mica1"));
-            Assert.That(id, Is.GreaterThan(0));
+            Assert.That(id, Is.Not.EqualTo(Guid.Empty));
 
             DAL.User user = Connection.SingleById<DAL.User>(id);
 
             Assert.That(user.FullName, Is.EqualTo("cica1"));
-            Assert.That(user.LoginId, Is.GreaterThan(0));
+            Assert.That(user.LoginId, Is.Not.EqualTo(Guid.Empty));
 
             DAL.Login login = Connection.SingleById<DAL.Login>(user.LoginId);
 
@@ -99,7 +99,7 @@ namespace DAL.Tests
         [Test]
         public async Task QueryBySession_ShouldReturnTheProperEntry()
         {
-            long id = await UserRepository.Create(new API.User { FullName = "cica1", EmailOrUserName = "abc@def.hu" }, "mica1");
+            Guid id = await UserRepository.Create(new API.User { FullName = "cica1", EmailOrUserName = "abc@def.hu" }, "mica1");
             Guid sessionId = await UserRepository.CreateSession(id);
 
             API.User user = null;
@@ -113,7 +113,7 @@ namespace DAL.Tests
         [Test]
         public async Task QueryBySession_ShouldThrowOnInvalidCredentials()
         {
-            long id = await UserRepository.Create(new API.User { FullName = "cica1", EmailOrUserName = "abc@def.hu" }, "mica1");
+            Guid id = await UserRepository.Create(new API.User { FullName = "cica1", EmailOrUserName = "abc@def.hu" }, "mica1");
             await UserRepository.CreateSession(id);
 
             Assert.ThrowsAsync<InvalidCredentialException>(() => UserRepository.QueryBySession(Guid.NewGuid()));
@@ -122,7 +122,7 @@ namespace DAL.Tests
         [Test]
         public async Task QueryById_ShouldReturnTheProperEntry()
         {
-            long id = await UserRepository.Create(new API.User { FullName = "cica1", EmailOrUserName = "abc@def.hu" }, "mica1");
+            Guid id = await UserRepository.Create(new API.User { FullName = "cica1", EmailOrUserName = "abc@def.hu" }, "mica1");
 
             API.User user = null;
             Assert.DoesNotThrowAsync(async () => user = await UserRepository.QueryById(id));
@@ -135,7 +135,7 @@ namespace DAL.Tests
         [Test]
         public async Task Delete_ShouldNotDeletePhysically()
         {
-            long id = await UserRepository.Create(new API.User { FullName = "cica1", EmailOrUserName = "abc@def.hu" }, "mica1");
+            Guid id = await UserRepository.Create(new API.User { FullName = "cica1", EmailOrUserName = "abc@def.hu" }, "mica1");
 
             Assert.DoesNotThrowAsync(() => UserRepository.Delete(id));
             Assert.ThrowsAsync<InvalidOperationException>(() => UserRepository.QueryById(id));
@@ -149,8 +149,9 @@ namespace DAL.Tests
         [Test]
         public async Task Delete_ShouldDeleteTheLivingSession() 
         {
-            long id = await UserRepository.Create(new API.User { FullName = "cica1", EmailOrUserName = "abc@def.hu" }, "mica1");
-            Guid sessionId = await UserRepository.CreateSession(id);
+            Guid 
+                id = await UserRepository.Create(new API.User { FullName = "cica1", EmailOrUserName = "abc@def.hu" }, "mica1"),
+                sessionId = await UserRepository.CreateSession(id);
 
             Assert.DoesNotThrowAsync(() => UserRepository.QueryBySession(sessionId));
             Assert.DoesNotThrowAsync(() => UserRepository.Delete(id));
@@ -158,7 +159,7 @@ namespace DAL.Tests
         }
 
         [Test]
-        public void Delete_ShouldThrowOnInvalidId() => Assert.ThrowsAsync<InvalidOperationException>(() => UserRepository.Delete(0));
+        public void Delete_ShouldThrowOnInvalidId() => Assert.ThrowsAsync<InvalidOperationException>(() => UserRepository.Delete(Guid.NewGuid()));
 
         [Test]
         public async Task List_ShouldPaging()
@@ -179,7 +180,7 @@ namespace DAL.Tests
         public async Task List_ShouldNotReturnDeletedEntries()
         {
             await UserRepository.Create(new API.User { FullName = "cica1", EmailOrUserName = "abc@def.hu" }, "mica1");
-            long id = await UserRepository.Create(new API.User { FullName = "kutya", EmailOrUserName = "def@def.hu" }, "kutya");
+            Guid id = await UserRepository.Create(new API.User { FullName = "kutya", EmailOrUserName = "def@def.hu" }, "kutya");
 
             await UserRepository.Delete(id);
 
@@ -191,9 +192,10 @@ namespace DAL.Tests
         [Test]
         public async Task CreateSession_ShouldCreateANewSession() 
         {
-            long id = await UserRepository.Create(new API.User { FullName = "cica1", EmailOrUserName = "abc@def.hu" }, "mica1");
+            Guid 
+                id = await UserRepository.Create(new API.User { FullName = "cica1", EmailOrUserName = "abc@def.hu" }, "mica1"),
+                sessionId1 = await UserRepository.CreateSession(id);
 
-            Guid sessionId1 = await UserRepository.CreateSession(id);
             Assert.That(sessionId1, Is.Not.EqualTo(Guid.Empty));
 
             await UserRepository.DeleteSession(sessionId1);
@@ -207,9 +209,10 @@ namespace DAL.Tests
         [Test]
         public async Task CreateSession_ShouldReturnTheLivingSession() 
         {
-            long id = await UserRepository.Create(new API.User { FullName = "cica1", EmailOrUserName = "abc@def.hu" }, "mica1");
+            Guid 
+                id = await UserRepository.Create(new API.User { FullName = "cica1", EmailOrUserName = "abc@def.hu" }, "mica1"),
+                sessionId1 = await UserRepository.CreateSession(id);
 
-            Guid sessionId1 = await UserRepository.CreateSession(id);
             Assert.That(sessionId1, Is.Not.EqualTo(Guid.Empty));
 
             await UserRepository.DeleteSession(sessionId1);

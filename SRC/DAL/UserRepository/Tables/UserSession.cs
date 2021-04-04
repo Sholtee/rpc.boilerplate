@@ -9,11 +9,11 @@ namespace DAL
     [DataTable]
     class UserSession
     {
-        [PrimaryKey, AutoIncrement]
-        public long Id { get; set; }
+        [PrimaryKey, AutoId]
+        public Guid Id { get; set; }
 
         [References(typeof(DAL.User))]
-        public long UserId { get; set; }
+        public Guid UserId { get; set; }
 
         [Index(Unique = true), Required]
         public Guid SessionId { get; set; }
