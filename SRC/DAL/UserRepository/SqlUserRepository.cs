@@ -86,14 +86,14 @@ namespace DAL
         public async Task<API.User> QueryBySession(Guid sessionId, CancellationToken cancellation)
         {
             string sql = UserQueryBase
-                .Join<DAL.User, DAL.UserSession>((u, s) => u.Id == s.UserId && s.SessionId == sessionId && s.ExpiredUtc > DateTime.UtcNow)
+                .Join<DAL.User, DAL.UserSession>((u, s) => u.Id == s.UserId && s.Id == sessionId && s.ExpiredUtc > DateTime.UtcNow)
                 .ToMergedParamsSelectStatement();
 
             UserView? user = await Connection.QuerySingleOrDefaultAsync<UserView?>(sql, cancellation);
             if (user is null)
                 throw new InvalidCredentialException(Resources.INVALID_CREDENTIALS);
 
-            await Connection.UpdateOnlyAsync<DAL.UserSession>(new Dictionary<string, object> { [nameof(DAL.UserSession.ExpiredUtc)] = DateTime.UtcNow.AddMinutes(Config.Server.SessionTimeoutInMinutes) }, where: s => s.SessionId == sessionId, token: cancellation);
+            await Connection.UpdateOnlyAsync<DAL.UserSession>(new Dictionary<string, object> { [nameof(DAL.UserSession.ExpiredUtc)] = DateTime.UtcNow.AddMinutes(Config.Server.SessionTimeoutInMinutes) }, where: s => s.Id == sessionId, token: cancellation);
 
             return Mapper.Map<API.User>(user);
         }
@@ -138,16 +138,15 @@ namespace DAL
                 {
                     CreatedUtc = DateTime.UtcNow,
                     UserId     = userId,
-                    ExpiredUtc = DateTime.UtcNow.AddMinutes(Config.Server.SessionTimeoutInMinutes),
-                    SessionId  = Guid.NewGuid()
+                    ExpiredUtc = DateTime.UtcNow.AddMinutes(Config.Server.SessionTimeoutInMinutes)
                 };
                 await Connection.InsertAsync(session, token: cancellation);
             }
 
-            return session.SessionId;
+            return session.Id;
         }
 
         public async Task DeleteSession(Guid sessionId, CancellationToken cancellation = default) =>
-            await Connection.UpdateOnlyAsync<DAL.UserSession>(new Dictionary<string, object> { [nameof(DAL.UserSession.ExpiredUtc)] = DateTime.UtcNow }, where: s => s.SessionId == sessionId && s.ExpiredUtc > DateTime.UtcNow, token: cancellation);
+            await Connection.UpdateOnlyAsync<DAL.UserSession>(new Dictionary<string, object> { [nameof(DAL.UserSession.ExpiredUtc)] = DateTime.UtcNow }, where: s => s.Id == sessionId && s.ExpiredUtc > DateTime.UtcNow, token: cancellation);
     }
 }

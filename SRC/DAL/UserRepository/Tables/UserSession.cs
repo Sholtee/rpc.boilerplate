@@ -15,9 +15,6 @@ namespace DAL
         [References(typeof(DAL.User))]
         public Guid UserId { get; set; }
 
-        [Index(Unique = true), Required]
-        public Guid SessionId { get; set; }
-
         [Required]
         public DateTime CreatedUtc { get; set; }
 
