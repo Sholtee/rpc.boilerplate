@@ -59,14 +59,5 @@ namespace Services.Properties {
                 resourceCulture = value;
             }
         }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Invalid session..
-        /// </summary>
-        internal static string INVALID_SESSION {
-            get {
-                return ResourceManager.GetString("INVALID_SESSION", resourceCulture);
-            }
-        }
     }
 }

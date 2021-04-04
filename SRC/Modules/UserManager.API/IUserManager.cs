@@ -21,6 +21,6 @@ namespace Modules.API
         Task<Guid> Login([NotNull, LengthBetween(min: 5)] string emailOrUserName, [NotNull, LengthBetween(min: 5)] string pw);
 
         [RequiredRoles(Roles.AuthenticatedUser)]
-        void Logout();
+        Task Logout();
     }
 }

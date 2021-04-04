@@ -1,4 +1,6 @@
-﻿using System.Security.Authentication;
+﻿using System;
+using System.Security.Authentication;
+using System.Threading.Tasks;
 
 using Moq;
 using NUnit.Framework;
@@ -14,42 +16,42 @@ namespace Services.Tests
         [Test]
         public void GetAssignedRoles_ShouldHandleMissingSessionId() 
         {
-            var mockCache = new Mock<ICache>(MockBehavior.Strict);
+            var mockRepo = new Mock<IUserRepository>(MockBehavior.Strict);
 
-            var roleManager = new RoleManager(mockCache.Object);
+            var roleManager = new RoleManager(new Lazy<IUserRepository>(() => mockRepo.Object));
             Assert.That(roleManager.GetAssignedRoles(null), Is.EqualTo(Roles.AnonymousUser));
         }
 
         [Test]
         public void GetAssignedRoles_ShouldThrowOnInvalidSessionId()
         {
-            User user;
+            Guid invalid = Guid.NewGuid();
 
-            var mockCache = new Mock<ICache>(MockBehavior.Strict);
-            mockCache
-                .Setup(c => c.TryGetValue("invalid", out user))
-                .Returns(false);
+            var mockRepo = new Mock<IUserRepository>(MockBehavior.Strict);
+            mockRepo
+                .Setup(r => r.QueryBySession(invalid, default))
+                .Returns(Task.FromException<DAL.API.User>(new InvalidCredentialException()));
 
-            var roleManager = new RoleManager(mockCache.Object);
-            Assert.Throws<InvalidCredentialException>(() => roleManager.GetAssignedRoles("invalid"));
+            var roleManager = new RoleManager(new Lazy<IUserRepository>(() => mockRepo.Object));
+            Assert.Throws<InvalidCredentialException>(() => roleManager.GetAssignedRoles(invalid.ToString()));
 
-            mockCache.Verify(c => c.TryGetValue("invalid", out user), Times.Once);
+            mockRepo.Verify(r => r.QueryBySession(invalid, default), Times.Once);
         }
 
         [Test]
         public void GetAssignedRoles_ShouldHandleValidSessionId()
         {
-            User user;
+            Guid session = Guid.NewGuid();
 
-            var mockCache = new Mock<ICache>(MockBehavior.Strict);
-            mockCache
-                .Setup(c => c.TryGetValue("valid", out user))
-                .Returns(true);
+            var mockRepo = new Mock<IUserRepository>(MockBehavior.Strict);
+            mockRepo
+                .Setup(r => r.QueryBySession(session, default))
+                .Returns(Task.FromResult(new DAL.API.User()));
 
-            var roleManager = new RoleManager(mockCache.Object);
-            Assert.That(roleManager.GetAssignedRoles("valid"), Is.EqualTo(Roles.AuthenticatedUser));
+            var roleManager = new RoleManager(new Lazy<IUserRepository>(() => mockRepo.Object));
+            Assert.That(roleManager.GetAssignedRoles(session.ToString()), Is.EqualTo(Roles.AuthenticatedUser));
 
-            mockCache.Verify(c => c.TryGetValue("valid", out user), Times.Once);
+            mockRepo.Verify(r => r.QueryBySession(session, default), Times.Once);
         }
     }
 }

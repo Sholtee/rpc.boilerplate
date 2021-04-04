@@ -9,8 +9,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\DAL\UserRepository.API\UserRepository.API.csproj" />
-    <ProjectReference Include="..\..\Services\Cache.API\Cache.API.csproj" />
-    <ProjectReference Include="..\..\Services\Config.API\Config.API.csproj" />
     <ProjectReference Include="..\UserManager.API\UserManager.API.csproj" />
   </ItemGroup>
 
