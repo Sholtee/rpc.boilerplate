@@ -97,6 +97,29 @@ namespace DAL.Tests
         }
 
         [Test]
+        public async Task QueryBySession_ShouldReturnTheProperEntry()
+        {
+            long id = await UserRepository.Create(new API.User { FullName = "cica1", EmailOrUserName = "abc@def.hu" }, "mica1");
+            Guid sessionId = await UserRepository.CreateSession(id);
+
+            API.User user = null;
+            Assert.DoesNotThrowAsync(async () => user = await UserRepository.QueryBySession(sessionId));
+
+            Assert.That(user, Is.Not.Null);
+            Assert.That(user.EmailOrUserName, Is.EqualTo("abc@def.hu"));
+            Assert.That(user.FullName, Is.EqualTo("cica1"));
+        }
+
+        [Test]
+        public async Task QueryBySession_ShouldThrowOnInvalidCredentials()
+        {
+            long id = await UserRepository.Create(new API.User { FullName = "cica1", EmailOrUserName = "abc@def.hu" }, "mica1");
+            await UserRepository.CreateSession(id);
+
+            Assert.ThrowsAsync<InvalidCredentialException>(() => UserRepository.QueryBySession(Guid.NewGuid()));
+        }
+
+        [Test]
         public async Task QueryById_ShouldReturnTheProperEntry()
         {
             long id = await UserRepository.Create(new API.User { FullName = "cica1", EmailOrUserName = "abc@def.hu" }, "mica1");
@@ -114,13 +137,24 @@ namespace DAL.Tests
         {
             long id = await UserRepository.Create(new API.User { FullName = "cica1", EmailOrUserName = "abc@def.hu" }, "mica1");
 
-            Assert.DoesNotThrow(() => UserRepository.Delete(id));
+            Assert.DoesNotThrowAsync(() => UserRepository.Delete(id));
             Assert.ThrowsAsync<InvalidOperationException>(() => UserRepository.QueryById(id));
 
             DAL.User user = Connection.SingleById<DAL.User>(id);
             DAL.Login login = Connection.SingleById<DAL.Login>(user.LoginId);
 
             Assert.That(login.Deleted, Is.Not.Null);
+        }
+
+        [Test]
+        public async Task Delete_ShouldDeleteTheLivingSession() 
+        {
+            long id = await UserRepository.Create(new API.User { FullName = "cica1", EmailOrUserName = "abc@def.hu" }, "mica1");
+            Guid sessionId = await UserRepository.CreateSession(id);
+
+            Assert.DoesNotThrowAsync(() => UserRepository.QueryBySession(sessionId));
+            Assert.DoesNotThrowAsync(() => UserRepository.Delete(id));
+            Assert.ThrowsAsync<InvalidCredentialException>(() => UserRepository.QueryBySession(sessionId));
         }
 
         [Test]
@@ -152,6 +186,37 @@ namespace DAL.Tests
             PartialUserList lst = await UserRepository.List(0, int.MaxValue);
             Assert.That(lst.AllEntries, Is.EqualTo(1));
             Assert.That(lst.Entries.Single().EmailOrUserName, Is.EqualTo("abc@def.hu"));
+        }
+
+        [Test]
+        public async Task CreateSession_ShouldCreateANewSession() 
+        {
+            long id = await UserRepository.Create(new API.User { FullName = "cica1", EmailOrUserName = "abc@def.hu" }, "mica1");
+
+            Guid sessionId1 = await UserRepository.CreateSession(id);
+            Assert.That(sessionId1, Is.Not.EqualTo(Guid.Empty));
+
+            await UserRepository.DeleteSession(sessionId1);
+            await Task.Delay(1000);
+
+            Guid sessionId2 = await UserRepository.CreateSession(id);
+            Assert.That(sessionId2, Is.Not.EqualTo(Guid.Empty));
+            Assert.AreNotEqual(sessionId1, sessionId2);
+        }
+
+        [Test]
+        public async Task CreateSession_ShouldReturnTheLivingSession() 
+        {
+            long id = await UserRepository.Create(new API.User { FullName = "cica1", EmailOrUserName = "abc@def.hu" }, "mica1");
+
+            Guid sessionId1 = await UserRepository.CreateSession(id);
+            Assert.That(sessionId1, Is.Not.EqualTo(Guid.Empty));
+
+            await UserRepository.DeleteSession(sessionId1);
+            await Task.Delay(1000);
+
+            Guid sessionId2 = await UserRepository.CreateSession(id);
+            Assert.AreEqual(sessionId2, await UserRepository.CreateSession(id));
         }
     }
 }
