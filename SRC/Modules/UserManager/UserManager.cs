@@ -49,7 +49,7 @@ namespace Modules
 
         public async Task<API.PartialUserList> List(int skip, int count) => Mapper.Map<API.PartialUserList>
         (
-            await UserRepository.List(skip, count)
+            await UserRepository.List(skip, count, RequestContext.Cancellation)
         );
 
         public Task Delete(Guid userId) => UserRepository.Delete(userId, RequestContext.Cancellation);
@@ -58,7 +58,7 @@ namespace Modules
         {
             DAL.API.User user = await UserRepository.QueryBySession(Guid.Parse(RequestContext.SessionId!), RequestContext.Cancellation);
 
-            await UserRepository.Delete(user.Id!.Value);
+            await UserRepository.Delete(user.Id!.Value, RequestContext.Cancellation);
         }
     }
 }
