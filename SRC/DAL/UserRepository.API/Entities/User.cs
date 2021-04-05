@@ -4,6 +4,8 @@ using Solti.Utils.Rpc.Interfaces;
 
 namespace DAL.API
 {
+    using Services.API;
+
     public class User
     {
         public Guid? Id { get; set; }
@@ -13,5 +15,6 @@ namespace DAL.API
         [NotNull, LengthBetween(min: 5)]
         public string FullName { get; set; }
         #pragma warning restore CS8618
+        public Roles Roles { get; set; }
     }
 }

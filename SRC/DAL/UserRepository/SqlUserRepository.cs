@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq.Expressions;
 using System.Security.Authentication;
 using System.Threading;
 using System.Threading.Tasks;
@@ -63,10 +64,35 @@ namespace DAL
             return userEntry.Id;
         }
 
-        private SqlExpression<DAL.User> UserQueryBase => Connection
-            .From<DAL.User>()
-            .Join<DAL.User, DAL.Login>((u, l) => u.LoginId == l.Id && l.Deleted == null)
-            .Select<DAL.Login, DAL.User>((l, u) => new { l.EmailOrUserName, l.PasswordHash, u.Id, u.FullName });
+        private SqlExpression<DAL.User> UserQueryBase
+        {
+            get
+            {
+                string roleQuery = Connection
+                    .From<DAL.Group>()
+                    .Select($"BIT_OR({GetFieldName<DAL.Group>(grp => grp.Roles)})")
+                    .Join<DAL.Group, DAL.UserGroup>((g, ug) => g.Id == ug.GroupId)
+                    .Join<DAL.UserGroup, DAL.User>((ug, u) => ug.UserId == u.Id)
+                    .ToMergedParamsSelectStatement();
+
+                return Connection
+                    .From<DAL.User>()
+                    .Join<DAL.User, DAL.Login>((u, l) => u.LoginId == l.Id && l.Deleted == null)
+                    .Select<DAL.Login, DAL.User>((l, u) => new
+                    {
+                        l.EmailOrUserName,
+                        l.PasswordHash,
+                        u.Id,
+                        u.FullName,
+                        Roles = Sql.Custom<Roles>($"({roleQuery})")
+                    });
+
+                static string GetFieldName<TTable>(Expression<Func<TTable, object>> selector) => typeof(TTable)
+                    .GetModelMetadata()
+                    .GetFieldDefinition(selector)
+                    .FieldName;
+            }
+        }
 
         public async Task<API.User> QueryByCredentials(string emailOrUserName, string password, CancellationToken cancellation)
         {
@@ -97,14 +123,14 @@ namespace DAL
         public async Task<API.User> QueryBySession(Guid sessionId, CancellationToken cancellation)
         {
             string sql = UserQueryBase
-                .Join<DAL.User, DAL.UserSession>((u, s) => u.Id == s.UserId && s.Id == sessionId && s.ExpiredUtc > DateTime.UtcNow)
+                .Join<DAL.User, DAL.Session>((u, s) => u.Id == s.UserId && s.Id == sessionId && s.ExpiredUtc > DateTime.UtcNow)
                 .ToMergedParamsSelectStatement();
 
             UserView? user = await Connection.QuerySingleOrDefaultAsync<UserView?>(sql, cancellation);
             if (user is null)
                 throw new InvalidCredentialException(Resources.INVALID_CREDENTIALS);
 
-            await Connection.UpdateOnlyAsync<DAL.UserSession>(new Dictionary<string, object> { [nameof(DAL.UserSession.ExpiredUtc)] = DateTime.UtcNow.AddMinutes(Config.Server.SessionTimeoutInMinutes) }, where: s => s.Id == sessionId, token: cancellation);
+            await Connection.UpdateOnlyAsync<DAL.Session>(new Dictionary<string, object> { [nameof(DAL.Session.ExpiredUtc)] = DateTime.UtcNow.AddMinutes(Config.Server.SessionTimeoutInMinutes) }, where: s => s.Id == sessionId, token: cancellation);
 
             return Mapper.Map<API.User>(user);
         }
@@ -119,7 +145,7 @@ namespace DAL
             if (await Connection.UpdateOnlyAsync<DAL.Login>(new Dictionary<string, object> { [nameof(DAL.Login.Deleted)] = DateTime.UtcNow }, where: l => Sql.In(l.Id, userSelector), token: cancellation) == 0)
                 throw new InvalidOperationException(Resources.ENTRY_NOT_FOUND);
 
-            await Connection.UpdateOnlyAsync<DAL.UserSession>(new Dictionary<string, object> { [nameof(DAL.UserSession.ExpiredUtc)] = DateTime.UtcNow }, where: s => s.UserId == userId && s.ExpiredUtc > DateTime.UtcNow, token: cancellation);
+            await Connection.UpdateOnlyAsync<DAL.Session>(new Dictionary<string, object> { [nameof(DAL.Session.ExpiredUtc)] = DateTime.UtcNow }, where: s => s.UserId == userId && s.ExpiredUtc > DateTime.UtcNow, token: cancellation);
         }
 
         public async Task<PartialUserList> List(int skip, int count, CancellationToken cancellation) => new PartialUserList
@@ -134,17 +160,17 @@ namespace DAL
         public async Task<Guid> CreateSession(Guid userId, CancellationToken cancellation = default)
         {
             string sql = Connection
-                .From<DAL.UserSession>()
+                .From<DAL.Session>()
                 .Select()
                 .Where(s => s.UserId == userId && s.ExpiredUtc > DateTime.UtcNow)
                 .ToMergedParamsSelectStatement();
 
-            DAL.UserSession? sessionEntry = await Connection.QuerySingleOrDefaultAsync<DAL.UserSession?>(sql, cancellation);
+            DAL.Session? sessionEntry = await Connection.QuerySingleOrDefaultAsync<DAL.Session?>(sql, cancellation);
             if (sessionEntry is not null)
-                await Connection.UpdateOnlyAsync<DAL.UserSession>(new Dictionary<string, object> { [nameof(DAL.UserSession.ExpiredUtc)] = DateTime.UtcNow.AddMinutes(Config.Server.SessionTimeoutInMinutes) }, where: s => s.Id == sessionEntry.Id, token: cancellation);
+                await Connection.UpdateOnlyAsync<DAL.Session>(new Dictionary<string, object> { [nameof(DAL.Session.ExpiredUtc)] = DateTime.UtcNow.AddMinutes(Config.Server.SessionTimeoutInMinutes) }, where: s => s.Id == sessionEntry.Id, token: cancellation);
             else
             {
-                sessionEntry = new UserSession
+                sessionEntry = new Session
                 {
                     CreatedUtc = DateTime.UtcNow,
                     UserId     = userId,
@@ -158,6 +184,6 @@ namespace DAL
         }
 
         public async Task DeleteSession(Guid sessionId, CancellationToken cancellation = default) =>
-            await Connection.UpdateOnlyAsync<DAL.UserSession>(new Dictionary<string, object> { [nameof(DAL.UserSession.ExpiredUtc)] = DateTime.UtcNow }, where: s => s.Id == sessionId && s.ExpiredUtc > DateTime.UtcNow, token: cancellation);
+            await Connection.UpdateOnlyAsync<DAL.Session>(new Dictionary<string, object> { [nameof(DAL.Session.ExpiredUtc)] = DateTime.UtcNow }, where: s => s.Id == sessionId && s.ExpiredUtc > DateTime.UtcNow, token: cancellation);
     }
 }

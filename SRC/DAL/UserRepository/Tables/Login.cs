@@ -13,7 +13,7 @@ namespace DAL
         public Guid Id { get; set; }
 
         #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-        [Required, Index]
+        [Required, Index, StringLength(minimumLength: 5, maximumLength: int.MaxValue)]
         public string EmailOrUserName { get; set; }
 
         [Required]

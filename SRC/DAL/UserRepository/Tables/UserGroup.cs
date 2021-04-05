@@ -7,18 +7,15 @@ namespace DAL
     using Services.API;
 
     [DataTable]
-    class UserSession
+    public class UserGroup 
     {
         [PrimaryKey, AutoId]
         public Guid Id { get; set; }
 
-        [References(typeof(DAL.User))]
+        [References(typeof(User))]
         public Guid UserId { get; set; }
 
-        [Required]
-        public DateTime CreatedUtc { get; set; }
-
-        [Required]
-        public DateTime ExpiredUtc { get; set; }
+        [References(typeof(Group))]
+        public Guid GroupId { get; set; }
     }
 }
