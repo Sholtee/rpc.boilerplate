@@ -20,6 +20,6 @@ namespace DAL
         public string PasswordHash { get; set; }
         #pragma warning restore CS8618
 
-        public DateTime? Deleted { get; set; }
+        public DateTime? DeletedUtc { get; set; }
     }
 }

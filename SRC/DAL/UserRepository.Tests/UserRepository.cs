@@ -143,7 +143,7 @@ namespace DAL.Tests
             DAL.User user = Connection.SingleById<DAL.User>(id);
             DAL.Login login = Connection.SingleById<DAL.Login>(user.LoginId);
 
-            Assert.That(login.Deleted, Is.Not.Null);
+            Assert.That(login.DeletedUtc, Is.Not.Null);
         }
 
         [Test]

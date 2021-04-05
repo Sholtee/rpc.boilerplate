@@ -42,7 +42,7 @@ namespace DAL
         [SuppressMessage("Design", "CA1062:Validate arguments of public methods", Justification = "Parameters are validated by aspects")]
         public async Task<Guid> Create(API.User user, string password, CancellationToken cancellation)
         {
-            if (await Connection.ExistsAsync<DAL.Login>(l => l.EmailOrUserName == user.EmailOrUserName && l.Deleted == null, cancellation))
+            if (await Connection.ExistsAsync<DAL.Login>(l => l.EmailOrUserName == user.EmailOrUserName && l.DeletedUtc == null, cancellation))
                 throw new InvalidOperationException(Resources.USER_ALREADY_EXISTS);
 
             var loginEntry = new DAL.Login
@@ -77,7 +77,7 @@ namespace DAL
 
                 return Connection
                     .From<DAL.User>()
-                    .Join<DAL.User, DAL.Login>((u, l) => u.LoginId == l.Id && l.Deleted == null)
+                    .Join<DAL.User, DAL.Login>((u, l) => u.LoginId == l.Id && l.DeletedUtc == null)
                     .Select<DAL.Login, DAL.User>((l, u) => new
                     {
                         l.EmailOrUserName,
@@ -142,7 +142,7 @@ namespace DAL
                 .Select(u => u.LoginId)
                 .Where(u => u.Id == userId);
 
-            if (await Connection.UpdateOnlyAsync<DAL.Login>(new Dictionary<string, object> { [nameof(DAL.Login.Deleted)] = DateTime.UtcNow }, where: l => Sql.In(l.Id, userSelector), token: cancellation) == 0)
+            if (await Connection.UpdateOnlyAsync<DAL.Login>(new Dictionary<string, object> { [nameof(DAL.Login.DeletedUtc)] = DateTime.UtcNow }, where: l => Sql.In(l.Id, userSelector), token: cancellation) == 0)
                 throw new InvalidOperationException(Resources.ENTRY_NOT_FOUND);
 
             await Connection.UpdateOnlyAsync<DAL.Session>(new Dictionary<string, object> { [nameof(DAL.Session.ExpiredUtc)] = DateTime.UtcNow }, where: s => s.UserId == userId && s.ExpiredUtc > DateTime.UtcNow, token: cancellation);
@@ -154,7 +154,7 @@ namespace DAL
                 .OrderBy<DAL.Login>(l => l.EmailOrUserName)
                 .Limit(skip, count)
                 .ToMergedParamsSelectStatement(), cancellation),
-            AllEntries = await Connection.CountAsync<DAL.Login>(l => l.Deleted == null, cancellation)
+            AllEntries = await Connection.CountAsync<DAL.Login>(l => l.DeletedUtc == null, cancellation)
         };
 
         public async Task<Guid> CreateSession(Guid userId, CancellationToken cancellation = default)
@@ -170,7 +170,7 @@ namespace DAL
                 await Connection.UpdateOnlyAsync<DAL.Session>(new Dictionary<string, object> { [nameof(DAL.Session.ExpiredUtc)] = DateTime.UtcNow.AddMinutes(Config.Server.SessionTimeoutInMinutes) }, where: s => s.Id == sessionEntry.Id, token: cancellation);
             else
             {
-                sessionEntry = new Session
+                sessionEntry = new DAL.Session
                 {
                     CreatedUtc = DateTime.UtcNow,
                     UserId     = userId,
