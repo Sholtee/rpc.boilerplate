@@ -51,5 +51,14 @@ namespace Modules
         (
             await UserRepository.List(skip, count)
         );
+
+        public Task Delete(Guid userId) => UserRepository.Delete(userId, RequestContext.Cancellation);
+
+        public async Task DeleteCurrent()
+        {
+            DAL.API.User user = await UserRepository.QueryBySession(Guid.Parse(RequestContext.SessionId!), RequestContext.Cancellation);
+
+            await UserRepository.Delete(user.Id!.Value);
+        }
     }
 }

@@ -110,5 +110,56 @@ namespace Modules.Tests
             Assert.DoesNotThrowAsync(() => userManager.Logout());
             mockRepo.Verify(r => r.DeleteSession(sessionId, default), Times.Once);
         }
+
+        [Test]
+        public void Delete_ShouldDeleteTheUser() 
+        {
+            Guid userId = Guid.NewGuid();
+
+            var mockContext = new Mock<IRequestContext>(MockBehavior.Strict);
+            mockContext
+                .Setup(ctx => ctx.Cancellation)
+                .Returns(() => default);
+
+            var mockRepo = new Mock<IUserRepository>(MockBehavior.Strict);
+            mockRepo
+                .Setup(r => r.Delete(userId, default))
+                .Returns(Task.CompletedTask);
+
+            var userManager = new UserManager(new Lazy<IUserRepository>(() => mockRepo.Object), mockContext.Object);
+
+            Assert.DoesNotThrowAsync(() => userManager.Delete(userId));
+            mockRepo.Verify(r => r.Delete(userId, default), Times.Once);
+        }
+
+        [Test]
+        public void DeleteCurrent_ShouldDeleteTheCurrentUser() 
+        {
+            Guid 
+                userId = Guid.NewGuid(),
+                sessionId = Guid.NewGuid();
+
+            var mockContext = new Mock<IRequestContext>(MockBehavior.Strict);
+            mockContext
+                .Setup(ctx => ctx.SessionId)
+                .Returns(sessionId.ToString());
+            mockContext
+                .Setup(ctx => ctx.Cancellation)
+                .Returns(() => default);
+
+            var mockRepo = new Mock<IUserRepository>(MockBehavior.Strict);
+            mockRepo
+                .Setup(r => r.QueryBySession(sessionId, default))
+                .Returns(Task.FromResult(new DAL.API.User { Id = userId }));
+            mockRepo
+                .Setup(r => r.Delete(userId, default))
+                .Returns(Task.CompletedTask);
+
+            var userManager = new UserManager(new Lazy<IUserRepository>(() => mockRepo.Object), mockContext.Object);
+
+            Assert.DoesNotThrowAsync(() => userManager.DeleteCurrent());
+            mockRepo.Verify(r => r.QueryBySession(sessionId, default), Times.Once);
+            mockRepo.Verify(r => r.Delete(userId, default), Times.Once);
+        }
     }
 }

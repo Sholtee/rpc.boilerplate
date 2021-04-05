@@ -14,6 +14,12 @@ namespace Modules.API
         [RequiredRoles(Roles.AuthenticatedUser), Transactional]
         Task<Guid> Create([NotNull, ValidateProperties] User user, [NotNull, LengthBetween(min: 5)] string pw);
 
+        [RequiredRoles(Roles.AuthenticatedUser), Transactional]
+        Task Delete(Guid userId);
+
+        [RequiredRoles(Roles.AuthenticatedUser), Transactional]
+        Task DeleteCurrent();
+
         [RequiredRoles(Roles.AuthenticatedUser), Transactional(IsolationLevel = IsolationLevel.Serializable)]
         Task<PartialUserList> List(int skip, int count);
 
