@@ -123,6 +123,9 @@
   <data name="INVALID_CREDENTIALS" xml:space="preserve">
     <value>The login id or password is incorrect.</value>
   </data>
+  <data name="INVALID_GROUP" xml:space="preserve">
+    <value>One or more group names are invalid.</value>
+  </data>
   <data name="USER_ALREADY_EXISTS" xml:space="preserve">
     <value>The given login id is already in use.</value>
   </data>

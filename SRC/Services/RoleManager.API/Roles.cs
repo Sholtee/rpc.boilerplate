@@ -8,6 +8,7 @@ namespace Services.API
     public enum Roles
     {
         AnonymousUser = 0,
-        AuthenticatedUser
+        AuthenticatedUser,
+        Admin
     }
 }

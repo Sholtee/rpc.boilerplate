@@ -30,7 +30,7 @@ namespace Services.Tests
             var mockRepo = new Mock<IUserRepository>(MockBehavior.Strict);
             mockRepo
                 .Setup(r => r.QueryBySession(invalid, default))
-                .Returns(Task.FromException<DAL.API.User>(new InvalidCredentialException()));
+                .Returns(Task.FromException<DAL.API.UserEx>(new InvalidCredentialException()));
 
             var roleManager = new RoleManager(new Lazy<IUserRepository>(() => mockRepo.Object));
             Assert.Throws<InvalidCredentialException>(() => roleManager.GetAssignedRoles(invalid.ToString()));
@@ -46,10 +46,10 @@ namespace Services.Tests
             var mockRepo = new Mock<IUserRepository>(MockBehavior.Strict);
             mockRepo
                 .Setup(r => r.QueryBySession(session, default))
-                .Returns(Task.FromResult(new DAL.API.User()));
+                .Returns(Task.FromResult(new DAL.API.UserEx { Roles = Roles.Admin }));
 
             var roleManager = new RoleManager(new Lazy<IUserRepository>(() => mockRepo.Object));
-            Assert.That(roleManager.GetAssignedRoles(session.ToString()), Is.EqualTo(Roles.AuthenticatedUser));
+            Assert.That(roleManager.GetAssignedRoles(session.ToString()), Is.EqualTo(Roles.Admin | Roles.AuthenticatedUser));
 
             mockRepo.Verify(r => r.QueryBySession(session, default), Times.Once);
         }

@@ -11,6 +11,7 @@
     <PackageReference Include="AutoMapper" Version="10.*" />
     <PackageReference Include="BCrypt.Net-Next" Version="4.*" />
     <PackageReference Include="ServiceStack.OrmLite.Core" Version="5.*" />
+    <PackageReference Include="Solti.Utils.OrmLite.Extensions" Version="2.*" />
   </ItemGroup>
   
   <ItemGroup>

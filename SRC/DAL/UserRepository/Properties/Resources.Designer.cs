@@ -79,6 +79,15 @@ namespace DAL.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to One or more group names are invalid..
+        /// </summary>
+        internal static string INVALID_GROUP {
+            get {
+                return ResourceManager.GetString("INVALID_GROUP", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The given login id is already in use..
         /// </summary>
         internal static string USER_ALREADY_EXISTS {

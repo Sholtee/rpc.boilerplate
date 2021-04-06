@@ -20,7 +20,7 @@ namespace Modules.Tests
         {
             var mockRepo = new Mock<IUserRepository>(MockBehavior.Strict);
             mockRepo
-                .Setup(r => r.Create(It.Is<DAL.API.User>(u => u.EmailOrUserName == "cica@mica.hu" && u.FullName == "cica"), "kutya", default))
+                .Setup(r => r.Create(It.Is<DAL.API.User>(u => u.EmailOrUserName == "cica@mica.hu" && u.FullName == "cica"), "kutya", Array.Empty<string>(), default))
                 .Returns(Task.FromResult(Guid.NewGuid()));
 
             var mockContext = new Mock<IRequestContext>(MockBehavior.Strict);
@@ -31,7 +31,7 @@ namespace Modules.Tests
             var userManager = new UserManager(new Lazy<IUserRepository>(() => mockRepo.Object), mockContext.Object);
 
             Assert.DoesNotThrowAsync(() => userManager.Create(new API.User { FullName = "cica", EmailOrUserName = "cica@mica.hu" }, "kutya"));
-            mockRepo.Verify(r => r.Create(It.IsAny<DAL.API.User>(), "kutya", default), Times.Once);
+            mockRepo.Verify(r => r.Create(It.IsAny<DAL.API.User>(), "kutya", Array.Empty<string>(), default), Times.Once);
             mockContext.VerifyGet(c => c.Cancellation, Times.Once);
         }
 
@@ -57,7 +57,7 @@ namespace Modules.Tests
         [Test]
         public void Login_ShouldCreateANewSession()
         {
-            var user = new DAL.API.User
+            var user = new DAL.API.UserEx
             {
                 Id = Guid.NewGuid(),
                 EmailOrUserName = "cica"
@@ -68,7 +68,7 @@ namespace Modules.Tests
                 .Setup(r => r.QueryByCredentials("cica", "kutya", default))
                 .Returns(Task.FromResult(user));
             mockRepo
-                .Setup(r => r.CreateSession(user.Id.Value, default))
+                .Setup(r => r.CreateSession(user.Id, default))
                 .Returns(() => Task.FromResult(Guid.NewGuid()));
 
             var mockContext = new Mock<IRequestContext>(MockBehavior.Strict);
@@ -83,7 +83,7 @@ namespace Modules.Tests
             Assert.That(sessionId, Is.Not.EqualTo(Guid.Empty));
 
             mockRepo.Verify(r => r.QueryByCredentials("cica", "kutya", default), Times.Once);
-            mockRepo.Verify(r => r.CreateSession(user.Id.Value, default), Times.Once);
+            mockRepo.Verify(r => r.CreateSession(user.Id, default), Times.Once);
             mockContext.VerifyGet(c => c.Cancellation, Times.AtLeastOnce);
         }
 
@@ -150,7 +150,7 @@ namespace Modules.Tests
             var mockRepo = new Mock<IUserRepository>(MockBehavior.Strict);
             mockRepo
                 .Setup(r => r.QueryBySession(sessionId, default))
-                .Returns(Task.FromResult(new DAL.API.User { Id = userId }));
+                .Returns(Task.FromResult(new DAL.API.UserEx { Id = userId }));
             mockRepo
                 .Setup(r => r.Delete(userId, default))
                 .Returns(Task.CompletedTask);

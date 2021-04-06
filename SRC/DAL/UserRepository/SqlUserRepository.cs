@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Security.Authentication;
 using System.Threading;
@@ -12,6 +13,8 @@ using AutoMapper;
 
 using ServiceStack.OrmLite;
 using ServiceStack.OrmLite.Dapper;
+
+using Solti.Utils.OrmLite.Extensions;
 
 using static BCrypt.Net.BCrypt;
 
@@ -40,28 +43,54 @@ namespace DAL
         }
 
         [SuppressMessage("Design", "CA1062:Validate arguments of public methods", Justification = "Parameters are validated by aspects")]
-        public async Task<Guid> Create(API.User user, string password, CancellationToken cancellation)
+        public async Task<Guid> Create(API.User user, string password, string[] groups, CancellationToken cancellation)
         {
             if (await Connection.ExistsAsync<DAL.Login>(l => l.EmailOrUserName == user.EmailOrUserName && l.DeletedUtc == null, cancellation))
                 throw new InvalidOperationException(Resources.USER_ALREADY_EXISTS);
 
-            var loginEntry = new DAL.Login
-            {
-                EmailOrUserName = user.EmailOrUserName,
-                PasswordHash = HashPassword(password, GenerateSalt())
-            };
-            await Connection.InsertAsync(loginEntry, token: cancellation);
-            Debug.Assert(loginEntry.Id != Guid.Empty);
+            Guid[] groupIds = (await Connection.SelectAsync<DAL.Group>(grp => Sql.In(grp.Name, groups.Distinct()), cancellation))
+                .Select(grp => grp.Id)
+                .ToArray();
+            if (groupIds.Length != groups.Length)
+                throw new InvalidOperationException(Resources.INVALID_GROUP);
 
-            var userEntry = new DAL.User 
+            using (IBulkedDbConnection bulk = Connection.CreateBulkedDbConnection())
             {
-                LoginId = loginEntry.Id, 
-                FullName = user.FullName 
-            };
-            await Connection.InsertAsync(userEntry, selectIdentity: true, cancellation);
-            Debug.Assert(userEntry.Id != Guid.Empty);
+                var loginEntry = new DAL.Login
+                {
+                    EmailOrUserName = user.EmailOrUserName,
+                    PasswordHash = HashPassword(password, GenerateSalt())
+                };
+                bulk.Insert(loginEntry);
+                Debug.Assert(loginEntry.Id != Guid.Empty);
 
-            return userEntry.Id;
+                var userEntry = new DAL.User
+                {
+                    LoginId = loginEntry.Id,
+                    FullName = user.FullName
+                };
+                bulk.Insert(userEntry);
+                Debug.Assert(userEntry.Id != Guid.Empty);
+
+                //
+                // Don't use InsertAll() since it gives the same Id for each entry
+                //
+
+                foreach (Guid groupId in groupIds)
+                {
+                    var ug = new DAL.UserGroup
+                    {
+                        GroupId = groupId,
+                        UserId = userEntry.Id
+                    };
+                    bulk.Insert(ug);
+                    Debug.Assert(ug.Id != Guid.Empty);
+                }
+
+                await bulk.FlushAsync(cancellation);
+
+                return userEntry.Id;
+            }
         }
 
         private SqlExpression<DAL.User> UserQueryBase
@@ -72,7 +101,7 @@ namespace DAL
                     .From<DAL.Group>()
                     .Select($"BIT_OR({GetFieldName<DAL.Group>(grp => grp.Roles)})")
                     .Join<DAL.Group, DAL.UserGroup>((g, ug) => g.Id == ug.GroupId)
-                    .Join<DAL.UserGroup, DAL.User>((ug, u) => ug.UserId == u.Id)
+                    .Where<DAL.UserGroup, DAL.User>((ug, u) => ug.UserId == u.Id)
                     .ToMergedParamsSelectStatement();
 
                 return Connection
@@ -94,7 +123,7 @@ namespace DAL
             }
         }
 
-        public async Task<API.User> QueryByCredentials(string emailOrUserName, string password, CancellationToken cancellation)
+        public async Task<API.UserEx> QueryByCredentials(string emailOrUserName, string password, CancellationToken cancellation)
         {
             string sql = UserQueryBase
                 .And<DAL.Login>(l => l.EmailOrUserName == emailOrUserName)
@@ -104,10 +133,10 @@ namespace DAL
             if (user is null || !Verify(password, user.PasswordHash))
                 throw new InvalidCredentialException(Resources.INVALID_CREDENTIALS);
 
-            return Mapper.Map<API.User>(user);
+            return Mapper.Map<API.UserEx>(user);
         }
 
-        public async Task<API.User> QueryById(Guid userId, CancellationToken cancellation = default)
+        public async Task<API.UserEx> QueryById(Guid userId, CancellationToken cancellation = default)
         {
             string sql = UserQueryBase
                 .And<DAL.User>(u => u.Id == userId)
@@ -117,10 +146,10 @@ namespace DAL
             if (user is null)
                 throw new InvalidOperationException(Resources.ENTRY_NOT_FOUND);
 
-            return Mapper.Map<API.User>(user);
+            return Mapper.Map<API.UserEx>(user);
         }
 
-        public async Task<API.User> QueryBySession(Guid sessionId, CancellationToken cancellation)
+        public async Task<API.UserEx> QueryBySession(Guid sessionId, CancellationToken cancellation)
         {
             string sql = UserQueryBase
                 .Join<DAL.User, DAL.Session>((u, s) => u.Id == s.UserId && s.Id == sessionId && s.ExpiredUtc > DateTime.UtcNow)
@@ -132,7 +161,7 @@ namespace DAL
 
             await Connection.UpdateOnlyAsync<DAL.Session>(new Dictionary<string, object> { [nameof(DAL.Session.ExpiredUtc)] = DateTime.UtcNow.AddMinutes(Config.Server.SessionTimeoutInMinutes) }, where: s => s.Id == sessionId, token: cancellation);
 
-            return Mapper.Map<API.User>(user);
+            return Mapper.Map<API.UserEx>(user);
         }
 
         public async Task Delete(Guid userId, CancellationToken cancellation)
@@ -150,10 +179,10 @@ namespace DAL
 
         public async Task<PartialUserList> List(int skip, int count, CancellationToken cancellation) => new PartialUserList
         {
-            Entries = await Connection.SelectAsync<API.User>(UserQueryBase
+            Entries = Mapper.Map<IList<UserEx>>(await Connection.SelectAsync<UserView>(UserQueryBase
                 .OrderBy<DAL.Login>(l => l.EmailOrUserName)
                 .Limit(skip, count)
-                .ToMergedParamsSelectStatement(), cancellation),
+                .ToMergedParamsSelectStatement(), cancellation)),
             AllEntries = await Connection.CountAsync<DAL.Login>(l => l.DeletedUtc == null, cancellation)
         };
 

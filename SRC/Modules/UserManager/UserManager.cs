@@ -32,13 +32,13 @@ namespace Modules
         }
 
         public async Task<Guid> Create(API.User user, string pw) => await UserRepository
-            .Create(Mapper.Map<DAL.API.User>(user), pw, RequestContext.Cancellation);
+            .Create(Mapper.Map<DAL.API.User>(user), pw, Array.Empty<string>(), RequestContext.Cancellation);
 
         public async Task<Guid> Login(string emailOrUserName, string pw)
         {
-            DAL.API.User user = await UserRepository.QueryByCredentials(emailOrUserName, pw, RequestContext.Cancellation);
+            DAL.API.UserEx user = await UserRepository.QueryByCredentials(emailOrUserName, pw, RequestContext.Cancellation);
 
-            return await UserRepository.CreateSession(user.Id!.Value, RequestContext.Cancellation);
+            return await UserRepository.CreateSession(user.Id, RequestContext.Cancellation);
         }
 
         public async Task Logout()
@@ -56,9 +56,9 @@ namespace Modules
 
         public async Task DeleteCurrent()
         {
-            DAL.API.User user = await UserRepository.QueryBySession(Guid.Parse(RequestContext.SessionId!), RequestContext.Cancellation);
+            DAL.API.UserEx user = await UserRepository.QueryBySession(Guid.Parse(RequestContext.SessionId!), RequestContext.Cancellation);
 
-            await UserRepository.Delete(user.Id!.Value, RequestContext.Cancellation);
+            await UserRepository.Delete(user.Id, RequestContext.Cancellation);
         }
     }
 }

@@ -23,9 +23,9 @@ namespace Services
             if (sessionId is null)
                 return Roles.AnonymousUser;
 
-            await UserRepository.QueryBySession(Guid.Parse(sessionId), cancellation);
+            UserEx user = await UserRepository.QueryBySession(Guid.Parse(sessionId), cancellation);
 
-            return Roles.AuthenticatedUser;
+            return user.Roles | Roles.AuthenticatedUser;
         }
     }
 }
