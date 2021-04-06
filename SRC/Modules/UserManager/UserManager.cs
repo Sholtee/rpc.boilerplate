@@ -47,7 +47,7 @@ namespace Modules
                 await UserRepository.DeleteSession(Guid.Parse(RequestContext.SessionId));
         }
 
-        public async Task<API.PartialUserList> List(int skip, int count) => Mapper.Map<API.PartialUserList>
+        public async Task<API.PartialUserList> List(int skip, int count) => Mapper.Map<DAL.API.PartialUserList, API.PartialUserList>
         (
             await UserRepository.List(skip, count, RequestContext.Cancellation)
         );

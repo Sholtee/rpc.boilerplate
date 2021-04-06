@@ -11,6 +11,7 @@ using Solti.Utils.Rpc.Interfaces;
 namespace Modules.Tests
 {
     using DAL.API;
+    using Services.API;
 
     [TestFixture]
     public class UserManagerTests
@@ -160,6 +161,46 @@ namespace Modules.Tests
             Assert.DoesNotThrowAsync(() => userManager.DeleteCurrent());
             mockRepo.Verify(r => r.QueryBySession(sessionId, default), Times.Once);
             mockRepo.Verify(r => r.Delete(userId, default), Times.Once);
+        }
+
+        [Test]
+        public async Task List_ShouldReturnTheDesiredList() 
+        {
+            var mockContext = new Mock<IRequestContext>(MockBehavior.Strict);
+            mockContext
+                .Setup(ctx => ctx.Cancellation)
+                .Returns(() => default);
+
+            Guid id = Guid.NewGuid();
+
+            var mockRepo = new Mock<IUserRepository>(MockBehavior.Strict);
+            mockRepo
+                .Setup(r => r.List(1, 1, default))
+                .Returns(Task.FromResult(new DAL.API.PartialUserList
+                {
+                    AllEntries = 5,
+                    Entries = new[] 
+                    {
+                        new DAL.API.UserEx 
+                        {
+                            Id = id,
+                            EmailOrUserName = "cica@mica.hu",
+                            FullName = "cica",
+                            Roles = Roles.Admin
+                        }
+                    }
+                }));
+
+            var userManager = new UserManager(new Lazy<IUserRepository>(() => mockRepo.Object), mockContext.Object);
+
+            API.PartialUserList userList = await userManager.List(1, 1);
+
+            Assert.That(userList.AllEntries, Is.EqualTo(5));
+            Assert.That(userList.Entries.Count, Is.EqualTo(1));
+            Assert.That(userList.Entries[0].Id, Is.EqualTo(id));
+            Assert.That(userList.Entries[0].EmailOrUserName, Is.EqualTo("cica@mica.hu"));
+            Assert.That(userList.Entries[0].FullName, Is.EqualTo("cica"));
+            Assert.That(userList.Entries[0].Roles, Is.EqualTo(Roles.Admin));
         }
     }
 }
