@@ -2,11 +2,14 @@
 
 using ServiceStack.DataAnnotations;
 
+using Solti.Utils.OrmLite.Extensions;
+
 namespace DAL
 {
     using Services.API;
 
     [DataTable]
+    [Values("{A8273CE3-3F29-4F52-9B8A-E12650668FC1}", "Admins", Roles.Admin)]
     public class Group
     {
         [PrimaryKey, AutoId]

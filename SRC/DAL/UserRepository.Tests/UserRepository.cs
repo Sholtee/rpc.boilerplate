@@ -105,11 +105,6 @@ namespace DAL.Tests
         [Test]
         public async Task QueryByCredentials_ShouldReturnAllTheAssignedRoles()
         {
-            Connection.Insert(new DAL.Group
-            {
-                Name = "Admins",
-                Roles = Roles.Admin
-            });
             Connection.Insert(new DAL.Group 
             {
                 Name = "StandardUsers",
@@ -144,11 +139,6 @@ namespace DAL.Tests
         [Test]
         public async Task QueryBySession_ShouldReturnAllTheAssignedRoles()
         {
-            Connection.Insert(new DAL.Group
-            {
-                Name = "Admins",
-                Roles = Roles.Admin
-            });
             Connection.Insert(new DAL.Group
             {
                 Name = "StandardUsers",

@@ -2,10 +2,10 @@
 
 using ServiceStack.DataAnnotations;
 
+using Solti.Utils.OrmLite.Extensions;
+
 namespace DAL
 {
-    using Services.API;
-
     [DataTable]
     public class Login
     {
