@@ -31,7 +31,7 @@ namespace Modules.Tests
 
             var userManager = new UserManager(new Lazy<IUserRepository>(() => mockRepo.Object), mockContext.Object);
 
-            Assert.DoesNotThrowAsync(() => userManager.Create(new API.User { FullName = "cica", EmailOrUserName = "cica@mica.hu" }, "kutya"));
+            Assert.DoesNotThrowAsync(() => userManager.Create(new API.User { FullName = "cica", EmailOrUserName = "cica@mica.hu" }, "kutya", Array.Empty<string>()));
             mockRepo.Verify(r => r.Create(It.IsAny<DAL.API.User>(), "kutya", Array.Empty<string>(), default), Times.Once);
             mockContext.VerifyGet(c => c.Cancellation, Times.Once);
         }

@@ -12,7 +12,7 @@ namespace Modules.API
     public interface IUserManager
     {
         [RequiredRoles(Roles.Admin), Transactional]
-        Task<Guid> Create([NotNull, ValidateProperties] User user, [NotNull, LengthBetween(min: 5)] string pw);
+        Task<Guid> Create([NotNull, ValidateProperties] User user, [NotNull, LengthBetween(min: 5)] string pw, [NotNull] string[] groups);
 
         [RequiredRoles(Roles.Admin), Transactional]
         Task Delete(Guid userId);
