@@ -1,11 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <Import Project="..\Tests.Common.targets" />
+  <Import Project="..\..\Tests.Common.targets" />
 
   <PropertyGroup>
     <AssemblyName>$(AppName).Server.Tests</AssemblyName>
     <RootNamespace>Server.Tests</RootNamespace>
-    <OutputPath>..\..\BIN</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>
