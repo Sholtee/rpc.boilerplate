@@ -47,6 +47,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UserManager", "Modules\User
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UserManager.Tests", "Modules\UserManager.Tests\UserManager.Tests.csproj", "{0819E6E9-9102-4C61-9B16-FBD3743C3D12}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server.Tests", "Server.Tests\Server.Tests.csproj", "{DDA6ABD0-6218-445B-8F44-F297FF50F814}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -124,6 +126,9 @@ Global
 		{0819E6E9-9102-4C61-9B16-FBD3743C3D12}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0819E6E9-9102-4C61-9B16-FBD3743C3D12}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0819E6E9-9102-4C61-9B16-FBD3743C3D12}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DDA6ABD0-6218-445B-8F44-F297FF50F814}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DDA6ABD0-6218-445B-8F44-F297FF50F814}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DDA6ABD0-6218-445B-8F44-F297FF50F814}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 using CommandLine;
 
@@ -33,26 +35,35 @@ namespace Server
         #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         private sealed class CmdArgs 
         {
-            [Option('r', nameof(Root))]
-            public string Root { get; set; }
+            [Option('u', nameof(User))]
+            public string User { get; init; }
 
             [Option('p', nameof(Password))]
-            public string Password { get; set; }
+            public string Password { get; init; }
 
             [Option('v', nameof(PasswordVariable))]
-            public string PasswordVariable { get; set; }
+            public string PasswordVariable { get; init; }
         }
         #pragma warning restore CS8618
 
-        public void Run(params Assembly[] asmsContainingTableDefs) 
+        private static readonly Regex FAsmMatcher = new("\\w+\\.DAL\\.\\w+$", RegexOptions.Compiled);
+
+        public void Run() 
         {
-            SchemaManager.CreateTables(asmsContainingTableDefs);
+            Assembly[] repoDlls = GetType()
+                .Assembly
+                .GetReferencedAssemblies()
+                .Where(asm => asm.Name is not null && FAsmMatcher.IsMatch(asm.Name))
+                .Select(Assembly.Load)
+                .ToArray();
+
+            SchemaManager.CreateTables(repoDlls);
 
             UserManager.Create
             (
                 new User 
                 { 
-                    EmailOrUserName = Options.Root, 
+                    EmailOrUserName = Options.User, 
                     FullName = "Root" 
                 },
                 Options.PasswordVariable is not null

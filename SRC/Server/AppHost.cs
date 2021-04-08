@@ -66,7 +66,7 @@ namespace Server
 
             try
             {
-                installer.Run(typeof(DAL.User).Assembly);
+                installer.Run();
             }
             #pragma warning disable CA1031 // Do not catch general exception types
             catch (Exception e)
