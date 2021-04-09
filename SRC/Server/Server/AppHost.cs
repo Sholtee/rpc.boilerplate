@@ -61,20 +61,39 @@ namespace Server
         {
             base.OnInstall();
 
+            //
+            // Don't expose this service in OnRegisterServices()
+            //
+
+            RpcService.Container.Service<IInstaller, Installer>(Lifetime.Scoped);
+
             using IInjector injector = CreateInjector();
-            Installer installer = injector.Instantiate<Installer>();
+            injector
+                .Instantiate<Installer>()
+                .Run();
+        }
+
+        public override void OnUnhandledException(Exception ex)
+        {
+            base.OnUnhandledException(ex);
 
             try
             {
-                installer.Run();
+                ConsoleColor oldColor = Console.ForegroundColor;
+                Console.ForegroundColor = ConsoleColor.Red;
+                #pragma warning disable CA1062 // Validate arguments of public methods
+                Console.WriteLine(ex.Message);
+                #pragma warning restore CA1062
+                Console.ForegroundColor = oldColor;
             }
             #pragma warning disable CA1031 // Do not catch general exception types
-            catch (Exception e)
+            catch
             #pragma warning restore CA1031
             {
-                Console.Error.WriteLine(e.Message);
-                Environment.Exit(-1);
+                // we have no Console 
             }
+
+            Environment.Exit(-1);
         }
 
         public override void OnRegisterServices(IServiceContainer container)

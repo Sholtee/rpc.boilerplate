@@ -12,6 +12,7 @@
   </ItemGroup>
   
   <ItemGroup>
+    <ProjectReference Include="..\..\DAL\UserRepository.API\UserRepository.API.csproj" />
     <ProjectReference Include="..\Server\Server.csproj" />
   </ItemGroup>
 

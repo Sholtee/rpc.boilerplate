@@ -1,10 +1,3 @@
-﻿
-namespace Server
-{
-    class Program
-    {
-        static void Main()
-        {
-        }
-    }
-}
+﻿using Solti.Utils.Rpc.Hosting;
+
+HostRunner.Run<Server.AppHost>();

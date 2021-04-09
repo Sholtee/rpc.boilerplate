@@ -7,27 +7,41 @@ using System.Text.RegularExpressions;
 using CommandLine;
 
 using Solti.Utils.DI.Interfaces;
+using Solti.Utils.Rpc.Interfaces;
 
 namespace Server
 {
-    using Modules.API;
+    using DAL.API;
     using Services.API;
 
-    public class Installer
+    [TransactionAspect]
+    public interface IInstaller 
+    {
+        [Transactional]
+        void Run();
+    }
+
+    public class Installer: IInstaller
     {
         public IDbSchemaManager SchemaManager { get; }
 
-        public IUserManager UserManager { get; }
+        public IUserRepository UserRepository { get; }
 
         private CmdArgs Options { get; }
 
-        public Installer(IDbSchemaManager schemaManager, [Options(Name = "CommandLineArgs")] IReadOnlyList<string> cmdArgs, IUserManager userManager)
+        public Installer(IDbSchemaManager schemaManager, [Options(Name = "CommandLineArgs")] IReadOnlyList<string> cmdArgs, IUserRepository userRepository)
         {
             SchemaManager = schemaManager;
-            UserManager = userManager;
-            Options = CommandLine
-                .Parser
-                .Default
+            UserRepository = userRepository;
+
+            using var parser = new CommandLine.Parser(settings =>
+            {
+                settings.AutoHelp = false;
+                settings.AutoVersion = false;
+                settings.IgnoreUnknownArguments = true;
+            });
+
+            Options = parser
                 .ParseArguments<CmdArgs>(cmdArgs)
                 .MapResult(opts => opts, errs => new CmdArgs());
         }
@@ -50,16 +64,14 @@ namespace Server
 
         public void Run() 
         {
-            Assembly[] repoDlls = GetType()
+            SchemaManager.CreateTables(typeof(AppHost)
                 .Assembly
                 .GetReferencedAssemblies()
                 .Where(asm => asm.Name is not null && FAsmMatcher.IsMatch(asm.Name))
                 .Select(Assembly.Load)
-                .ToArray();
+                .ToArray());
 
-            SchemaManager.CreateTables(repoDlls);
-
-            UserManager.Create
+            UserRepository.Create
             (
                 new User 
                 { 
