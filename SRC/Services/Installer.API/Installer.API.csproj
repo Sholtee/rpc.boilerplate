@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="..\..\Common.targets" />
+
+  <PropertyGroup>
+    <AssemblyName>$(AppName).Services.Installer.API</AssemblyName>
+    <RootNamespace>Services.API</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="RPC.NET.Interfaces" Version="3.*" />
+  </ItemGroup>
+</Project>

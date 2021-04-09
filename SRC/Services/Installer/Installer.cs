@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -7,19 +8,11 @@ using System.Text.RegularExpressions;
 using CommandLine;
 
 using Solti.Utils.DI.Interfaces;
-using Solti.Utils.Rpc.Interfaces;
 
-namespace Server
+namespace Services
 {
+    using API;
     using DAL.API;
-    using Services.API;
-
-    [TransactionAspect]
-    public interface IInstaller 
-    {
-        [Transactional]
-        void Run();
-    }
 
     public class Installer: IInstaller
     {
@@ -62,10 +55,10 @@ namespace Server
 
         private static readonly Regex FAsmMatcher = new("\\w+\\.DAL\\.\\w+$", RegexOptions.Compiled);
 
-        public void Run() 
+        [SuppressMessage("Design", "CA1062:Validate arguments of public methods", Justification = "Parameter is validated by an aspect")]
+        public void Run(Assembly hostAssembly) 
         {
-            SchemaManager.CreateTables(typeof(AppHost)
-                .Assembly
+            SchemaManager.CreateTables(hostAssembly
                 .GetReferencedAssemblies()
                 .Where(asm => asm.Name is not null && FAsmMatcher.IsMatch(asm.Name))
                 .Select(Assembly.Load)

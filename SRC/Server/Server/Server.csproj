@@ -30,6 +30,8 @@
     <ProjectReference Include="..\..\Services\DbConnection\DbConnection.csproj" />
     <ProjectReference Include="..\..\Services\DbSchemaManager.API\DbSchemaManager.API.csproj" />
     <ProjectReference Include="..\..\Services\DbSchemaManager\DbSchemaManager.csproj" />
+    <ProjectReference Include="..\..\Services\Installer.API\Installer.API.csproj" />
+    <ProjectReference Include="..\..\Services\Installer\Installer.csproj" />
     <ProjectReference Include="..\..\Services\RoleManager.API\RoleManager.API.csproj" />
     <ProjectReference Include="..\..\Services\RoleManager\RoleManager.csproj" />
   </ItemGroup>

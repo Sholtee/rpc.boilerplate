@@ -5,7 +5,6 @@ using System.Text.Json;
 
 using ServiceStack.Data;
 
-using Solti.Utils.DI;
 using Solti.Utils.DI.Interfaces;
 using Solti.Utils.Primitives;
 using Solti.Utils.Rpc.Interfaces;
@@ -61,36 +60,47 @@ namespace Server
         {
             base.OnInstall();
 
-            //
-            // Don't expose this service in OnRegisterServices()
-            //
-
-            RpcService.Container.Service<IInstaller, Installer>(Lifetime.Scoped);
-
             using IInjector injector = CreateInjector();
+
+            //
+            // These services are required for installation only.
+            //
+
             injector
-                .Instantiate<Installer>()
-                .Run();
+                .UnderlyingContainer
+                .Service<IDbSchemaManager, SqlDbSchemaManager>(Lifetime.Scoped)
+                .Service<IInstaller, Installer>(Lifetime.Scoped);
+
+            injector
+                .Get<IInstaller>()
+                .Run(GetType().Assembly);
         }
 
         public override void OnUnhandledException(Exception ex)
         {
+            if (ex is null)
+                throw new ArgumentNullException(nameof(ex));
+
             base.OnUnhandledException(ex);
+
+            string msg = ex.Message;
+            if (ex is ValidationException validationException)
+                msg += $"{Environment.NewLine}Target: {validationException.TargetName}";
 
             try
             {
                 ConsoleColor oldColor = Console.ForegroundColor;
                 Console.ForegroundColor = ConsoleColor.Red;
-                #pragma warning disable CA1062 // Validate arguments of public methods
-                Console.WriteLine(ex.Message);
-                #pragma warning restore CA1062
+                Console.WriteLine(msg);
                 Console.ForegroundColor = oldColor;
             }
             #pragma warning disable CA1031 // Do not catch general exception types
             catch
             #pragma warning restore CA1031
             {
-                // we have no Console 
+                //
+                // We have no Console
+                // //
             }
 
             Environment.Exit(-1);
@@ -108,10 +118,9 @@ namespace Server
                 .Provider<IDbConnectionFactory, MySqlDbConnectionFactoryProvider>(Lifetime.Singleton)
                 .Provider<IDbConnection, SqlConnectionProvider>(Lifetime.Scoped)
                 //.Service<ICache, RedisCache>(Lifetime.Scoped)
-                //.Service<ICache, MemoryCache>(Lifetime.Singleton)
+                .Service<ICache, MemoryCache>(Lifetime.Singleton)
                 .Service<IRoleManager, RoleManager>(Lifetime.Scoped)
                 .Service<IAsyncRoleManager, RoleManager>(Lifetime.Scoped)
-                .Service<IDbSchemaManager, SqlDbSchemaManager>(Lifetime.Scoped)
                 .Service<IUserRepository, SqlUserRepository>(Lifetime.Scoped);
         }
     }
