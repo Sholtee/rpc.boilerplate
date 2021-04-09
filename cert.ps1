@@ -14,3 +14,7 @@ function Create-SelfSignedCertificate([Parameter(Mandatory = $true)][String] $ou
 		choco uninstall OpenSSL.Light -y --version 1.1.1
 	}
 }
+
+function Register-Certificate([Parameter(Mandatory = $true)][String] $p12Cert, [Parameter(Mandatory = $true)][String] $password) {
+	return (Import-PfxCertificate -FilePath $p12Cert Cert:\LocalMachine\My -Password (ConvertTo-SecureString -String $password -Force -AsPlainText)).Thumbprint
+}
