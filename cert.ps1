@@ -18,3 +18,7 @@ function Create-SelfSignedCertificate([Parameter(Mandatory = $true)][String] $ou
 function Register-Certificate([Parameter(Mandatory = $true)][String] $p12Cert, [Parameter(Mandatory = $true)][String] $password) {
 	return (Import-PfxCertificate -FilePath $p12Cert Cert:\LocalMachine\My -Password (ConvertTo-SecureString -String $password -Force -AsPlainText)).Thumbprint
 }
+
+function Bind-Certificate([Parameter(Mandatory = $true)][String] $p12Cert, [Parameter(Mandatory = $true)][String] $password, [Parameter(Mandatory = $true)][String] $ipPort) {
+	netsh http add sslcert ipport=$ipPort certhash=(Register-Certificate -P12Cert $p12Cert -Password $password) appid=(New-Guid).ToString("B")
+}
