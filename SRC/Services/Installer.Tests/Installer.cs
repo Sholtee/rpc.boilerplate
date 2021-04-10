@@ -10,7 +10,6 @@ namespace Services.Tests
 {
     using API;
     using DAL.API;
-    using Server;
 
     [TestFixture]
     public class InstallerTests
@@ -27,8 +26,10 @@ namespace Services.Tests
                 .Setup(r => r.Create(It.Is<DAL.API.User>(u => u.FullName == "Root" && u.EmailOrUserName == "root@root.hu"), "cica12", It.Is<string[]>(grps => grps.Single() == "Admins"), default))
                 .Returns(Task.FromResult(Guid.NewGuid()));
 
+            typeof(DAL.User).GetHashCode(); // force to load the containing assembly
+
             var installer = new Installer(mockSchemaManager.Object, new string[] { "-u", "root@root.hu",  "-p", "cica12" }, mockUserRepo.Object);
-            installer.Run(typeof(AppHost).Assembly);
+            installer.Run(GetType().Assembly);
 
             mockSchemaManager.Verify(sm => sm.CreateTables(It.IsAny<Assembly[]>()), Times.Once);
             mockUserRepo.Verify(um => um.Create(It.IsAny<DAL.API.User>(), It.IsAny<string>(), It.IsAny<string[]>(), default));
