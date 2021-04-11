@@ -80,9 +80,9 @@ namespace Services
                 new User 
                 { 
                     EmailOrUserName = Options.User, 
-                    FullName = "Root" 
+                    FullName = "Superuser" 
                 },
-                Options.PasswordVariable is not null
+                !string.IsNullOrEmpty(Options.PasswordVariable)
                     ? Environment.GetEnvironmentVariable(Options.PasswordVariable)!
                     : Options.Password, 
                 new[] { "Admins" }
