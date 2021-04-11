@@ -15,7 +15,7 @@
         "SessionTimeoutInMinutes": 10,
         "AllowedOrigins": [ "http://127.0.0.1:8080" ]
       },
-	  "ConnectionString": "Server=localhost;Port=3306;Database=erettsegi;UId=root;PWd=cica",
+	  "ConnectionString": "Server=localhost;Port=3306;Database=myapp;UId=root;PWd=cica",
 	  "Redis": {
         "Host": "localhost",
         "Port": 6379
