@@ -26,7 +26,7 @@ namespace Services.Tests
 
             var mockUserRepo = new Mock<IUserRepository>(MockBehavior.Strict);
             mockUserRepo
-                .Setup(r => r.Create(It.Is<DAL.API.User>(u => u.FullName == "Root" && u.EmailOrUserName == "root@root.hu"), "cica12", It.Is<string[]>(grps => grps.Single() == "Admins"), default))
+                .Setup(r => r.Create(It.Is<DAL.API.User>(u => u.FullName == "Superuser" && u.EmailOrUserName == "root@root.hu"), "cica12", It.Is<string[]>(grps => grps.Single() == "Admins"), default))
                 .Returns(Task.FromResult(Guid.NewGuid()));
 
             typeof(DAL.User).GetHashCode(); // force to load the containing assembly
