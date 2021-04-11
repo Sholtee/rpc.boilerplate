@@ -38,6 +38,11 @@
    PS Bind-Certificate
    ```
 
-## Running
+## Starting the server
 - If the server was installed as a service: `sc start MyApp`
 - Otherwise: `BIN\net5.0\Server.exe`
+
+## Running tests
+1. Create the `config.test.json` file under the `src\TestsBase\` directory (should look like [this](#installation))
+2. `.\test.ps1`
+3. Test results are placed in the `.\Artifacts` folder
