@@ -17,8 +17,8 @@
       },
 	  "ConnectionString": "Server=localhost;Port=3306;Database=erettsegi;UId=root;PWd=cica",
 	  "Redis": {
-		"Host": "localhost",
-		"Port": 6379
+        "Host": "localhost",
+        "Port": 6379
 	  }
 	}
 	```
@@ -29,7 +29,7 @@
 	- Install the server as a service (Windows only)
 	
 	Notes: 
-	- `-user` and `password` switches can be used together with `-install` only
+	- `-user` and `-password` switches can be used together with `-install` only
 	- Use the "-noservice" switch if you don't want to install the server as a service
 4. To enable SSL:
    ```ps
