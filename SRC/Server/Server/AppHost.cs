@@ -25,7 +25,7 @@ namespace Server
     {
         private IConfig Config { get; }
 
-        public override string Name => "Erettsegi";
+        public override string Name => "MyApp";
 
         public override string Url => Config.Server.Host;
 
