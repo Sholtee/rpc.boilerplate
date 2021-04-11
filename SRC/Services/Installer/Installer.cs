@@ -22,6 +22,10 @@ namespace Services
 
         private CmdArgs Options { get; }
 
+        private static readonly Regex 
+            FIsSimpleSwitch = new("^-{1}\\w+$", RegexOptions.Compiled),
+            FAsmMatcher = new("\\w+\\.DAL\\.\\w+$", RegexOptions.Compiled);
+
         public Installer(IDbSchemaManager schemaManager, [Options(Name = "CommandLineArgs")] IReadOnlyList<string> cmdArgs, IUserRepository userRepository)
         {
             SchemaManager = schemaManager;
@@ -32,28 +36,35 @@ namespace Services
                 settings.AutoHelp = false;
                 settings.AutoVersion = false;
                 settings.IgnoreUnknownArguments = true;
+                settings.CaseSensitive = false;
             });
 
-            Options = parser
-                .ParseArguments<CmdArgs>(cmdArgs)
-                .MapResult(opts => opts, errs => new CmdArgs());
+            //
+            // ParseArguments() supports long name switches in form of "--longName"
+            //
+
+            cmdArgs = cmdArgs
+                .Select(arg => FIsSimpleSwitch.IsMatch(arg)
+                    ? arg = $"-{arg}"
+                    : arg)
+                .ToArray();
+
+            Options = ((Parsed<CmdArgs>) parser.ParseArguments<CmdArgs>(cmdArgs)).Value;
         }
 
-        #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        [Verb("install")]
+        [SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes")]
         private sealed class CmdArgs 
         {
             [Option('u', nameof(User))]
-            public string User { get; init; }
+            public string User { get; init; } = string.Empty;
 
             [Option('p', nameof(Password))]
-            public string Password { get; init; }
+            public string Password { get; init; } = string.Empty;
 
             [Option('v', nameof(PasswordVariable))]
-            public string PasswordVariable { get; init; }
+            public string PasswordVariable { get; init; } = string.Empty;
         }
-        #pragma warning restore CS8618
-
-        private static readonly Regex FAsmMatcher = new("\\w+\\.DAL\\.\\w+$", RegexOptions.Compiled);
 
         [SuppressMessage("Design", "CA1062:Validate arguments of public methods", Justification = "Parameter is validated by an aspect")]
         public void Run(Assembly hostAssembly) 

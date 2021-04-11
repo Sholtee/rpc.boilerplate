@@ -14,8 +14,11 @@ namespace Services.Tests
     [TestFixture]
     public class InstallerTests
     {
-        [Test]
-        public void Run_ShouldInitializeTheDatabaseAndRegisterTheRootUser() 
+        [TestCase("-u", "-p")]
+        [TestCase("--u", "--p")]
+        [TestCase("-user", "-password")]
+        [TestCase("--user", "--password")]
+        public void Run_ShouldInitializeTheDatabaseAndRegisterTheRootUser(string userSwitch, string pwSwitch)
         {
             var mockSchemaManager = new Mock<IDbSchemaManager>(MockBehavior.Strict);
             mockSchemaManager
@@ -28,7 +31,7 @@ namespace Services.Tests
 
             typeof(DAL.User).GetHashCode(); // force to load the containing assembly
 
-            var installer = new Installer(mockSchemaManager.Object, new string[] { "-u", "root@root.hu",  "-p", "cica12" }, mockUserRepo.Object);
+            var installer = new Installer(mockSchemaManager.Object, new string[] { typeof(InstallerTests).Assembly.Location, "-install", "-noservice", userSwitch, "root@root.hu",  pwSwitch, "cica12" }, mockUserRepo.Object);
             installer.Run(GetType().Assembly);
 
             mockSchemaManager.Verify(sm => sm.CreateTables(It.IsAny<Assembly[]>()), Times.Once);
