@@ -5,6 +5,7 @@
 - MySql
 
 ## Installation
+0. Clone this repo
 1. Create the `config.[dev|live].json` file under the `src\Services\Config\` directory (`.dev.json` is used in *Debug* configuration, `.live` in *Release*):
 	```json
 	{
@@ -27,8 +28,8 @@
 	- Install the server as a service (Windows only)
 	
 	Notes: 
-	- `-user` and `-password` switches can be used together with `-install` only
-	- Use the "-noservice" switch if you don't want to install the server as a service
+	- The `-user` and `-password` switches can be used together with `-install` only
+	- Use the `-noservice` switch if you don't want to install the server as a service
 4. To enable SSL:
    ```ps
    PS .(".\cert.ps1")
