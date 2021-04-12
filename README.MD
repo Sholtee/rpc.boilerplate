@@ -5,7 +5,7 @@
 - MySql
 
 ## Installation
-0. Clone this repo
+0. Clone this repo, rename `MyApp.sln` and set the `AppName` property in `SRC\Common.targets`, `SRC\Tests.Common.targets`
 1. Create the `config.[dev|live].json` file under the `src\Services\Config\` directory (`.dev.json` is used in *Debug* configuration, `.live` in *Release*):
 	```json
 	{
