@@ -3,9 +3,8 @@
 ## Requirements
 - Redis (optional) 
 - MySql
-
 ## Installation
-0. Clone this repo, rename `MyApp.sln` and set the `AppName` property in `SRC\Common.targets`, `SRC\Tests.Common.targets`
+0. Clone this repo, rename `MyApp.sln`, set the `AppName` property in `SRC\Common.targets` and `SRC\Tests.Common.targets`
 1. Create the `config.[dev|live].json` file under the `src\Services\Config\` directory (`.dev.json` is used in *Debug* configuration, `.live` in *Release*):
 	```json
 	{
@@ -22,7 +21,7 @@
 	}
 	```
 2. `dotnet build .\SRC\MyApp.sln -c Debug|Release`
-3. Call `BIN\net5.0\Server.exe -install -user root@root.hu -password Password1` to:
+3. Call `BIN\net5.0\MyApp.Server.exe -install -user root@root.hu -password Password1` to:
 	- Initialize the database
 	- Create the root user
 	- Install the server as a service (Windows only)
@@ -36,11 +35,9 @@
    PS Create-SelfSignedCertificate
    PS Bind-Certificate
    ```
-
 ## Starting the server
 - If the server was installed as a service: `sc start MyApp`
-- Otherwise: `BIN\net5.0\Server.exe`
-
+- Otherwise: `BIN\net5.0\MyApp.Server.exe`
 ## Running tests
 1. Create the `config.test.json` file under the `src\TestsBase\` directory (should look like [this](#installation))
 2. `.\test.ps1`
