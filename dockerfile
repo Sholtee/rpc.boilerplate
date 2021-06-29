@@ -41,6 +41,7 @@ FROM mcr.microsoft.com/dotnet/runtime:5.0-windowsservercore-ltsc2019
 ARG CERT_PATH
 ARG CERT_PW
 ARG ROOT_PW
+ENV USER_INTERACTIVE=true
 WORKDIR /app
 COPY --from=build /app/BIN/net5.0/publish .
 COPY $CERT_PATH ./certificate.p12
@@ -49,6 +50,6 @@ RUN powershell -command "\
   $hash=(Import-PfxCertificate -FilePath './certificate.p12' Cert:\LocalMachine\My -Password (ConvertTo-SecureString -String '%CERT_PW%' -Force -AsPlainText)).Thumbprint;\
   $appId=(New-Guid).ToString('B');\
   netsh http add sslcert ipport=127.0.0.1:1986 certhash=$hash appid=$appId;\
-  Remove-Item -Path './certificate.p12'"
-RUN MyApp.Server.exe -install -noservice "-user root@root.hu" "-password %ROOT_PW%"
+  Remove-Item -Path './certificate.p12';"
+RUN MyApp.Server.exe -install -noservice -user root@root.hu -password %ROOT_PW%
 EXPOSE 1986
