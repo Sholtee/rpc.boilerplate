@@ -11,9 +11,9 @@
 
   <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="2.*" />
-    <PackageReference Include="Injector.NET.Interfaces" Version="4.*" />
-    <PackageReference Include="RPC.NET.Interfaces" Version="3.*" />
-    <PackageReference Include="RPC.NET.Server" Version="3.*" />
+    <PackageReference Include="Injector.NET.Interfaces" Version="5.*" />
+    <PackageReference Include="RPC.NET.Interfaces" Version="4.*" />
+    <PackageReference Include="RPC.NET.Server" Version="4.*" />
     <PackageReference Include="ServiceStack.Interfaces.Core" Version="5.*" />
     <PackageReference Include="Solti.Utils.Primitives" Version="2.*" />
   </ItemGroup>

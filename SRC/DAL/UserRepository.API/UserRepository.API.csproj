@@ -9,7 +9,7 @@
 
 
   <ItemGroup>
-    <PackageReference Include="RPC.NET.Interfaces" Version="3.*" />
+    <PackageReference Include="RPC.NET.Interfaces" Version="4.*" />
   </ItemGroup>
 
 

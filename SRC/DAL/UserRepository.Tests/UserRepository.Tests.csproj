@@ -8,8 +8,8 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="Injector.NET.Interfaces" Version="4.*" />
-    <PackageReference Include="RPC.NET.Interfaces" Version="3.*" />
+    <PackageReference Include="Injector.NET.Interfaces" Version="5.*" />
+    <PackageReference Include="RPC.NET.Interfaces" Version="4.*" />
     <PackageReference Include="ServiceStack.OrmLite.Core" Version="5.*" />
   </ItemGroup>
 
