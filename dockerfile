@@ -67,12 +67,13 @@ RUN powershell -command "\
   Start-Service MySQL;\
   Get-Service MySQL;\
   Start-Process './bin/mysqladmin.exe' -ArgumentList '--user=root password %MYSQL_PW%' -Wait -NoNewWindow;\
-  # Test connection
-  Start-Process './bin/mysqladmin.exe' -ArgumentList 'status --user=root --password=%MYSQL_PW%' -Wait -NoNewWindow;"
+  Start-Process './bin/mysqladmin.exe' -ArgumentList 'create myapp --user=root --password=%MYSQL_PW%' -Wait -NoNewWindow;
 
 ARG CERT_PATH
 ARG CERT_PW
 ARG ROOT_PW
+
+# Required for "MyApp.Server.exe -install"
 ENV USER_INTERACTIVE=true
 
 WORKDIR /app
@@ -86,5 +87,12 @@ RUN powershell -command "\
   Remove-Item -Path './certificate.p12';"
 
 COPY --from=build /app/BIN/net5.0/publish .
-#RUN MyApp.Server.exe -install -noservice -user root@root.hu -password %ROOT_PW%
-#EXPOSE 1986
+RUN powershell -command "\
+  $ErrorActionPreference='Stop';\
+  Write-Host 'Install MyApp...';\
+  Start-Process './MyApp.Server.exe' -ArgumentList '-install -noservice -user root@root.hu -password %ROOT_PW%' -Wait -NoNewWindow;"
+
+ENTRYPOINT MyApp.Server.exe
+
+EXPOSE 1986
+EXPOSE 3306
