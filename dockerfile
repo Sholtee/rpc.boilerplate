@@ -34,7 +34,7 @@ RUN pwsh -command "\
       SessionTimeoutInMinutes=10;\
       AllowedOrigins=@('http://localhost:8080');\
     };\
-    ConnectionString='Server=localhost;Port=3306;Database=myapp;UId=root;PWd=%MYSQL_PW%';\
+    ConnectionString='Server=localhost;Port=3306;Database=myapp;UId=root;PWd=\"%MYSQL_PW%\"';\
     Redis=@{\
       Host='localhost';\
       Port=6379;\
@@ -57,17 +57,24 @@ RUN powershell -command "\
 WORKDIR /mysql-8.0.25-winx64
 COPY --from=prep /download/mysql-8.0.25-winx64 .
 
+WORKDIR /mysql-8.0.25-winx64/bin
 ARG MYSQL_PW
+ARG CUSTOM_SQL=false
 
 RUN powershell -command "\
   $ErrorActionPreference='Stop';\
   Write-Host 'Install MySQL...';\
-  Start-Process './bin/mysqld.exe' -ArgumentList '--initialize-insecure' -Wait -NoNewWindow;\
-  Start-Process './bin/mysqld.exe' -ArgumentList '--install' -Wait -NoNewWindow;\
+  Start-Process './mysqld.exe' -ArgumentList '--initialize-insecure' -Wait -NoNewWindow;\
+  Start-Process './mysqld.exe' -ArgumentList '--install' -Wait -NoNewWindow;\
   Start-Service MySQL;\
   Get-Service MySQL;\
-  Start-Process './bin/mysqladmin.exe' -ArgumentList '--user=root password %MYSQL_PW%' -Wait -NoNewWindow;\
-  Start-Process './bin/mysqladmin.exe' -ArgumentList 'create myapp --user=root --password=%MYSQL_PW%' -Wait -NoNewWindow;
+  Start-Process './mysqladmin.exe' -ArgumentList '--user=root password \"%MYSQL_PW%\"' -Wait -NoNewWindow;\
+  Start-Process './mysqladmin.exe' -ArgumentList 'create myapp --user=root --password=\"%MYSQL_PW%\"' -Wait -NoNewWindow;\
+  $CustomSql=\"%CUSTOM_SQL%\";\
+  if ($CustomSql -ne 'false') {\
+    Write-Host 'Executing custom SQL...';\
+    Start-Process './mysql.exe' -ArgumentList ('--user=root --password=\"%MYSQL_PW%\" --execute=\"{0}\"' -f $CustomSql) -Wait -NoNewWindow;\
+  }"
 
 ARG CERT_PATH
 ARG CERT_PW
