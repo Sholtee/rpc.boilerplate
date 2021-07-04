@@ -1,5 +1,8 @@
-.vs
 .git
-[D|d]ockerfile
-[O|o]bj
-[B|b][I|i][N\n]
+dockerfile
+BIN
+SRC/.vs
+SRC/*/obj
+SRC/*/bin
+SRC/*/*/obj
+SRC/*/*/bin
