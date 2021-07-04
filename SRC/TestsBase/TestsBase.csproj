@@ -8,10 +8,10 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="nunit" Version="3.*" />
-    <PackageReference Include="Injector.NET" Version="5.*" />
-    <PackageReference Include="RPC.NET.Server" Version="4.*" />
-    <PackageReference Include="ServiceStack.Interfaces.Core" Version="5.*" />
+    <PackageReference Include="nunit" Version="3.13.2" />
+    <PackageReference Include="Injector.NET" Version="5.0.1" />
+    <PackageReference Include="RPC.NET.Server" Version="4.0.1" />
+    <PackageReference Include="ServiceStack.Interfaces.Core" Version="5.11.0" />
   </ItemGroup>
       
   <ItemGroup>
