@@ -42,3 +42,10 @@
 1. Create the `config.test.json` file under the `src\TestsBase\` directory (should look like [this](#installation))
 2. `.\test.ps1`
 3. Test results are placed in the `.\Artifacts` folder
+##Build with Docker
+1. Switch to [Windows containers](https://docs.docker.com/docker-for-windows/ )
+2. Replace the './cert.self-signed/certificate.p12' file with your own (it will be used to secure the remote API calls)
+3. Customize `--build-arg`s in the `./container-build.ps1` file
+4. Execute the `./container-build.ps1` script. It will
+   - create and save a new image of your app. The image is ready to run (includes the initialized database and app) 
+   - export the MySQL data directory (`./BIN/mysql-data`). You may mount it later
