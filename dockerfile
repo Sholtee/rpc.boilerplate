@@ -26,21 +26,22 @@ COPY --from=prep /project_files .
 RUN dotnet restore ./SRC/MyApp.sln
 ARG MYSQL_PW
 COPY --from=prep /src .
-RUN pwsh -command "\
-  $ErrorActionPreference='Stop';\
-  @{\
-    Server=@{\
-      Host='https://localhost:1986/api/';\
-      SessionTimeoutInMinutes=10;\
-      AllowedOrigins=@('http://localhost:8080');\
-    };\
-    ConnectionString='Server=localhost;Port=3306;Database=myapp;UId=root;PWd=\"%MYSQL_PW%\"';\
-    Redis=@{\
-      Host='localhost';\
-      Port=6379;\
-    }\
-  } | ConvertTo-JSON | Set-Content -Path './SRC/Services/Config/config.live.json';"
-RUN dotnet publish ./SRC/MyApp.sln -c Release
+RUN \ 
+  pwsh -command "\
+    $ErrorActionPreference='Stop';\
+    @{\
+      Server=@{\
+        Host='https://localhost:1986/api/';\
+        SessionTimeoutInMinutes=10;\
+        AllowedOrigins=@('http://localhost:8080');\
+      };\
+      ConnectionString='Server=localhost;Port=3306;Database=myapp;UId=root;PWd=\"%MYSQL_PW%\"';\
+      Redis=@{\
+        Host='localhost';\
+        Port=6379;\
+      }\
+    } | ConvertTo-JSON | Set-Content -Path './SRC/Services/Config/config.live.json';"\
+  dotnet publish ./SRC/MyApp.sln -c Release
 #RUN pwsh -command "Get-Content -Path ./BIN/net5.0/publish/config.json"
 
 # app
@@ -58,8 +59,9 @@ WORKDIR /mysql-8.0.25-winx64
 COPY --from=prep /download/mysql-8.0.25-winx64 .
 
 WORKDIR /mysql-8.0.25-winx64/bin
-ARG MYSQL_PW
-ARG CUSTOM_SQL=false
+ARG \
+  MYSQL_PW\
+  CUSTOM_SQL=false
 
 RUN powershell -command "\
   $ErrorActionPreference='Stop';\
@@ -76,9 +78,10 @@ RUN powershell -command "\
     Start-Process './mysql.exe' -ArgumentList ('--user=root --password=\"%MYSQL_PW%\" --execute=\"{0}\"' -f $CustomSql) -Wait -NoNewWindow;\
   }"
 
-ARG CERT_PATH
-ARG CERT_PW
-ARG ROOT_PW
+ARG \
+  CERT_PATH\
+  CERT_PW\
+  ROOT_PW
 
 # Required for "MyApp.Server.exe -install"
 ENV USER_INTERACTIVE=true
@@ -101,5 +104,6 @@ RUN powershell -command "\
 
 ENTRYPOINT MyApp.Server.exe
 
-EXPOSE 1986
-EXPOSE 3306
+EXPOSE \
+  1986\
+  3306
