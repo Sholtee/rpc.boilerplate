@@ -45,9 +45,8 @@
 ## Build with Docker
 1. Switch to [Windows containers](https://docs.docker.com/docker-for-windows/ )
 2. Replace the './cert.self-signed/certificate.p12' file with your own (it will be used to secure the remote API calls)
-3. Customize `--build-arg`s in the `./container-build.ps1` file
-4. Execute the `./container-build.ps1` script. It will
+3. Execute the `./container-build.ps1` script. It will
    - create and save a new image of your app. The image should be ready to run (includes the initialized database and app) 
-   - export the MySQL data directory (`./BIN/mysql-data`). You may mount it later
+   - export the MySQL data directory (`./BIN/mysql-data` by default). You may mount it later
 ## Running with Docker
 Simply run the `./container-run.ps1` script. It loads the app image, binds the MySQL data directory and runs your app. The API will be available at **https://127.0.0.1:1986**. MySQL should be also available from outside the container at **127.0.0.1:13306**.
