@@ -1,14 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
 using ServiceStack.Data;
 
+using Solti.Utils.DI;
 using Solti.Utils.DI.Interfaces;
-using Solti.Utils.Primitives;
-using Solti.Utils.Rpc.Interfaces;
+using Solti.Utils.Rpc;
 using Solti.Utils.Rpc.Hosting;
+using Solti.Utils.Rpc.Interfaces;
 
 namespace Server
 {
@@ -25,16 +27,10 @@ namespace Server
     {
         private IConfig Config { get; }
 
-        public override string Name => "MyApp";
-
-        public override string Url => Config.Server.Host;
-
         public AppHost()
         {
             Config = Services.Config.Read("config.json");
-            Config.Server.AllowedOrigins?.ForEach((origin, _) => RpcService.AllowedOrigins.Add(origin));
-
-            RpcService.SerializerOptions.PropertyNamingPolicy = new LowerCasePolicy();
+            Name = "MyApp";
 #if RELEASE
             AutoStart = true;
 #endif
@@ -46,34 +42,48 @@ namespace Server
             public override string ConvertName(string name) => name.ToLowerInvariant();
         }
 
-        public override void OnRegisterModules(IModuleRegistry registry)
+        public override void OnBuildService(RpcServiceBuilder serviceBuilder)
         {
-            if (registry is null)
-                throw new ArgumentNullException(nameof(registry));
+            if (serviceBuilder is null)
+                throw new ArgumentNullException(nameof(serviceBuilder));
 
-            base.OnRegisterModules(registry);
-
-            registry.Register<IUserManager, UserManager>();
+            serviceBuilder
+                .ConfigureWebService(new WebServiceDescriptor
+                 {
+                     Url = Config.Server.Host,
+                     AllowedOrigins = new List<string>(Config.Server.AllowedOrigins ?? Array.Empty<string>())
+                 })
+                .ConfigureSerializer(new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = new LowerCasePolicy()
+                })
+                .ConfigureModules(registry => registry
+                    .Register<IUserManager, UserManager>())
+                .ConfigureServices(svcs => svcs
+                    .Instance<IConfig>(Config)
+                    .Provider<IDbConnectionFactory, MySqlDbConnectionFactoryProvider>(Lifetime.Singleton)
+                    .Provider<IDbConnection, SqlConnectionProvider>(Lifetime.Scoped)
+                    //.Service<ICache, RedisCache>(Lifetime.Scoped)
+                    .Service<ICache, MemoryCache>(Lifetime.Singleton)
+                    .Service<IRoleManager, RoleManager>(Lifetime.Scoped)
+                    .Service<IAsyncRoleManager, RoleManager>(Lifetime.Scoped)
+                    .Service<IUserRepository, SqlUserRepository>(Lifetime.Scoped));
         }
-
         public override void OnInstall()
         {
             base.OnInstall();
 
-            using IInjector injector = CreateInjector();
-
-            //
-            // These services are required for installation only.
-            //
-
-            injector
-                .UnderlyingContainer
+            using IScopeFactory scopeFactory = ScopeFactory.Create(svcs => svcs
+                .Instance<IConfig>(Config)
+                .Instance<IReadOnlyList<string>>("CommandLineArgs", Environment.GetCommandLineArgs())
+                .Provider<IDbConnectionFactory, MySqlDbConnectionFactoryProvider>(Lifetime.Singleton)
+                .Provider<IDbConnection, SqlConnectionProvider>(Lifetime.Scoped)
                 .Service<IDbSchemaManager, SqlDbSchemaManager>(Lifetime.Scoped)
-                .Service<IInstaller, Installer>(Lifetime.Scoped);
+                .Service<IUserRepository, SqlUserRepository>(Lifetime.Scoped));
 
-            injector
-                .Get<IInstaller>()
-                .Run(GetType().Assembly);
+            using IInjector injector = scopeFactory.CreateScope();
+
+            injector.Instantiate<Installer>().Run(GetType().Assembly);
         }
 
         public override void OnUnhandledException(Exception ex)
@@ -100,28 +110,10 @@ namespace Server
             {
                 //
                 // We have no Console
-                // //
+                //
             }
 
             Environment.Exit(-1);
-        }
-
-        public override void OnRegisterServices(IServiceContainer container)
-        {
-            if (container is null)
-                throw new ArgumentNullException(nameof(container));
-
-            base.OnRegisterServices(container);
-
-            container
-                .Instance<IConfig>(Config)
-                .Provider<IDbConnectionFactory, MySqlDbConnectionFactoryProvider>(Lifetime.Singleton)
-                .Provider<IDbConnection, SqlConnectionProvider>(Lifetime.Scoped)
-                //.Service<ICache, RedisCache>(Lifetime.Scoped)
-                .Service<ICache, MemoryCache>(Lifetime.Singleton)
-                .Service<IRoleManager, RoleManager>(Lifetime.Scoped)
-                .Service<IAsyncRoleManager, RoleManager>(Lifetime.Scoped)
-                .Service<IUserRepository, SqlUserRepository>(Lifetime.Scoped);
         }
     }
 }

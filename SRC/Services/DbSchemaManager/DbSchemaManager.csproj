@@ -8,8 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ServiceStack.OrmLite.Core" Version="5.11.0" />
-    <PackageReference Include="Solti.Utils.OrmLite.Extensions" Version="2.1.0" />
+    <PackageReference Include="ServiceStack.OrmLite.Core" Version="5.12.0" />
+    <PackageReference Include="Solti.Utils.OrmLite.Extensions" Version="3.0.0" />
   </ItemGroup>
 
   <ItemGroup>

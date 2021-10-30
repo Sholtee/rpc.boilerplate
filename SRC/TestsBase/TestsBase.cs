@@ -4,7 +4,6 @@ using NUnit.Framework;
 
 using ServiceStack.Data;
 
-using Solti.Utils.DI;
 using Solti.Utils.DI.Interfaces;
 
 namespace Tests.Base
@@ -14,34 +13,35 @@ namespace Tests.Base
 
     public class TestsBase
     {
-        public IServiceContainer? Container { get; private set; }
+        public IScopeFactory? ScopeFactory { get; private set; }
 
         public IInjector? Injector { get; private set; }
 
         [OneTimeSetUp]
-        public virtual void OneTimeSetup() 
+        public void OneTimeSetup() => ScopeFactory = Solti.Utils.DI.ScopeFactory.Create(svcs =>
         {
-            Container = new ServiceContainer();
-
-            Container
-                .Service<ICache, MemoryCache>(Lifetime.Singleton)              
+            svcs
+                .Service<ICache, MemoryCache>(Lifetime.Singleton)
                 .Instance<IConfig>(Config.Read("config.test.json"))
                 .Provider<IDbConnectionFactory, MySqlDbConnectionFactoryProvider>(Lifetime.Singleton)
                 .Provider<IDbConnection, SqlConnectionProvider>(Lifetime.Scoped)
                 .Service<IDbSchemaManager, SqlDbSchemaManager>(Lifetime.Scoped);
-        }
+            OneTimeSetup(svcs);
+        });
+
+        public virtual void OneTimeSetup(IServiceCollection svcs) { }
 
         [OneTimeTearDown]
         public virtual void OneTimeTearDown() 
         {
-            Container?.Dispose();
-            Container = null;
+            ScopeFactory?.Dispose();
+            ScopeFactory = null;
         }
 
         [SetUp]
         public virtual void Setup()
         {
-            Injector = Container!.CreateInjector();
+            Injector = ScopeFactory!.CreateScope();
             Injector.Get<ICache>().Clear();
         }
 

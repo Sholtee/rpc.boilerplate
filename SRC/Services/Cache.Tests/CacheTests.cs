@@ -70,7 +70,7 @@ namespace Services.Tests
         {
             Assert.That(Cache!.Add(key, val, TimeSpan.FromDays(1)));
 
-            using IInjector injector = Container!.CreateInjector();
+            using IInjector injector = ScopeFactory!.CreateScope();
             ICache second = injector.Get<ICache>();
 
             Assert.That(second.TryGetValue(key, out int result));
@@ -102,7 +102,7 @@ namespace Services.Tests
             for (int i = 0; i < 5; i++)
                 Assert.That(Cache.TryGetValue(key, out int _));
 
-            using IInjector injector = Container!.CreateInjector();
+            using IInjector injector = ScopeFactory!.CreateScope();
             ICache second = injector.Get<ICache>();
 
             for (int i = 0; i < 5; i++)

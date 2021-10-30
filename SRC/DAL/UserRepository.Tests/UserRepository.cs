@@ -25,12 +25,7 @@ namespace DAL.Tests
 
         public IDbConnection Connection { get; set; }
 
-        public override void OneTimeSetup()
-        {
-            base.OneTimeSetup();
-
-            Container.Service<IUserRepository, SqlUserRepository>(Lifetime.Scoped);
-        }
+        public override void OneTimeSetup(IServiceCollection svcs) => svcs.Service<IUserRepository, SqlUserRepository>(Lifetime.Scoped);
 
         public override void Setup()
         {
