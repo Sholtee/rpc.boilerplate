@@ -3,7 +3,7 @@
   <Import Project="..\..\Common.targets" />
 
   <PropertyGroup>
-    <AssemblyName>$(AppName).Modules.RoleManager</AssemblyName>
+    <AssemblyName>$(AppName).Services.RoleManager</AssemblyName>
     <RootNamespace>Services</RootNamespace>
   </PropertyGroup>
 
