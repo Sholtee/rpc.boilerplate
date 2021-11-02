@@ -6,7 +6,7 @@ using Solti.Utils.Rpc.Interfaces;
 
 namespace DAL.API
 {
-    [ParameterValidatorAspect]
+    [ParameterValidatorAspect, LoggerAspect(typeof(ServiceMethodScopeLogger), typeof(StopWatchLogger), typeof(ExceptionLogger))]
     public interface IUserRepository
     {
         Task<Guid> Create([NotNull, ValidateProperties] User user, [NotNull, LengthBetween(min: 5)] string password, string[] groups, CancellationToken cancellation = default);

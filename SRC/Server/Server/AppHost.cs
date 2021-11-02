@@ -4,6 +4,8 @@ using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
+using Microsoft.Extensions.Logging;
+
 using ServiceStack.Data;
 
 using Solti.Utils.DI;
@@ -23,7 +25,7 @@ namespace Server
     using Services;
     using Services.API;
 
-    public class AppHost : AppHostBase
+    public sealed class AppHost : AppHostBase
     {
         private IConfig Config { get; }
 
@@ -63,6 +65,7 @@ namespace Server
                     .Instance<IConfig>(Config)
                     .Provider<IDbConnectionFactory, MySqlDbConnectionFactoryProvider>(Lifetime.Singleton)
                     .Provider<IDbConnection, SqlConnectionProvider>(Lifetime.Scoped)
+                    .Factory<ILogger>(i => TraceLogger.Create<AppHost>(), Lifetime.Singleton)
                     //.Service<ICache, RedisCache>(Lifetime.Scoped)
                     .Service<ICache, MemoryCache>(Lifetime.Singleton)
                     .Service<IRoleManager, RoleManager>(Lifetime.Scoped)
@@ -78,6 +81,7 @@ namespace Server
                 .Instance<IReadOnlyList<string>>("CommandLineArgs", Environment.GetCommandLineArgs())
                 .Provider<IDbConnectionFactory, MySqlDbConnectionFactoryProvider>(Lifetime.Singleton)
                 .Provider<IDbConnection, SqlConnectionProvider>(Lifetime.Scoped)
+                .Factory<ILogger>(i => TraceLogger.Create<AppHost>(), Lifetime.Singleton)
                 .Service<IDbSchemaManager, SqlDbSchemaManager>(Lifetime.Scoped)
                 .Service<IUserRepository, SqlUserRepository>(Lifetime.Scoped));
 
