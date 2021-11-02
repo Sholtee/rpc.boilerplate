@@ -10,7 +10,7 @@
   <ItemGroup>
     <PackageReference Include="nunit" Version="3.13.2" />
     <PackageReference Include="Injector.NET" Version="6.0.0-preview2" />
-    <PackageReference Include="RPC.NET.Server" Version="5.0.0-preview1" />
+    <PackageReference Include="RPC.NET.Server" Version="5.0.0-preview2" />
     <PackageReference Include="ServiceStack.Interfaces.Core" Version="5.12.0" />
   </ItemGroup>
       
@@ -21,6 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Server\Server\Server.csproj" />
     <ProjectReference Include="..\Services\Cache.API\Cache.API.csproj" />
     <ProjectReference Include="..\Services\Cache\Cache.csproj" />
     <ProjectReference Include="..\Services\Config.API\Config.API.csproj" />
