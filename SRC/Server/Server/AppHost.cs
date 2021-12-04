@@ -19,6 +19,8 @@ namespace Server
     using DAL;
     using DAL.API;
 
+    using Loggers;
+
     using Modules;
     using Modules.API;
 

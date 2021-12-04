@@ -3,8 +3,7 @@
   <Import Project="..\..\Common.targets" />
 
   <PropertyGroup>
-    <OutputType Condition="'$(Configuration)'=='Debug'">Library</OutputType>
-    <OutputType Condition="'$(Configuration)'=='Release'">Exe</OutputType>
+    <OutputType>Exe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
     <AssemblyName>$(AppName).Server</AssemblyName>
     <RootNamespace>Server</RootNamespace>
@@ -34,6 +33,7 @@
     <ProjectReference Include="..\..\Services\Installer\Installer.csproj" />
     <ProjectReference Include="..\..\Services\RoleManager.API\RoleManager.API.csproj" />
     <ProjectReference Include="..\..\Services\RoleManager\RoleManager.csproj" />
+    <ProjectReference Include="..\Loggers\Loggers.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Server\Server\Server.csproj" />
+    <ProjectReference Include="..\Server\Loggers\Loggers.csproj" />
     <ProjectReference Include="..\Services\Cache.API\Cache.API.csproj" />
     <ProjectReference Include="..\Services\Cache\Cache.csproj" />
     <ProjectReference Include="..\Services\Config.API\Config.API.csproj" />

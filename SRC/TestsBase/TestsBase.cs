@@ -9,7 +9,7 @@ using Solti.Utils.DI.Interfaces;
 
 namespace Tests.Base
 {
-    using Server;
+    using Server.Loggers;
     using Services.API;
     using Services;
 
@@ -25,7 +25,7 @@ namespace Tests.Base
             svcs
                 .Service<ICache, MemoryCache>(Lifetime.Singleton)
                 .Instance<IConfig>(Config.Read("config.test.json"))
-                .Factory<ILogger>(i => TraceLogger.Create<AppHost>(), Lifetime.Singleton)
+                .Factory<ILogger>(i => TraceLogger.Create<TestsBase>(), Lifetime.Singleton)
                 .Provider<IDbConnectionFactory, MySqlDbConnectionFactoryProvider>(Lifetime.Singleton)
                 .Provider<IDbConnection, SqlConnectionProvider>(Lifetime.Scoped)
                 .Service<IDbSchemaManager, SqlDbSchemaManager>(Lifetime.Scoped);

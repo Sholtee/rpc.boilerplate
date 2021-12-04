@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="../../Common.targets" />
+
+  <PropertyGroup>
+	<AssemblyName>$(AppName).Server.Loggers</AssemblyName>
+	<RootNamespace>Server</RootNamespace>
+  </PropertyGroup>
+	
+  <ItemGroup>
+    <PackageReference Include="RPC.NET.Server" Version="5.0.0-preview3" />
+  </ItemGroup>
+
+</Project>

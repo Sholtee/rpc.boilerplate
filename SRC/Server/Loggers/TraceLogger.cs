@@ -4,9 +4,9 @@ using Microsoft.Extensions.Logging;
 
 using Solti.Utils.Rpc.Internals;
 
-namespace Server
+namespace Server.Loggers
 {
-    internal sealed class TraceLogger : LoggerBase
+    public sealed class TraceLogger : LoggerBase
     {
         protected override void LogCore(string message) => Trace.WriteLine(message);
 
