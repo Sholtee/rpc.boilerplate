@@ -10,7 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="Moq" Version="4.16.1" />
-    <PackageReference Include="RPC.NET.Interfaces" Version="5.0.0-preview2" />
+    <PackageReference Include="RPC.NET.Interfaces" Version="5.0.0-preview3" />
   </ItemGroup>
   
   <ItemGroup>

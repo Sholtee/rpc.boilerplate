@@ -8,10 +8,10 @@ namespace Modules.API
 {
     using Services.API;
 
-    [ParameterValidatorAspect, RoleValidatorAspect, TransactionAspect]
+    [ParameterValidatorAspect, RoleValidatorAspect, TransactionAspect, ModuleLoggerAspect]
     public interface IUserManager
     {
-        [RequiredRoles(Roles.Admin), Transactional]
+        [RequiredRoles(Roles.Admin), Transactional, Loggers(typeof(ModuleMethodScopeLogger), typeof(ExceptionLogger), /*typeof(ParameterLogger),*/ typeof(StopWatchLogger))]
         Task<Guid> Create([NotNull, ValidateProperties] User user, [NotNull, LengthBetween(min: 5)] string pw, [NotNull] string[] groups);
 
         [RequiredRoles(Roles.Admin), Transactional]
@@ -23,7 +23,7 @@ namespace Modules.API
         [RequiredRoles(Roles.Admin), Transactional(IsolationLevel = IsolationLevel.Serializable)]
         Task<PartialUserList> List(int skip, int count);
 
-        [RequiredRoles(Roles.AnonymousUser)]
+        [RequiredRoles(Roles.AnonymousUser), Loggers(typeof(ModuleMethodScopeLogger), typeof(ExceptionLogger), /*typeof(ParameterLogger),*/ typeof(StopWatchLogger))]
         Task<Guid> Login([NotNull, LengthBetween(min: 5)] string emailOrUserName, [NotNull, LengthBetween(min: 5)] string pw);
 
         [RequiredRoles(Roles.AuthenticatedUser)]

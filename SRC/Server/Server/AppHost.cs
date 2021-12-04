@@ -69,7 +69,6 @@ namespace Server
                     //.Service<ICache, RedisCache>(Lifetime.Scoped)
                     .Service<ICache, MemoryCache>(Lifetime.Singleton)
                     .Service<IRoleManager, RoleManager>(Lifetime.Scoped)
-                    .Service<IAsyncRoleManager, RoleManager>(Lifetime.Scoped)
                     .Service<IUserRepository, SqlUserRepository>(Lifetime.Scoped));
         }
         public override void OnInstall()

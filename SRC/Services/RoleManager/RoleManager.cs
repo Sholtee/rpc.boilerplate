@@ -9,7 +9,7 @@ namespace Services
     using API;
     using DAL.API;
 
-    public class RoleManager : IRoleManager, IAsyncRoleManager
+    public class RoleManager : IRoleManager
     {
         private readonly Lazy<IUserRepository> FUserRepository;
         public IUserRepository UserRepository => FUserRepository.Value;
