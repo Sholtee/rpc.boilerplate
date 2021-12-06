@@ -3,15 +3,11 @@ param(
   [string]
   $MYSQL_PW,
 
-  [Parameter(Mandatory=$true)]
-  [string]
-  $HOST_NAME,
-
   [string]
   $BIN_FOLDER='./BIN'
 )
 
-docker build -t mysql . --file mysql.dockerfile --progress=plain --build-arg MYSQL_PW=$MYSQL_PW --build-arg CUSTOM_SQL="CREATE USER 'root'@'$($HOST_NAME)' IDENTIFIED BY '$($MYSQL_PW)';GRANT ALL ON *.* TO 'root'@'$($HOST_NAME)';"
+docker build -t mysql . --file mysql.dockerfile --progress=plain --rm --build-arg MYSQL_PW=$MYSQL_PW
 
 if (Test-Path $BIN_FOLDER) {
   Remove-Item $BIN_FOLDER -Recurse -Force
