@@ -24,8 +24,8 @@ WORKDIR /mysql-8.0.25-winx64
 COPY --from=prep /download/mysql-8.0.25-winx64 .
 
 WORKDIR /mysql-8.0.25-winx64/bin
-ARG MYSQL_PW=cica123
-ENV MYSQL_PWD=$MYSQL_PW
+ARG MYSQL_PWD=secret
+ENV MYSQL_PWD=$MYSQL_PWD
 
 RUN \
   Write-Host 'Installing MySQL...';\

@@ -1,13 +1,13 @@
 param(
   [Parameter(Mandatory=$true)]
   [string]
-  $MYSQL_PW,
+  $MYSQL_PWD,
 
   [string]
   $BIN_FOLDER='./BIN'
 )
 
-docker build -t mysql . --file mysql.dockerfile --progress=plain --rm --build-arg MYSQL_PW=$MYSQL_PW
+docker build -t mysql . --file mysql.dockerfile --progress=plain --rm --build-arg MYSQL_PWD=$MYSQL_PWD
 
 if (Test-Path $BIN_FOLDER) {
   Remove-Item $BIN_FOLDER -Recurse -Force
