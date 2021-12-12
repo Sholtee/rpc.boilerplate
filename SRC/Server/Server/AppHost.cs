@@ -93,7 +93,14 @@ namespace Server
             InvokeInstaller(installer => installer.Install(GetParsedArguments<InstallArguments>()));
         }
 
-        public override void OnUnhandledException(Exception ex) => Console.Error.WriteLine(ex?.ToString() ?? "Unknown error");
+        public override void OnUnhandledException(Exception ex)
+        {
+            string msg = ex?.Message ?? "Unknown error";
+            if (ex is ValidationException validationException)
+                msg += $"{Environment.NewLine}Target: {validationException.TargetName}";
+
+            Console.Error.WriteLine(msg);
+        }
 
         [Verb("status")]
         public void OnPrintStatus() => InvokeInstaller(installer => Console.Out.WriteLine(installer.Status));
