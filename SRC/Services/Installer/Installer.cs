@@ -24,7 +24,8 @@ namespace Services
             if (args is null)
                 throw new ArgumentNullException(nameof(args));
 
-            Schema.Initialize();
+            if (!Schema.IsInitialized)
+                Schema.Initialize();
 
             string? password = !string.IsNullOrEmpty(args.PasswordVariable)
                 ? Environment.GetEnvironmentVariable(args.PasswordVariable)!
