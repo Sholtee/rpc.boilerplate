@@ -3,11 +3,15 @@ param(
   [string]
   $MYSQL_PWD,
 
+  [Parameter(Mandatory=$true)]
+  [string]
+  $MYSQL_DB,
+
   [string]
   $BIN_FOLDER='./BIN'
 )
 
-docker build -t mysql . --file mysql.dockerfile --progress=plain --rm --build-arg MYSQL_PWD=$MYSQL_PWD
+docker build -t mysql . --file mysql.dockerfile --progress=plain --rm --build-arg MYSQL_PWD=$MYSQL_PWD --build-arg MYSQL_DB=$MYSQL_DB
 
 if (Test-Path $BIN_FOLDER) {
   Remove-Item $BIN_FOLDER -Recurse -Force

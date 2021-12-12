@@ -24,6 +24,7 @@ WORKDIR /mysql-8.0.25-winx64
 COPY --from=prep /download/mysql-8.0.25-winx64 .
 
 WORKDIR /mysql-8.0.25-winx64/bin
+ARG MYSQL_DB=mydb
 ARG MYSQL_PWD=secret
 ENV MYSQL_PWD=$MYSQL_PWD
 
@@ -33,9 +34,10 @@ RUN \
   Start-Process './mysqld.exe' -ArgumentList '--install' -Wait -NoNewWindow;\
   Start-Service MySQL;\
   Get-Service MySQL;\
-  Start-Process './mysqld.exe' -ArgumentList '--skip-name-resolve=ON' -Wait -NoNewWindow;\
-  Start-Process './mysqladmin.exe' -ArgumentList ('--user=root --skip-password password \"{0}\"' -f $ENV:MYSQL_PWD) -Wait -NoNewWindow;
-
+  Start-Process './mysqladmin.exe' -ArgumentList ('--user=root --skip-password password \"{0}\"' -f $ENV:MYSQL_PWD) -Wait -NoNewWindow;\
+  Start-Process './mysqladmin.exe' -ArgumentList ('--user=root create {0}' -f $ENV:MYSQL_DB) -Wait -NoNewWindow;\
+  Start-Process './mysql.exe' -ArgumentList ('--user=root --execute=\"CREATE USER ''root''@''%'' IDENTIFIED BY ''{0}''; GRANT ALL ON *.* TO ''root''@''%''\"' -f $ENV:MYSQL_PWD) -Wait -NoNewWindow;
+  
 ENTRYPOINT \
   for() {\
     Start-Process './mysqladmin.exe' -ArgumentList '--user=root ping' -Wait -NoNewWindow;\
