@@ -1,13 +1,16 @@
-﻿using System.Reflection;
+﻿using Solti.Utils.Rpc.Interfaces;
 
-using Solti.Utils.Rpc.Interfaces;
-
-namespace Services
+namespace Services.API
 {
-    [ParameterValidatorAspect, TransactionAspect]
+    [TransactionAspect]
     public interface IInstaller 
     {
         [Transactional]
-        void Run([NotNull] Assembly hostAssembly);
+        void Install(InstallArguments args);
+
+        [Transactional]
+        void Migrate(string migrationFilesDir);
+
+        string Status { get; }
     }
 }

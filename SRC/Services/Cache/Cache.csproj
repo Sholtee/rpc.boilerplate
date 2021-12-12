@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Injector.NET.Interfaces" Version="6.0.0-preview2" />
+    <PackageReference Include="Injector.NET.Interfaces" Version="6.0.0" />
     <PackageReference Include="ServiceStack.Redis.Core" Version="5.11.0" />
     <PackageReference Include="Solti.Utils.Primitives" Version="6.1.2" />
     <PackageReference Include="System.Runtime.Caching" Version="5.0.0" />

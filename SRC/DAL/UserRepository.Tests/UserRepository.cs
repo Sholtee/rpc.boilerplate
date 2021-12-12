@@ -35,12 +35,12 @@ namespace DAL.Tests
             UserRepository = Injector.Get<IUserRepository>();
             Connection = Injector.Get<IDbConnection>();
 
-            SchemaManager.CreateTables(typeof(DAL.User).Assembly);
+            SchemaManager.Initialize();
         }
 
         public override void TearDown()
         {
-            SchemaManager.DropTables(typeof(DAL.User).Assembly);
+            SchemaManager.Drop();
 
             base.TearDown();
         }

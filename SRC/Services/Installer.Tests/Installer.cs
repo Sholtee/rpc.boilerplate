@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 
 using Moq;
@@ -14,28 +13,48 @@ namespace Services.Tests
     [TestFixture]
     public class InstallerTests
     {
-        [TestCase("-u", "-p")]
-        [TestCase("--u", "--p")]
-        [TestCase("-user", "-password")]
-        [TestCase("--user", "--password")]
-        public void Run_ShouldInitializeTheDatabaseAndRegisterTheRootUser(string userSwitch, string pwSwitch)
+        [Test]
+        public void Run_ShouldInitializeTheDatabaseAndRegisterTheRootUser()
         {
             var mockSchemaManager = new Mock<IDbSchemaManager>(MockBehavior.Strict);
             mockSchemaManager
-                .Setup(sm => sm.CreateTables(It.Is<Assembly[]>(asms => asms.Length > 0 && asms.All(asm => asm.FullName.Contains(".DAL.")))));
+                .Setup(sm => sm.Initialize());
 
             var mockUserRepo = new Mock<IUserRepository>(MockBehavior.Strict);
             mockUserRepo
                 .Setup(r => r.Create(It.Is<DAL.API.User>(u => u.FullName == "Superuser" && u.EmailOrUserName == "root@root.hu"), "cica12", It.Is<string[]>(grps => grps.Single() == "Admins"), default))
                 .Returns(Task.FromResult(Guid.NewGuid()));
 
-            typeof(DAL.User).GetHashCode(); // force to load the containing assembly
+            typeof(DAL.User).GetHashCode(); // force loading the containing assembly
 
-            var installer = new Installer(mockSchemaManager.Object, new string[] { typeof(InstallerTests).Assembly.Location, "-install", "-noservice", userSwitch, "root@root.hu",  pwSwitch, "cica12" }, mockUserRepo.Object);
-            installer.Run(GetType().Assembly);
+            Installer installer = new(mockSchemaManager.Object, mockUserRepo.Object);
 
-            mockSchemaManager.Verify(sm => sm.CreateTables(It.IsAny<Assembly[]>()), Times.Once);
-            mockUserRepo.Verify(um => um.Create(It.IsAny<DAL.API.User>(), It.IsAny<string>(), It.IsAny<string[]>(), default));
+            Assert.DoesNotThrow(() => installer.Install(new InstallArguments 
+            {
+                User = "root@root.hu",
+                Password = "cica12"
+            }));
+            
+            mockSchemaManager.Verify(sm => sm.Initialize(), Times.Once);
+            mockUserRepo.Verify(um => um.Create(It.IsAny<User>(), It.IsAny<string>(), It.IsAny<string[]>(), default), Times.Once);
+        }
+
+        [Test]
+        public void Run_ShouldPrintTheCurrentState()
+        {
+            var mockSchemaManager = new Mock<IDbSchemaManager>(MockBehavior.Strict);
+            mockSchemaManager
+                .SetupGet(sm => sm.IsInitialized)
+                .Returns(true);
+
+            DateTime lastMigration = DateTime.Now;
+
+            mockSchemaManager
+                .Setup(sm => sm.GetLastMigrationUtc())
+                .Returns(lastMigration);
+
+            Installer installer = new(mockSchemaManager.Object, new Mock<IUserRepository>(MockBehavior.Strict).Object);
+            Assert.That(installer.Status, Is.EqualTo($"INSTALLED (Last Migration: {lastMigration})"));
         }
     }
 }

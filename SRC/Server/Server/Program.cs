@@ -1,9 +1,3 @@
-﻿using Solti.Utils.Rpc.Hosting;
+﻿using Server;
 
-namespace Server
-{
-    public static class Program
-    {
-        static void Main() => HostRunner.Run<AppHost>();
-    }
-}
+return new AppHost(args).Run();

@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+﻿using System;
 
 using Solti.Utils.Rpc.Interfaces;
 
@@ -7,8 +7,14 @@ namespace Services.API
     [ParameterValidatorAspect]
     public interface IDbSchemaManager
     {
-        void CreateTables([NotNull] params Assembly[] asmsToSearch);
+        void Initialize();
 
-        void DropTables([NotNull] params Assembly[] asmsToSearch);
+        void Drop();
+
+        bool IsInitialized { get; }
+
+        DateTime GetLastMigrationUtc();
+
+        bool Migrate(DateTime createdAtUtc, [NotNull] string sql, string? comment = null);
     }
 }

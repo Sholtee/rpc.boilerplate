@@ -13,6 +13,7 @@ using Solti.Utils.DI.Interfaces;
 using Solti.Utils.Rpc;
 using Solti.Utils.Rpc.Hosting;
 using Solti.Utils.Rpc.Interfaces;
+using Solti.Utils.Rpc.Internals;
 
 namespace Server
 {
@@ -31,14 +32,7 @@ namespace Server
     {
         private IConfig Config { get; }
 
-        public AppHost()
-        {
-            Config = Services.Config.Read("config.json");
-            Name = "MyApp";
-#if RELEASE
-            AutoStart = true;
-#endif
-        }
+        public AppHost(IReadOnlyList<string> args) : base(args) => Config = Services.Config.Read("config.json");
 
         private sealed class LowerCasePolicy : JsonNamingPolicy
         {
@@ -46,10 +40,28 @@ namespace Server
             public override string ConvertName(string name) => name.ToLowerInvariant();
         }
 
-        public override void OnBuildService(RpcServiceBuilder serviceBuilder)
+        private void InvokeInstaller(Action<IInstaller> invocation)
+        {
+            using IScopeFactory scopeFactory = ScopeFactory.Create(svcs => svcs
+                .Instance<IConfig>(Config)
+                .Instance<ILogger>(ConsoleLogger.Create<AppHost>())
+                .Provider<IDbConnectionFactory, MySqlDbConnectionFactoryProvider>(Lifetime.Singleton)
+                .Provider<IDbConnection, SqlConnectionProvider>(Lifetime.Scoped)
+                .Service<IDbSchemaManager, SqlDbSchemaManager>(Lifetime.Scoped)
+                .Service<IUserRepository, SqlUserRepository>(Lifetime.Scoped)
+                .Service<IInstaller, Installer>(Lifetime.Scoped));
+
+            using IInjector injector = scopeFactory.CreateScope();
+
+            invocation(injector.Get<IInstaller>());
+        }
+
+        public override void OnConfigure(RpcServiceBuilder serviceBuilder)
         {
             if (serviceBuilder is null)
                 throw new ArgumentNullException(nameof(serviceBuilder));
+
+            base.OnConfigure(serviceBuilder);
 
             serviceBuilder
                 .ConfigureWebService(new WebServiceDescriptor
@@ -65,60 +77,25 @@ namespace Server
                     .Register<IUserManager, UserManager>())
                 .ConfigureServices(svcs => svcs
                     .Instance<IConfig>(Config)
+                    .Instance<ILogger>(ConsoleLogger.Create<AppHost>())
                     .Provider<IDbConnectionFactory, MySqlDbConnectionFactoryProvider>(Lifetime.Singleton)
                     .Provider<IDbConnection, SqlConnectionProvider>(Lifetime.Scoped)
-                    .Factory<ILogger>(i => TraceLogger.Create<AppHost>(), Lifetime.Singleton)
                     //.Service<ICache, RedisCache>(Lifetime.Scoped)
                     .Service<ICache, MemoryCache>(Lifetime.Singleton)
                     .Service<IRoleManager, RoleManager>(Lifetime.Scoped)
                     .Service<IUserRepository, SqlUserRepository>(Lifetime.Scoped));
         }
+
         public override void OnInstall()
         {
             base.OnInstall();
 
-            using IScopeFactory scopeFactory = ScopeFactory.Create(svcs => svcs
-                .Instance<IConfig>(Config)
-                .Instance<IReadOnlyList<string>>("CommandLineArgs", Environment.GetCommandLineArgs())
-                .Provider<IDbConnectionFactory, MySqlDbConnectionFactoryProvider>(Lifetime.Singleton)
-                .Provider<IDbConnection, SqlConnectionProvider>(Lifetime.Scoped)
-                .Factory<ILogger>(i => TraceLogger.Create<AppHost>(), Lifetime.Singleton)
-                .Service<IDbSchemaManager, SqlDbSchemaManager>(Lifetime.Scoped)
-                .Service<IUserRepository, SqlUserRepository>(Lifetime.Scoped));
-
-            using IInjector injector = scopeFactory.CreateScope();
-
-            injector.Instantiate<Installer>().Run(GetType().Assembly);
+            InvokeInstaller(installer => installer.Install(GetParsedArguments<InstallArguments>()));
         }
 
-        public override void OnUnhandledException(Exception ex)
-        {
-            if (ex is null)
-                throw new ArgumentNullException(nameof(ex));
+        public override void OnUnhandledException(Exception ex) => Console.Error.WriteLine(ex?.ToString() ?? "Unknown error");
 
-            base.OnUnhandledException(ex);
-
-            string msg = ex.Message;
-            if (ex is ValidationException validationException)
-                msg += $"{Environment.NewLine}Target: {validationException.TargetName}";
-
-            try
-            {
-                ConsoleColor oldColor = Console.ForegroundColor;
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine(msg);
-                Console.ForegroundColor = oldColor;
-            }
-            #pragma warning disable CA1031 // Do not catch general exception types
-            catch
-            #pragma warning restore CA1031
-            {
-                //
-                // We have no Console
-                //
-            }
-
-            Environment.Exit(-1);
-        }
+        [Verb("status")]
+        public void OnPrintStatus() => InvokeInstaller(installer => Console.Out.WriteLine(installer.Status));
     }
 }

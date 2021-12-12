@@ -1,4 +1,6 @@
-﻿using System.Data;
+﻿using System;
+using System.Data;
+using System.Linq;
 using System.Reflection;
 
 using Solti.Utils.OrmLite.Extensions;
@@ -7,22 +9,14 @@ namespace Services
 {
     using API;
 
-    public class SqlDbSchemaManager : IDbSchemaManager
+    public class SqlDbSchemaManager : Schema, IDbSchemaManager
     {
-        public IDbConnection Connection { get; }
-
-        public SqlDbSchemaManager(IDbConnection connection) => Connection = connection;
-
-        public void CreateTables(params Assembly[] asmsToSearch)
+        public SqlDbSchemaManager(IDbConnection connection) : base(connection ?? throw new ArgumentNullException(nameof(connection)), AppDomain
+            .CurrentDomain
+            .GetAssemblies()
+            .Where(asm => asm.GetCustomAttribute<DataAccessAssemblyAttribute>() is not null)
+            .ToArray())
         {
-            var schema = new Schema(Connection, asmsToSearch);
-            schema.CreateTablesCascaded();
-        }
-
-        public void DropTables(params Assembly[] asmsToSearch)
-        {
-            var schema = new Schema(Connection, asmsToSearch);
-            schema.DropTablesCascaded();
         }
     }
 }
