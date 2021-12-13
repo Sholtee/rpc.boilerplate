@@ -13,4 +13,4 @@ FROM mcr.microsoft.com/windows/nanoserver:ltsc2022
 WORKDIR /redis
 COPY --from=prep /download/redis-bin .
 
-ENTRYPOINT redis-server.exe
+ENTRYPOINT redis-server.exe --protected-mode no
