@@ -7,16 +7,18 @@ services:
       args:
         MYSQL_PWD: secret
         MYSQL_DB: myapp_test
+    container_name: "test-db"
   redis:
     build:
       context: .
       dockerfile: redis.dockerfile
-  test:
+    container_name: "test-redis"
+  test_env:
     image: mcr.microsoft.com/dotnet/sdk:5.0
     links:
       - db
       - redis
     working_dir: \App
     volumes:
-      - .:C:\App
-    command: ['pwsh', '-file', 'test.ps1']
+      - ..\:C:\App
+    container_name: "test-env"

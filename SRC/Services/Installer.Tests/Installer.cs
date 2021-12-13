@@ -19,6 +19,9 @@ namespace Services.Tests
             var mockSchemaManager = new Mock<IDbSchemaManager>(MockBehavior.Strict);
             mockSchemaManager
                 .Setup(sm => sm.Initialize());
+            mockSchemaManager
+                .SetupGet(sm => sm.IsInitialized)
+                .Returns(false);
 
             var mockUserRepo = new Mock<IUserRepository>(MockBehavior.Strict);
             mockUserRepo
