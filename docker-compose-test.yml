@@ -1,0 +1,16 @@
+version: "3.9"
+services:
+  db:
+    build:
+      context: .
+      dockerfile: mysql.dockerfile
+      args:
+        MYSQL_PWD: secret
+        MYSQL_DB: myapp_test
+  test:
+    image: mcr.microsoft.com/dotnet/runtime:5.0-windowsservercore-ltsc2019
+    links:
+      - db
+    working_dir: \SRC
+    volumes:
+      - .\SRC:C:\SRC
