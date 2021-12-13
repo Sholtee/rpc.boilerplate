@@ -3,7 +3,7 @@ services:
   db:
     build:
       context: .
-      dockerfile: mysql.dockerfile
+      dockerfile: ..\mysql.dockerfile
       args:
         MYSQL_PWD: secret
         MYSQL_DB: myapp_test
@@ -11,7 +11,7 @@ services:
   redis:
     build:
       context: .
-      dockerfile: redis.dockerfile
+      dockerfile: ..\redis.dockerfile
     container_name: "test-redis"
   test_env:
     image: mcr.microsoft.com/dotnet/sdk:5.0
@@ -20,5 +20,5 @@ services:
       - redis
     working_dir: \App
     volumes:
-      - ..\:C:\App
+      - ..\..\:C:\App
     container_name: "test-env"

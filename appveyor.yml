@@ -9,7 +9,7 @@ clone_script:
       git checkout -qf %APPVEYOR_REPO_COMMIT%
 
 test_script:
-  - cmd: .\test.cmd
+  - ps: .\test.ps1
 
 after_test:
   - ps: |
