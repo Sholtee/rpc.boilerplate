@@ -2,5 +2,6 @@
 .vs/
 obj/
 launchSettings.json
-config.*.json
+config.dev.json
+config.live.json
 Artifacts
