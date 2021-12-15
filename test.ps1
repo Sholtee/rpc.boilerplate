@@ -6,6 +6,6 @@ if ($target -ne '') {
     $remoteCommand+=" '$target'"
 }
 
-$proc = Start-Process docker -ArgumentList "compose run test_env pwsh -command $remoteCommand" -WorkingDirectory './BUILD/test' -Wait -NoNewWindow -PassThru;
+$proc = Start-Process docker-compose -ArgumentList "run test_env pwsh -command $remoteCommand" -WorkingDirectory './BUILD/test' -Wait -NoNewWindow -PassThru;
 Write-Host "Docker returned $($proc.ExitCode)";
-Start-Process docker -ArgumentList 'compose down' -WorkingDirectory './BUILD/test' -Wait -NoNewWindow;
+Start-Process docker-compose -ArgumentList 'down' -WorkingDirectory './BUILD/test' -Wait -NoNewWindow;
