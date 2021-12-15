@@ -5,13 +5,15 @@ using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
 
+using Tests.Base;
+
 namespace Services.Tests
 {
     using API;
     using DAL.API;
 
     [TestFixture]
-    public class InstallerTests
+    public class InstallerTests: Debuggable
     {
         [Test]
         public void Run_ShouldInitializeTheDatabaseAndRegisterTheRootUser()

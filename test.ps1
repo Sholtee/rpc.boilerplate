@@ -1,5 +1,11 @@
+param([Parameter(Position = 0, Mandatory = $false)][string]$target)
 $ErrorActionPreference = 'Stop';
 
-$proc = Start-Process docker -ArgumentList 'compose run test_env pwsh -command ./BUILD/test/test.ps1' -WorkingDirectory './BUILD/test' -Wait -NoNewWindow -PassThru;
+$remoteCommand='./BUILD/test/test.ps1';
+if ($target -ne '') {
+    $remoteCommand+=" '$target'"
+}
+
+$proc = Start-Process docker -ArgumentList "compose run test_env pwsh -command $remoteCommand" -WorkingDirectory './BUILD/test' -Wait -NoNewWindow -PassThru;
 Write-Host "Docker returned $($proc.ExitCode)";
 Start-Process docker -ArgumentList 'compose down' -WorkingDirectory './BUILD/test' -Wait -NoNewWindow;

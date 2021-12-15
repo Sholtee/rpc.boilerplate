@@ -5,13 +5,15 @@ using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
 
+using Tests.Base;
+
 namespace Services.Tests
 {
     using API;
     using DAL.API;
 
     [TestFixture]
-    public class RoleManagerTests
+    public class RoleManagerTests: Debuggable
     {
         [Test]
         public void GetAssignedRoles_ShouldHandleMissingSessionId() 

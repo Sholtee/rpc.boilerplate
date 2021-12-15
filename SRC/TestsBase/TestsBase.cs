@@ -13,7 +13,7 @@ namespace Tests.Base
     using Services.API;
     using Services;
 
-    public class TestsBase
+    public class TestsBase: Debuggable
     {
         public IScopeFactory? ScopeFactory { get; private set; }
 

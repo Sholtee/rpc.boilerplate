@@ -8,13 +8,15 @@ using NUnit.Framework;
 
 using Solti.Utils.Rpc.Interfaces;
 
+using Tests.Base;
+
 namespace Modules.Tests
 {
     using DAL.API;
     using Services.API;
 
     [TestFixture]
-    public class UserManagerTests
+    public class UserManagerTests: Debuggable
     {
         [Test]
         public void Create_ShouldFileTheNewUser() 
