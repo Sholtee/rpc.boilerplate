@@ -1,5 +1,9 @@
 image: Visual Studio 2019
 
+environment:
+  APPVEYOR_RDP_PASSWORD:
+    secure: uD2KvjWP2J+e3zKCIwJCTw==
+
 # prevent MSBuild from running
 build: off
 
@@ -7,6 +11,10 @@ clone_script:
   - cmd: |
       git clone -q --recursive --branch=%APPVEYOR_REPO_BRANCH% https://github.com/%APPVEYOR_REPO_NAME%.git %APPVEYOR_BUILD_FOLDER%
       git checkout -qf %APPVEYOR_REPO_COMMIT%
+
+# enable RDP
+init:
+  - ps: IEX ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
 test_script:
   - ps: .\test.ps1
@@ -18,3 +26,7 @@ after_test:
         Write-Host "Uploading test result: $($_.Name)"
         $client.UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($Env:APPVEYOR_JOB_ID)", $_.ToString())
       }
+
+# after build failure or success
+on_finish:
+  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
