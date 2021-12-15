@@ -1,5 +1,5 @@
 # prep
-FROM mcr.microsoft.com/powershell:lts-windowsservercore-2004 as prep
+FROM mcr.microsoft.com/powershell:lts-windowsservercore-1809 as prep
 SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 
 WORKDIR /download
@@ -8,7 +8,7 @@ RUN \
   Expand-Archive -Path 'redis.zip' -DestinationPath 'redis-bin/';
 
 # app
-FROM mcr.microsoft.com/windows/nanoserver:ltsc2022
+FROM mcr.microsoft.com/windows/nanoserver:1809
 
 WORKDIR /redis
 COPY --from=prep /download/redis-bin .

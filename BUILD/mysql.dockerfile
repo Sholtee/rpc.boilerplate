@@ -1,5 +1,5 @@
 # prep
-FROM mcr.microsoft.com/powershell:lts-windowsservercore-2004 as prep
+FROM mcr.microsoft.com/powershell:lts-windowsservercore-1809 as prep
 SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 
 WORKDIR /download
@@ -9,7 +9,7 @@ RUN \
   Invoke-WebRequest https://aka.ms/vs/16/release/vc_redist.x64.exe -OutFile './vc_redist.x64.exe';
 
 # mysql
-FROM mcr.microsoft.com/powershell:lts-windowsservercore-2004
+FROM mcr.microsoft.com/powershell:lts-windowsservercore-1809
 SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 
 WORKDIR /vc_redist.x64/
