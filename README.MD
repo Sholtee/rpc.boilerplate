@@ -7,5 +7,5 @@
 1. `./test.ps1`
 2. test results are placed in the `./Artifacts` folder
 ## Debugging tests
-1. `./test.ps1 "name_of_asm_to_debug.dll"` (e.g.:"MyApp.Services.Cache.Tests.dll")
-2. Attach the debugger to `container/testhost.exe` when the console is idle (tests won't run until a debugger is attached)
+1. `./test.ps1 "project_file.csproj"` (e.g.:"Cache.Tests.csproj")
+2. When the console is idle (tests won't run until a debugger is present), attach the debugger to `testhost.exe` in the `test_env_*` container 

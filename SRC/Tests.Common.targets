@@ -16,4 +16,14 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
     <PackageReference Include="NunitXml.TestLogger" Version="3.0.117" />
   </ItemGroup>
+
+  <Target Name="AddProjectMetadaAssemblyAttributes" BeforeTargets="CoreGenerateAssemblyInfo">		
+    <ItemGroup>
+      <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+        <_Parameter1>ProjectFile</_Parameter1>
+        <_Parameter2>$(MSBuildProjectFile)</_Parameter2>
+      </AssemblyAttribute>
+    </ItemGroup>
+  </Target>
+
 </Project>
