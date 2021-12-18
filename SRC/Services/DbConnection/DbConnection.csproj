@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="ServiceStack.OrmLite.MySql.Core" Version="5.13.2" />
+	<PackageReference Include="ServiceStack.OrmLite.SQLite.Core" Version="5.13.2" />
   </ItemGroup>
 
   <ItemGroup>

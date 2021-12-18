@@ -5,22 +5,19 @@ using ServiceStack.OrmLite;
 
 namespace Services
 {
-    using API;
-
-    public class MySqlDbConnectionFactoryProvider : IServiceProvider
+    public class SQLiteDbConnectionFactoryProvider : IServiceProvider
     {
         public IDbConnectionFactory ConnectionFactory { get; }
 
-        public MySqlDbConnectionFactoryProvider(IConfig config)
+        public SQLiteDbConnectionFactoryProvider()
         {
-            if (config is null)
-                throw new ArgumentNullException(nameof(config));
-
-            ConnectionFactory = new OrmLiteConnectionFactory(config.ConnectionString, MySqlDialect.Provider)
+            ConnectionFactory = new OrmLiteConnectionFactory(":memory:", SqliteDialect.Provider)
             {
                 AutoDisposeConnection = true
             };
         }
+
+        public const string ServiceName = "memory";
 
         public object GetService(Type serviceType)
         {

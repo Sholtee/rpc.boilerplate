@@ -46,8 +46,8 @@ namespace Server
                 .Instance<IConfig>(Config)
                 .Instance<ILogger>(ConsoleLogger.Create<AppHost>())
                 .Provider<IDbConnectionFactory, MySqlDbConnectionFactoryProvider>(Lifetime.Singleton)
-                .Provider<IDbConnection, SqlConnectionProvider>(Lifetime.Scoped)
-                .Service<IDbSchemaManager, SqlDbSchemaManager>(Lifetime.Scoped)
+                .Factory<IDbConnection>(i => i.Get<IDbConnectionFactory>().OpenDbConnection(), Lifetime.Scoped)
+                .Service<IDbSchemaManager, SqlDbSchemaManager>(explicitArgs: new Dictionary<string, object?> { ["dbTag"] = null }, Lifetime.Singleton)
                 .Service<IUserRepository, SqlUserRepository>(Lifetime.Scoped)
                 .Service<IInstaller, Installer>(Lifetime.Scoped));
 
@@ -79,11 +79,23 @@ namespace Server
                     .Instance<IConfig>(Config)
                     .Instance<ILogger>(ConsoleLogger.Create<AppHost>())
                     .Provider<IDbConnectionFactory, MySqlDbConnectionFactoryProvider>(Lifetime.Singleton)
-                    .Provider<IDbConnection, SqlConnectionProvider>(Lifetime.Scoped)
-                    //.Service<ICache, RedisCache>(Lifetime.Scoped)
-                    .Service<ICache, MemoryCache>(Lifetime.Singleton)
+                    .Provider<IDbConnectionFactory, SQLiteDbConnectionFactoryProvider>(SQLiteDbConnectionFactoryProvider.ServiceName, Lifetime.Singleton)
+                    .Factory<IDbConnection>(i => i.Get<IDbConnectionFactory>().OpenDbConnection(), Lifetime.Scoped)
+                    .Factory<IDbConnection>(SQLiteDbConnectionFactoryProvider.ServiceName, i => i.Get<IDbConnectionFactory>(SQLiteDbConnectionFactoryProvider.ServiceName).OpenDbConnection(), Lifetime.Scoped)
+                    .Service<IDbSchemaManager, SqlDbSchemaManager>(SQLiteDbConnectionFactoryProvider.ServiceName, explicitArgs: new Dictionary<string, object?> { ["dbTag"] = SQLiteDbConnectionFactoryProvider.ServiceName }, Lifetime.Singleton)
+                    .Service<ICache, RedisCache>(Lifetime.Scoped)
                     .Service<IRoleManager, RoleManager>(Lifetime.Scoped)
                     .Service<IUserRepository, SqlUserRepository>(Lifetime.Scoped));
+        }
+
+        public override void OnBuilt()
+        {
+            base.OnBuilt();
+
+            using IInjector injector = RpcService!.ScopeFactory.CreateScope();
+
+            IDbSchemaManager schemaManager = injector.Get<IDbSchemaManager>(SQLiteDbConnectionFactoryProvider.ServiceName);
+            schemaManager.Initialize();
         }
 
         public override void OnInstall()

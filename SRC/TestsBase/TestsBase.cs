@@ -27,7 +27,7 @@ namespace Tests.Base
                 .Instance<IConfig>(Config.Read("config.test.json"))
                 .Factory<ILogger>(i => TraceLogger.Create<TestsBase>(), Lifetime.Singleton)
                 .Provider<IDbConnectionFactory, MySqlDbConnectionFactoryProvider>(Lifetime.Singleton)
-                .Provider<IDbConnection, SqlConnectionProvider>(Lifetime.Scoped)
+                .Factory<IDbConnection>(i =>i.Get<IDbConnectionFactory>().CreateDbConnection(), Lifetime.Scoped)
                 .Service<IDbSchemaManager, SqlDbSchemaManager>(Lifetime.Scoped);
             OneTimeSetup(svcs);
         });
