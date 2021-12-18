@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using System.Collections.Generic;
+using System.Data;
 
 using Microsoft.Extensions.Logging;
 using NUnit.Framework;
@@ -25,7 +26,7 @@ namespace Tests.Base
                 .Instance<IConfig>(Config.Read("config.test.json"))
                 .Factory<ILogger>(i => TraceLogger.Create<TestsBase>(), Lifetime.Singleton)
                 .Provider<IDbConnection, MySqlDbConnectionProvider>(Lifetime.Scoped)
-                .Service<IDbSchemaManager, SqlDbSchemaManager>(Lifetime.Scoped);
+                .Service<IDbSchemaManager, SqlDbSchemaManager>(explicitArgs: new Dictionary<string, object?> { ["dbTag"] = null }, Lifetime.Scoped);
             OneTimeSetup(svcs);
         });
 
