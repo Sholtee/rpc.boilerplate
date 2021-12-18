@@ -16,4 +16,11 @@
     <ProjectReference Include="..\Config.API\Config.API.csproj" />
   </ItemGroup>
 
+  <!--Required for SQLite.Interop.dll (if no .NET FW installed)-->
+  <ItemGroup>
+    <None Update="mscoree.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
