@@ -6,8 +6,6 @@ using System.Text.Json;
 
 using Microsoft.Extensions.Logging;
 
-using ServiceStack.Data;
-
 using Solti.Utils.DI;
 using Solti.Utils.DI.Interfaces;
 using Solti.Utils.Rpc;
@@ -45,8 +43,7 @@ namespace Server
             using IScopeFactory scopeFactory = ScopeFactory.Create(svcs => svcs
                 .Instance<IConfig>(Config)
                 .Instance<ILogger>(ConsoleLogger.Create<AppHost>())
-                .Provider<IDbConnectionFactory, MySqlDbConnectionFactoryProvider>(Lifetime.Singleton)
-                .Factory<IDbConnection>(i => i.Get<IDbConnectionFactory>().OpenDbConnection(), Lifetime.Scoped)
+                .Provider<IDbConnection, MySqlDbConnectionProvider>(Lifetime.Scoped)
                 .Service<IDbSchemaManager, SqlDbSchemaManager>(explicitArgs: new Dictionary<string, object?> { ["dbTag"] = null }, Lifetime.Singleton)
                 .Service<IUserRepository, SqlUserRepository>(Lifetime.Scoped)
                 .Service<IInstaller, Installer>(Lifetime.Scoped));
@@ -78,11 +75,9 @@ namespace Server
                 .ConfigureServices(svcs => svcs
                     .Instance<IConfig>(Config)
                     .Instance<ILogger>(ConsoleLogger.Create<AppHost>())
-                    .Provider<IDbConnectionFactory, MySqlDbConnectionFactoryProvider>(Lifetime.Singleton)
-                    .Provider<IDbConnectionFactory, SQLiteDbConnectionFactoryProvider>(SQLiteDbConnectionFactoryProvider.ServiceName, Lifetime.Singleton)
-                    .Factory<IDbConnection>(i => i.Get<IDbConnectionFactory>().OpenDbConnection(), Lifetime.Scoped)
-                    .Factory<IDbConnection>(SQLiteDbConnectionFactoryProvider.ServiceName, i => i.Get<IDbConnectionFactory>(SQLiteDbConnectionFactoryProvider.ServiceName).OpenDbConnection(), Lifetime.Scoped)
-                    .Service<IDbSchemaManager, SqlDbSchemaManager>(SQLiteDbConnectionFactoryProvider.ServiceName, explicitArgs: new Dictionary<string, object?> { ["dbTag"] = SQLiteDbConnectionFactoryProvider.ServiceName }, Lifetime.Singleton)
+                    .Provider<IDbConnection, MySqlDbConnectionProvider>(Lifetime.Scoped)
+                    .Provider<IDbConnection, SQLiteDbConnectionProvider>(SQLiteDbConnectionProvider.ServiceName, Lifetime.Scoped)
+                    .Service<IDbSchemaManager, SqlDbSchemaManager>(SQLiteDbConnectionProvider.ServiceName, explicitArgs: new Dictionary<string, object?> { ["dbTag"] = SQLiteDbConnectionProvider.ServiceName }, Lifetime.Singleton)
                     .Service<ICache, RedisCache>(Lifetime.Scoped)
                     .Service<IRoleManager, RoleManager>(Lifetime.Scoped)
                     .Service<IUserRepository, SqlUserRepository>(Lifetime.Scoped));
@@ -94,7 +89,7 @@ namespace Server
 
             using IInjector injector = RpcService!.ScopeFactory.CreateScope();
 
-            IDbSchemaManager schemaManager = injector.Get<IDbSchemaManager>(SQLiteDbConnectionFactoryProvider.ServiceName);
+            IDbSchemaManager schemaManager = injector.Get<IDbSchemaManager>(SQLiteDbConnectionProvider.ServiceName);
             schemaManager.Initialize();
         }
 

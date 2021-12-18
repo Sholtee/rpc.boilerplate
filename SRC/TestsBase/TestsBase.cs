@@ -3,8 +3,6 @@
 using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 
-using ServiceStack.Data;
-
 using Solti.Utils.DI.Interfaces;
 
 namespace Tests.Base
@@ -26,8 +24,7 @@ namespace Tests.Base
                 .Service<ICache, MemoryCache>(Lifetime.Singleton)
                 .Instance<IConfig>(Config.Read("config.test.json"))
                 .Factory<ILogger>(i => TraceLogger.Create<TestsBase>(), Lifetime.Singleton)
-                .Provider<IDbConnectionFactory, MySqlDbConnectionFactoryProvider>(Lifetime.Singleton)
-                .Factory<IDbConnection>(i =>i.Get<IDbConnectionFactory>().CreateDbConnection(), Lifetime.Scoped)
+                .Provider<IDbConnection, MySqlDbConnectionProvider>(Lifetime.Scoped)
                 .Service<IDbSchemaManager, SqlDbSchemaManager>(Lifetime.Scoped);
             OneTimeSetup(svcs);
         });
