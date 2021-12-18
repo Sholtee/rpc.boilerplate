@@ -15,7 +15,6 @@
   
   <ItemGroup>
     <ProjectReference Include="..\..\DAL\UserRepository.API\UserRepository.API.csproj" />
-    <ProjectReference Include="..\..\TestsBase\TestsBase.csproj" />
     <ProjectReference Include="..\UserManager\UserManager.csproj" />
   </ItemGroup>
 

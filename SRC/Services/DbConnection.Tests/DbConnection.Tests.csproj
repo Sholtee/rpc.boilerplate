@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	
+  <Import Project="..\..\Tests.Common.targets" />
+
+  <PropertyGroup>
+    <AssemblyName>$(AppName).Services.DbConnection.Tests</AssemblyName>
+    <RootNamespace>Services.Tests</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DbConnection\DbConnection.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ServiceStack.OrmLite.SQLite.Core" Version="5.13.2" />
+  </ItemGroup>
+
+</Project>

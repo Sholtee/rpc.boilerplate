@@ -17,11 +17,7 @@ namespace Services
 
             OrmLiteConfig.DialectProvider = SqliteDialect.Provider; // thread static
 
-            SQLiteConnectionStringBuilder connectionString = new();
-            connectionString.DataSource = ":memory:";
-            connectionString.Add("cache", "shared");
-
-            IDbConnection conn = new SQLiteConnection(connectionString.ToString());
+            IDbConnection conn = new SQLiteConnection("Data Source=MyApp_InMemoryDb;Mode=Memory;Cache=Shared");
             conn.Open();
 
             return conn;

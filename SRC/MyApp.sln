@@ -55,7 +55,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Installer.API", "Services\I
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Installer.Tests", "Services\Installer.Tests\Installer.Tests.csproj", "{7C155963-2532-49CC-B3C2-B1503EF863EE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Loggers", "Server\Loggers\Loggers.csproj", "{12E6C39D-D0A8-4091-9C5D-5079BFA4842A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Loggers", "Server\Loggers\Loggers.csproj", "{12E6C39D-D0A8-4091-9C5D-5079BFA4842A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbConnection.Tests", "Services\DbConnection.Tests\DbConnection.Tests.csproj", "{79BE2E7A-B22D-49A2-9FED-1DCD9CE8720F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -149,6 +151,9 @@ Global
 		{12E6C39D-D0A8-4091-9C5D-5079BFA4842A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{12E6C39D-D0A8-4091-9C5D-5079BFA4842A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{12E6C39D-D0A8-4091-9C5D-5079BFA4842A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{79BE2E7A-B22D-49A2-9FED-1DCD9CE8720F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{79BE2E7A-B22D-49A2-9FED-1DCD9CE8720F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{79BE2E7A-B22D-49A2-9FED-1DCD9CE8720F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -176,6 +181,7 @@ Global
 		{98D2E75C-B67E-4401-A750-60EC632966AD} = {F8E0A7AF-F133-4975-8792-CB46C345F1D5}
 		{7C155963-2532-49CC-B3C2-B1503EF863EE} = {F8E0A7AF-F133-4975-8792-CB46C345F1D5}
 		{12E6C39D-D0A8-4091-9C5D-5079BFA4842A} = {B25E6111-F9AD-45DE-8564-CD3B57DD1BC4}
+		{79BE2E7A-B22D-49A2-9FED-1DCD9CE8720F} = {F8E0A7AF-F133-4975-8792-CB46C345F1D5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {12977405-909D-4F7A-9C43-856D52ACB84A}
