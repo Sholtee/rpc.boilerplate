@@ -31,7 +31,7 @@ namespace Modules.Tests
                 .SetupGet(c => c.Cancellation)
                 .Returns(default(CancellationToken));
 
-            var userManager = new UserManager(new Lazy<IUserRepository>(() => mockRepo.Object), mockContext.Object);
+            var userManager = new UserManager(new Lazy<IUserRepository>(() => mockRepo.Object), new Lazy<ISessionRepository>(() => new Mock<ISessionRepository>(MockBehavior.Strict).Object), mockContext.Object);
 
             Assert.DoesNotThrowAsync(() => userManager.Create(new API.User { FullName = "cica", EmailOrUserName = "cica@mica.hu" }, "kutya", Array.Empty<string>()));
             mockRepo.Verify(r => r.Create(It.IsAny<DAL.API.User>(), "kutya", Array.Empty<string>(), default), Times.Once);
@@ -43,7 +43,7 @@ namespace Modules.Tests
         {
             var mockRepo = new Mock<IUserRepository>(MockBehavior.Strict);
             mockRepo
-                .Setup(r => r.QueryByCredentials(It.IsAny<string>(), It.IsAny<string>(), default))
+                .Setup(r => r.GetByCredentials(It.IsAny<string>(), It.IsAny<string>(), default))
                 .ThrowsAsync(new InvalidCredentialException());
 
             var mockContext = new Mock<IRequestContext>(MockBehavior.Strict);
@@ -51,7 +51,7 @@ namespace Modules.Tests
                 .SetupGet(c => c.Cancellation)
                 .Returns(default(CancellationToken));
 
-            var userManager = new UserManager(new Lazy<IUserRepository>(() => mockRepo.Object), mockContext.Object);
+            var userManager = new UserManager(new Lazy<IUserRepository>(() => mockRepo.Object), new Lazy<ISessionRepository>(() => new Mock<ISessionRepository>(MockBehavior.Strict).Object), mockContext.Object);
 
             Assert.ThrowsAsync<InvalidCredentialException>(() => userManager.Login("cica", "kutya"));
             mockContext.VerifyGet(c => c.Cancellation, Times.Once);
@@ -66,12 +66,14 @@ namespace Modules.Tests
                 EmailOrUserName = "cica"
             };
 
-            var mockRepo = new Mock<IUserRepository>(MockBehavior.Strict);
-            mockRepo
-                .Setup(r => r.QueryByCredentials("cica", "kutya", default))
+            var mockUserRepo = new Mock<IUserRepository>(MockBehavior.Strict);
+            mockUserRepo
+                .Setup(r => r.GetByCredentials("cica", "kutya", default))
                 .Returns(Task.FromResult(user));
-            mockRepo
-                .Setup(r => r.CreateSession(user.Id, default))
+
+            var mockSessionRepo = new Mock<ISessionRepository>(MockBehavior.Strict);
+            mockSessionRepo
+                .Setup(r => r.GetOrCreate(user.Id, default))
                 .Returns(() => Task.FromResult(Guid.NewGuid()));
 
             var mockContext = new Mock<IRequestContext>(MockBehavior.Strict);
@@ -79,14 +81,14 @@ namespace Modules.Tests
                 .SetupGet(c => c.Cancellation)
                 .Returns(default(CancellationToken));
 
-            var userManager = new UserManager(new Lazy<IUserRepository>(() => mockRepo.Object), mockContext.Object);
+            var userManager = new UserManager(new Lazy<IUserRepository>(() => mockUserRepo.Object), new Lazy<ISessionRepository>(() => mockSessionRepo.Object), mockContext.Object);
 
             Guid sessionId = Guid.Empty;
             Assert.DoesNotThrowAsync(async () => sessionId = await userManager.Login("cica", "kutya"));
             Assert.That(sessionId, Is.Not.EqualTo(Guid.Empty));
 
-            mockRepo.Verify(r => r.QueryByCredentials("cica", "kutya", default), Times.Once);
-            mockRepo.Verify(r => r.CreateSession(user.Id, default), Times.Once);
+            mockUserRepo.Verify(r => r.GetByCredentials("cica", "kutya", default), Times.Once);
+            mockSessionRepo.Verify(r => r.GetOrCreate(user.Id, default), Times.Once);
             mockContext.VerifyGet(c => c.Cancellation, Times.AtLeastOnce);
         }
 
@@ -103,15 +105,15 @@ namespace Modules.Tests
                 .Setup(ctx => ctx.Cancellation)
                 .Returns(() => default);
 
-            var mockRepo = new Mock<IUserRepository>(MockBehavior.Strict);
+            var mockRepo = new Mock<ISessionRepository>(MockBehavior.Strict);
             mockRepo
-                .Setup(r => r.DeleteSession(sessionId, default))
+                .Setup(r => r.ExpireById(sessionId, default))
                 .Returns(Task.CompletedTask);
 
-            var userManager = new UserManager(new Lazy<IUserRepository>(() => mockRepo.Object), mockContext.Object);
+            var userManager = new UserManager(new Lazy<IUserRepository>(() => new Mock<IUserRepository>(MockBehavior.Strict).Object), new Lazy<ISessionRepository>(() => mockRepo.Object), mockContext.Object);
 
             Assert.DoesNotThrowAsync(() => userManager.Logout());
-            mockRepo.Verify(r => r.DeleteSession(sessionId, default), Times.Once);
+            mockRepo.Verify(r => r.ExpireById(sessionId, default), Times.Once);
         }
 
         [Test]
@@ -124,15 +126,21 @@ namespace Modules.Tests
                 .Setup(ctx => ctx.Cancellation)
                 .Returns(() => default);
 
-            var mockRepo = new Mock<IUserRepository>(MockBehavior.Strict);
-            mockRepo
-                .Setup(r => r.Delete(userId, default))
+            var mockUserRepo = new Mock<IUserRepository>(MockBehavior.Strict);
+            mockUserRepo
+                .Setup(r => r.DeleteById(userId, default))
                 .Returns(Task.CompletedTask);
 
-            var userManager = new UserManager(new Lazy<IUserRepository>(() => mockRepo.Object), mockContext.Object);
+            var mockSessionRepo = new Mock<ISessionRepository>(MockBehavior.Strict);
+            mockSessionRepo
+                .Setup(r => r.ExpireByUserId(userId, default))
+                .Returns(() => Task.CompletedTask);
+
+            var userManager = new UserManager(new Lazy<IUserRepository>(() => mockUserRepo.Object), new Lazy<ISessionRepository>(() => mockSessionRepo.Object), mockContext.Object);
 
             Assert.DoesNotThrowAsync(() => userManager.Delete(userId));
-            mockRepo.Verify(r => r.Delete(userId, default), Times.Once);
+            mockUserRepo.Verify(r => r.DeleteById(userId, default), Times.Once);
+            mockSessionRepo.Verify(r => r.ExpireByUserId(userId, default), Times.Once);
         }
 
         [Test]
@@ -150,19 +158,25 @@ namespace Modules.Tests
                 .Setup(ctx => ctx.Cancellation)
                 .Returns(() => default);
 
-            var mockRepo = new Mock<IUserRepository>(MockBehavior.Strict);
-            mockRepo
-                .Setup(r => r.QueryBySession(sessionId, default))
-                .Returns(Task.FromResult(new DAL.API.UserEx { Id = userId }));
-            mockRepo
-                .Setup(r => r.Delete(userId, default))
+            var mockUserRepo = new Mock<IUserRepository>(MockBehavior.Strict);
+            mockUserRepo
+                .Setup(r => r.DeleteById(userId, default))
                 .Returns(Task.CompletedTask);
 
-            var userManager = new UserManager(new Lazy<IUserRepository>(() => mockRepo.Object), mockContext.Object);
+            var mockSessionRepo = new Mock<ISessionRepository>(MockBehavior.Strict);
+            mockSessionRepo
+                .Setup(r => r.GetUserId(sessionId, default))
+                .Returns(Task.FromResult(userId));
+            mockSessionRepo
+                .Setup(r => r.ExpireByUserId(userId, default))
+                .Returns(Task.CompletedTask);
+
+            var userManager = new UserManager(new Lazy<IUserRepository>(() => mockUserRepo.Object), new Lazy<ISessionRepository>(() => mockSessionRepo.Object), mockContext.Object);
 
             Assert.DoesNotThrowAsync(() => userManager.DeleteCurrent());
-            mockRepo.Verify(r => r.QueryBySession(sessionId, default), Times.Once);
-            mockRepo.Verify(r => r.Delete(userId, default), Times.Once);
+            mockUserRepo.Verify(r => r.DeleteById(userId, default), Times.Once);
+            mockSessionRepo.Verify(r => r.GetUserId(sessionId, default), Times.Once);
+            mockSessionRepo.Verify(r => r.ExpireByUserId(userId, default), Times.Once);
         }
 
         [Test]
@@ -193,7 +207,7 @@ namespace Modules.Tests
                     }
                 }));
 
-            var userManager = new UserManager(new Lazy<IUserRepository>(() => mockRepo.Object), mockContext.Object);
+            var userManager = new UserManager(new Lazy<IUserRepository>(() => mockRepo.Object), new Lazy<ISessionRepository>(() => new Mock<ISessionRepository>(MockBehavior.Strict).Object), mockContext.Object);
 
             API.PartialUserList userList = await userManager.List(1, 1);
 

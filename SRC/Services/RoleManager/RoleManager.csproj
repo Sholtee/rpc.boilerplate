@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\DAL\SessionRepository.API\SessionRepository.API.csproj" />
     <ProjectReference Include="..\..\DAL\UserRepository.API\UserRepository.API.csproj" />
     <ProjectReference Include="..\RoleManager.API\RoleManager.API.csproj" />
   </ItemGroup>

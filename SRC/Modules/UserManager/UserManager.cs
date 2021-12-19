@@ -15,13 +15,17 @@ namespace Modules
         private readonly Lazy<IUserRepository> FUserRepository;
         public IUserRepository UserRepository => FUserRepository.Value;
 
+        private readonly Lazy<ISessionRepository> FSessionRepository;
+        public ISessionRepository SessionRepository => FSessionRepository.Value;
+
         public IRequestContext RequestContext { get; }
 
         public IMapper Mapper { get; }
 
-        public UserManager(Lazy<IUserRepository> userRepository, IRequestContext requestContext) 
+        public UserManager(Lazy<IUserRepository> userRepository, Lazy<ISessionRepository> sessionRepository, IRequestContext requestContext) 
         {
             FUserRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+            FSessionRepository = sessionRepository ?? throw new ArgumentNullException(nameof(sessionRepository));
             RequestContext = requestContext ?? throw new ArgumentNullException(nameof(requestContext));
 
             Mapper = new MapperConfiguration(cfg => cfg.AddProfiles(new Profile[]
@@ -36,15 +40,15 @@ namespace Modules
 
         public async Task<Guid> Login(string emailOrUserName, string pw)
         {
-            DAL.API.UserEx user = await UserRepository.QueryByCredentials(emailOrUserName, pw, RequestContext.Cancellation);
+            DAL.API.UserEx user = await UserRepository.GetByCredentials(emailOrUserName, pw, RequestContext.Cancellation);
 
-            return await UserRepository.CreateSession(user.Id, RequestContext.Cancellation);
+            return await SessionRepository.GetOrCreate(user.Id, RequestContext.Cancellation);
         }
 
         public async Task Logout()
         {
             if (RequestContext.SessionId is not null)
-                await UserRepository.DeleteSession(Guid.Parse(RequestContext.SessionId));
+                await SessionRepository.ExpireById(Guid.Parse(RequestContext.SessionId), RequestContext.Cancellation);
         }
 
         public async Task<API.PartialUserList> List(int skip, int count) => Mapper.Map<DAL.API.PartialUserList, API.PartialUserList>
@@ -52,13 +56,15 @@ namespace Modules
             await UserRepository.List(skip, count, RequestContext.Cancellation)
         );
 
-        public Task Delete(Guid userId) => UserRepository.Delete(userId, RequestContext.Cancellation);
+        public async Task Delete(Guid userId)
+        {
+            await UserRepository.DeleteById(userId, RequestContext.Cancellation);
+            await SessionRepository.ExpireByUserId(userId, RequestContext.Cancellation);
+        }
 
         public async Task DeleteCurrent()
         {
-            DAL.API.UserEx user = await UserRepository.QueryBySession(Guid.Parse(RequestContext.SessionId!), RequestContext.Cancellation);
-
-            await UserRepository.Delete(user.Id, RequestContext.Cancellation);
+            await Delete(await SessionRepository.GetUserId(Guid.Parse(RequestContext.SessionId!)));
         }
     }
 }

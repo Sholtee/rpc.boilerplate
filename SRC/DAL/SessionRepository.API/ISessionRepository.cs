@@ -6,7 +6,7 @@ using Solti.Utils.Rpc.Interfaces;
 
 namespace DAL.API
 {
-    [ParameterValidatorAspect, LoggerAspect(typeof(ServiceMethodScopeLogger), typeof(StopWatchLogger), typeof(ExceptionLogger))]
+    [DataServiceLoggerAspect]
     public interface ISessionRepository
     {
         Task<Guid> GetOrCreate(Guid userId, CancellationToken cancellation = default);

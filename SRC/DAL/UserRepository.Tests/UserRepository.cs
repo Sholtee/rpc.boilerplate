@@ -61,11 +61,7 @@ namespace DAL.Tests
             DAL.User user = Connection.SingleById<DAL.User>(id);
 
             Assert.That(user.FullName, Is.EqualTo("cica1"));
-            Assert.That(user.LoginId, Is.Not.EqualTo(Guid.Empty));
-
-            DAL.Login login = Connection.SingleById<DAL.Login>(user.LoginId);
-
-            Assert.That(login.EmailOrUserName, Is.EqualTo("abc@def.hu"));
+            Assert.That(user.EmailOrUserName, Is.EqualTo("abc@def.hu"));
         }
 
         [Test]
@@ -82,12 +78,12 @@ namespace DAL.Tests
         }
 
         [Test]
-        public async Task QueryByCredentials_ShouldReturnTheProperEntry()
+        public async Task GetByCredentials_ShouldReturnTheProperEntry()
         {
             await UserRepository.Create(new API.User { FullName = "cica1", EmailOrUserName = "abc@def.hu" }, "mica1", Array.Empty<string>());
 
             API.User user = null;
-            Assert.DoesNotThrowAsync(async () => user = await UserRepository.QueryByCredentials("abc@def.hu", "mica1"));
+            Assert.DoesNotThrowAsync(async () => user = await UserRepository.GetByCredentials("abc@def.hu", "mica1"));
 
             Assert.That(user, Is.Not.Null);
             Assert.That(user.EmailOrUserName, Is.EqualTo("abc@def.hu"));
@@ -95,16 +91,16 @@ namespace DAL.Tests
         }
 
         [Test]
-        public async Task QueryByCredentials_ShouldThrowOnInvalidCredentials()
+        public async Task GetByCredentials_ShouldThrowOnInvalidCredentials()
         {
             await UserRepository.Create(new API.User { FullName = "cica1", EmailOrUserName = "abc@def.hu" }, "mica1", Array.Empty<string>());
 
-            Assert.ThrowsAsync<InvalidCredentialException>(() => UserRepository.QueryByCredentials("abc@def.hu", "kutya12"));
-            Assert.ThrowsAsync<InvalidCredentialException>(() => UserRepository.QueryByCredentials("abc@def.hu_", "mica1"));
+            Assert.ThrowsAsync<InvalidCredentialException>(() => UserRepository.GetByCredentials("abc@def.hu", "kutya12"));
+            Assert.ThrowsAsync<InvalidCredentialException>(() => UserRepository.GetByCredentials("abc@def.hu_", "mica1"));
         }
 
         [Test]
-        public async Task QueryByCredentials_ShouldReturnAllTheAssignedRoles()
+        public async Task GetByCredentials_ShouldReturnAllTheAssignedRoles()
         {
             Connection.Insert(new DAL.Group 
             {
@@ -115,30 +111,28 @@ namespace DAL.Tests
             await UserRepository.Create(new API.User { FullName = "cica1", EmailOrUserName = "abc@def.hu" }, "mica1", new[] { "StandardUsers" });
             await UserRepository.Create(new API.User { FullName = "cica2", EmailOrUserName = "xyz@abc.hu" }, "mica2", new[] { "Admins", "StandardUsers" });
 
-            API.UserEx user = await UserRepository.QueryByCredentials("abc@def.hu", "mica1");
+            API.UserEx user = await UserRepository.GetByCredentials("abc@def.hu", "mica1");
             Assert.That(user.Roles, Is.EqualTo(Roles.AuthenticatedUser));
 
-            user = await UserRepository.QueryByCredentials("xyz@abc.hu", "mica2");
+            user = await UserRepository.GetByCredentials("xyz@abc.hu", "mica2");
             Assert.That(user.Roles, Is.EqualTo(Roles.AuthenticatedUser | Roles.Admin));
         }
 
         [Test]
-        public async Task QueryBySession_ShouldReturnTheProperEntry()
+        public async Task GetById_ShouldReturnTheProperEntry()
         {
             Guid id = await UserRepository.Create(new API.User { FullName = "cica1", EmailOrUserName = "abc@def.hu" }, "mica1", Array.Empty<string>());
-            Guid sessionId = await UserRepository.CreateSession(id);
 
             API.User user = null;
-            Assert.DoesNotThrowAsync(async () => user = await UserRepository.QueryBySession(sessionId));
+            Assert.DoesNotThrowAsync(async () => user = await UserRepository.GetById(id));
 
             Assert.That(user, Is.Not.Null);
             Assert.That(user.EmailOrUserName, Is.EqualTo("abc@def.hu"));
             Assert.That(user.FullName, Is.EqualTo("cica1"));
         }
 
-
         [Test]
-        public async Task QueryBySession_ShouldReturnAllTheAssignedRoles()
+        public async Task GetById_ShouldReturnAllTheAssignedRoles()
         {
             Connection.Insert(new DAL.Group
             {
@@ -146,37 +140,15 @@ namespace DAL.Tests
                 Roles = Roles.AuthenticatedUser
             });
 
-            Guid 
-                sessionId1 = await UserRepository.CreateSession(await UserRepository.Create(new API.User { FullName = "cica1", EmailOrUserName = "abc@def.hu" }, "mica1", new[] { "StandardUsers" })),
-                sessionId2 = await UserRepository.CreateSession(await UserRepository.Create(new API.User { FullName = "cica2", EmailOrUserName = "xyz@abc.hu" }, "mica2", new[] { "Admins", "StandardUsers" }));
+            Guid
+                id1 = await UserRepository.Create(new API.User { FullName = "cica1", EmailOrUserName = "abc@def.hu" }, "mica1", new[] { "StandardUsers" }),
+                id2 = await UserRepository.Create(new API.User { FullName = "cica2", EmailOrUserName = "xyz@abc.hu" }, "mica2", new[] { "Admins", "StandardUsers" });
 
-            API.UserEx user = await UserRepository.QueryBySession(sessionId1);
+            API.UserEx user = await UserRepository.GetById(id1);
             Assert.That(user.Roles, Is.EqualTo(Roles.AuthenticatedUser));
 
-            user = await UserRepository.QueryBySession(sessionId2);
+            user = await UserRepository.GetById(id2);
             Assert.That(user.Roles, Is.EqualTo(Roles.AuthenticatedUser | Roles.Admin));
-        }
-
-        [Test]
-        public async Task QueryBySession_ShouldThrowOnInvalidCredentials()
-        {
-            Guid id = await UserRepository.Create(new API.User { FullName = "cica1", EmailOrUserName = "abc@def.hu" }, "mica1", Array.Empty<string>());
-            await UserRepository.CreateSession(id);
-
-            Assert.ThrowsAsync<InvalidCredentialException>(() => UserRepository.QueryBySession(Guid.NewGuid()));
-        }
-
-        [Test]
-        public async Task QueryById_ShouldReturnTheProperEntry()
-        {
-            Guid id = await UserRepository.Create(new API.User { FullName = "cica1", EmailOrUserName = "abc@def.hu" }, "mica1", Array.Empty<string>());
-
-            API.User user = null;
-            Assert.DoesNotThrowAsync(async () => user = await UserRepository.QueryById(id));
-
-            Assert.That(user, Is.Not.Null);
-            Assert.That(user.EmailOrUserName, Is.EqualTo("abc@def.hu"));
-            Assert.That(user.FullName, Is.EqualTo("cica1"));
         }
 
         [Test]
@@ -184,29 +156,16 @@ namespace DAL.Tests
         {
             Guid id = await UserRepository.Create(new API.User { FullName = "cica1", EmailOrUserName = "abc@def.hu" }, "mica1", Array.Empty<string>());
 
-            Assert.DoesNotThrowAsync(() => UserRepository.Delete(id));
-            Assert.ThrowsAsync<InvalidOperationException>(() => UserRepository.QueryById(id));
+            Assert.DoesNotThrowAsync(() => UserRepository.DeleteById(id));
+            Assert.ThrowsAsync<InvalidOperationException>(() => UserRepository.GetById(id));
 
             DAL.User user = Connection.SingleById<DAL.User>(id);
-            DAL.Login login = Connection.SingleById<DAL.Login>(user.LoginId);
 
-            Assert.That(login.DeletedUtc, Is.Not.Null);
+            Assert.That(user.DeletedUtc, Is.Not.Null);
         }
 
         [Test]
-        public async Task Delete_ShouldDeleteTheLivingSession() 
-        {
-            Guid 
-                id = await UserRepository.Create(new API.User { FullName = "cica1", EmailOrUserName = "abc@def.hu" }, "mica1", Array.Empty<string>()),
-                sessionId = await UserRepository.CreateSession(id);
-
-            Assert.DoesNotThrowAsync(() => UserRepository.QueryBySession(sessionId));
-            Assert.DoesNotThrowAsync(() => UserRepository.Delete(id));
-            Assert.ThrowsAsync<InvalidCredentialException>(() => UserRepository.QueryBySession(sessionId));
-        }
-
-        [Test]
-        public void Delete_ShouldThrowOnInvalidId() => Assert.ThrowsAsync<InvalidOperationException>(() => UserRepository.Delete(Guid.NewGuid()));
+        public void Delete_ShouldThrowOnInvalidId() => Assert.ThrowsAsync<InvalidOperationException>(() => UserRepository.DeleteById(Guid.NewGuid()));
 
         [Test]
         public async Task List_ShouldPaging()
@@ -229,44 +188,11 @@ namespace DAL.Tests
             await UserRepository.Create(new API.User { FullName = "cica1", EmailOrUserName = "abc@def.hu" }, "mica1", Array.Empty<string>());
             Guid id = await UserRepository.Create(new API.User { FullName = "kutya", EmailOrUserName = "def@def.hu" }, "kutya", Array.Empty<string>());
 
-            await UserRepository.Delete(id);
+            await UserRepository.DeleteById(id);
 
             PartialUserList lst = await UserRepository.List(0, int.MaxValue);
             Assert.That(lst.AllEntries, Is.EqualTo(1));
             Assert.That(lst.Entries.Single().EmailOrUserName, Is.EqualTo("abc@def.hu"));
-        }
-
-        [Test]
-        public async Task CreateSession_ShouldCreateANewSession() 
-        {
-            Guid 
-                id = await UserRepository.Create(new API.User { FullName = "cica1", EmailOrUserName = "abc@def.hu" }, "mica1", Array.Empty<string>()),
-                sessionId1 = await UserRepository.CreateSession(id);
-
-            Assert.That(sessionId1, Is.Not.EqualTo(Guid.Empty));
-
-            await UserRepository.DeleteSession(sessionId1);
-            await Task.Delay(1000);
-
-            Guid sessionId2 = await UserRepository.CreateSession(id);
-            Assert.That(sessionId2, Is.Not.EqualTo(Guid.Empty));
-            Assert.AreNotEqual(sessionId1, sessionId2);
-        }
-
-        [Test]
-        public async Task CreateSession_ShouldReturnTheLivingSession() 
-        {
-            Guid 
-                id = await UserRepository.Create(new API.User { FullName = "cica1", EmailOrUserName = "abc@def.hu" }, "mica1", Array.Empty<string>()),
-                sessionId1 = await UserRepository.CreateSession(id);
-
-            Assert.That(sessionId1, Is.Not.EqualTo(Guid.Empty));
-
-            await UserRepository.DeleteSession(sessionId1);
-            await Task.Delay(1000);
-
-            Guid sessionId2 = await UserRepository.CreateSession(id);
-            Assert.AreEqual(sessionId2, await UserRepository.CreateSession(id));
         }
     }
 }

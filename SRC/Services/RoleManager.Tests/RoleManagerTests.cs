@@ -18,9 +18,7 @@ namespace Services.Tests
         [Test]
         public void GetAssignedRoles_ShouldHandleMissingSessionId() 
         {
-            var mockRepo = new Mock<IUserRepository>(MockBehavior.Strict);
-
-            var roleManager = new RoleManager(new Lazy<IUserRepository>(() => mockRepo.Object));
+            RoleManager roleManager = new(new Lazy<IUserRepository>(() => new Mock<IUserRepository>(MockBehavior.Strict).Object), new Lazy<ISessionRepository>(() => new Mock<ISessionRepository>().Object));
             Assert.That(roleManager.GetAssignedRoles(null), Is.EqualTo(Roles.AnonymousUser));
         }
 
@@ -29,31 +27,39 @@ namespace Services.Tests
         {
             Guid invalid = Guid.NewGuid();
 
-            var mockRepo = new Mock<IUserRepository>(MockBehavior.Strict);
+            var mockRepo = new Mock<ISessionRepository>(MockBehavior.Strict);
             mockRepo
-                .Setup(r => r.QueryBySession(invalid, default))
-                .Returns(Task.FromException<DAL.API.UserEx>(new InvalidCredentialException()));
+                .Setup(r => r.GetUserId(invalid, default))
+                .Returns(Task.FromException<Guid>(new InvalidOperationException()));
 
-            var roleManager = new RoleManager(new Lazy<IUserRepository>(() => mockRepo.Object));
-            Assert.Throws<InvalidCredentialException>(() => roleManager.GetAssignedRoles(invalid.ToString()));
+            var roleManager = new RoleManager(new Lazy<IUserRepository>(() => new Mock<IUserRepository>(MockBehavior.Strict).Object), new Lazy<ISessionRepository>(() => mockRepo.Object));
+            Assert.Throws<InvalidOperationException>(() => roleManager.GetAssignedRoles(invalid.ToString()));
 
-            mockRepo.Verify(r => r.QueryBySession(invalid, default), Times.Once);
+            mockRepo.Verify(r => r.GetUserId(invalid, default), Times.Once);
         }
 
         [Test]
         public void GetAssignedRoles_ShouldHandleValidSessionId()
         {
-            Guid session = Guid.NewGuid();
+            Guid
+                user = Guid.NewGuid(),
+                session = Guid.NewGuid();
 
-            var mockRepo = new Mock<IUserRepository>(MockBehavior.Strict);
-            mockRepo
-                .Setup(r => r.QueryBySession(session, default))
+            var mockSessionRepo = new Mock<ISessionRepository>(MockBehavior.Strict);
+            mockSessionRepo
+                .Setup(r => r.GetUserId(session, default))
+                .Returns(Task.FromResult(user));
+
+            var mockUserRepo = new Mock<IUserRepository>(MockBehavior.Strict);
+            mockUserRepo
+                .Setup(r => r.GetById(user, default))
                 .Returns(Task.FromResult(new DAL.API.UserEx { Roles = Roles.Admin }));
 
-            var roleManager = new RoleManager(new Lazy<IUserRepository>(() => mockRepo.Object));
+            var roleManager = new RoleManager(new Lazy<IUserRepository>(() => mockUserRepo.Object), new Lazy<ISessionRepository>(() => mockSessionRepo.Object));
             Assert.That(roleManager.GetAssignedRoles(session.ToString()), Is.EqualTo(Roles.Admin | Roles.AuthenticatedUser));
 
-            mockRepo.Verify(r => r.QueryBySession(session, default), Times.Once);
+            mockSessionRepo.Verify(r => r.GetUserId(session, default), Times.Once);
+            mockUserRepo.Verify(r => r.GetById(user, default), Times.Once);
         }
     }
 }

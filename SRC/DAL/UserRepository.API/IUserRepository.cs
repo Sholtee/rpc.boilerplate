@@ -6,23 +6,19 @@ using Solti.Utils.Rpc.Interfaces;
 
 namespace DAL.API
 {
-    [ParameterValidatorAspect, LoggerAspect(typeof(ServiceMethodScopeLogger), typeof(StopWatchLogger), typeof(ExceptionLogger))]
+    [ParameterValidatorAspect, DataServiceLoggerAspect]
     public interface IUserRepository
     {
+        [Loggers(typeof(ServiceMethodScopeLogger), typeof(StopWatchLogger), typeof(ExceptionLogger))] // don't log parameteres (would contain sensitive data)
         Task<Guid> Create([NotNull, ValidateProperties] User user, [NotNull, LengthBetween(min: 5)] string password, string[] groups, CancellationToken cancellation = default);
 
-        Task<Guid> CreateSession(Guid userId, CancellationToken cancellation = default);
+        [Loggers(typeof(ServiceMethodScopeLogger), typeof(StopWatchLogger), typeof(ExceptionLogger))] // don't log parameteres (would contain sensitive data)
+        Task<UserEx> GetByCredentials([NotNull, LengthBetween(min: 5)] string emailOrUserName, [NotNull, LengthBetween(min: 5)] string password, CancellationToken cancellation = default);
 
-        Task<UserEx> QueryByCredentials([NotNull, LengthBetween(min: 5)] string emailOrUserName, [NotNull, LengthBetween(min: 5)] string password, CancellationToken cancellation = default);
-
-        Task<UserEx> QueryBySession(Guid sessionId, CancellationToken cancellation = default);
-
-        Task<UserEx> QueryById(Guid userId, CancellationToken cancellation = default);
+        Task<UserEx> GetById(Guid userId, CancellationToken cancellation = default);
 
         Task<PartialUserList> List(int skip, int count, CancellationToken cancellation = default);
 
-        Task Delete(Guid userId, CancellationToken cancellation = default);
-
-        Task DeleteSession(Guid sessionId, CancellationToken cancellation = default);
+        Task DeleteById(Guid userId, CancellationToken cancellation = default);
     }
 }

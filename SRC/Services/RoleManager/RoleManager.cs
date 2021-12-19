@@ -14,7 +14,14 @@ namespace Services
         private readonly Lazy<IUserRepository> FUserRepository;
         public IUserRepository UserRepository => FUserRepository.Value;
 
-        public RoleManager(Lazy<IUserRepository> userRepository) => FUserRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+        private readonly Lazy<ISessionRepository> FSessionRepository;
+        public ISessionRepository SessionRepository => FSessionRepository.Value;
+
+        public RoleManager(Lazy<IUserRepository> userRepository, Lazy<ISessionRepository> sessionRepository)
+        {
+            FUserRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+            FSessionRepository = sessionRepository ?? throw new ArgumentNullException(nameof(sessionRepository));
+        }
 
         public Enum GetAssignedRoles(string? sessionId) => GetAssignedRolesAsync(sessionId, default).GetAwaiter().GetResult();
 
@@ -23,7 +30,11 @@ namespace Services
             if (sessionId is null)
                 return Roles.AnonymousUser;
 
-            UserEx user = await UserRepository.QueryBySession(Guid.Parse(sessionId), cancellation);
+            UserEx user = await UserRepository.GetById
+            (
+                await SessionRepository.GetUserId(Guid.Parse(sessionId), cancellation),
+                cancellation
+            );
 
             return user.Roles | Roles.AuthenticatedUser;
         }

@@ -7,7 +7,7 @@ using Solti.Utils.OrmLite.Extensions;
 namespace DAL
 {
     [DataTable]
-    public class UserGroup 
+    public class UserGroup // User may have multiple groups
     {
         [PrimaryKey, AutoId]
         public Guid Id { get; set; }
