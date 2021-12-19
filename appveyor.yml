@@ -17,16 +17,19 @@ clone_script:
 #  - ps: IEX ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
 test_script:
-  - ps: .\test.ps1
+  - ps: ./test.ps1 -LogFile ./Artifacts/test.log
 
 after_test:
   - ps: |
-      $client=new-object System.Net.WebClient
-      get-childItem -path ([System.IO.Path]::Combine("Artifacts", "*.xml")) | foreach {
-        Write-Host "Uploading test result: $($_.Name)"
-        $client.UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($Env:APPVEYOR_JOB_ID)", $_.ToString())
+      if (Test-Path "Artifacts") {
+        Get-Content "./Artifacts/test.log"
+        $client=New-Object System.Net.WebClient
+        Get-ChildItem -path ([System.IO.Path]::Combine("Artifacts", "*.xml")) | foreach {
+          Write-Host "Uploading test result: $($_.Name)"
+          $client.UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($Env:APPVEYOR_JOB_ID)", $_.ToString())
+        }
       }
 
 # after build failure or success
 #on_finish:
-#  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+#  - ps: $blockRdp = $true; iex ((New-Object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
