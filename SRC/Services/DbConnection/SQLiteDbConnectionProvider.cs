@@ -14,7 +14,7 @@ namespace Services
             if (serviceType != typeof(IDbConnection))
                 throw new NotSupportedException();
 
-            OrmLiteConnectionFactory connectionFactory = new("Data Source=MyApp_InMemoryDb;Mode=Memory;Cache=Shared", SqliteDialect.Provider);
+            OrmLiteConnectionFactory connectionFactory = new("file:memdb1?mode=memory&cache=shared", SqliteDialect.Provider);
             return connectionFactory.OpenDbConnection();
         }
     }

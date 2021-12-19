@@ -9,18 +9,11 @@
 
   <ItemGroup>
     <PackageReference Include="ServiceStack.OrmLite.MySql.Core" Version="5.13.2" />
-	<PackageReference Include="ServiceStack.OrmLite.SQLite.Core" Version="5.13.2" />
+	<PackageReference Include="ServiceStack.OrmLite.Sqlite.Data" Version="5.13.2" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Config.API\Config.API.csproj" />
-  </ItemGroup>
-
-  <!--Required for SQLite.Interop.dll (if no .NET FW installed)-->
-  <ItemGroup>
-    <None Update="mscoree.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
 </Project>
