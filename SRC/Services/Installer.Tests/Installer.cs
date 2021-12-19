@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -16,7 +17,7 @@ namespace Services.Tests
     public class InstallerTests: Debuggable
     {
         [Test]
-        public void Run_ShouldInitializeTheDatabaseAndRegisterTheRootUser()
+        public void Install_ShouldInitializeTheDatabaseAndRegisterTheRootUser()
         {
             var mockSchemaManager = new Mock<IDbSchemaManager>(MockBehavior.Strict);
             mockSchemaManager
@@ -45,7 +46,7 @@ namespace Services.Tests
         }
 
         [Test]
-        public void Run_ShouldPrintTheCurrentState()
+        public void Status_ShouldPrintTheCurrentState()
         {
             var mockSchemaManager = new Mock<IDbSchemaManager>(MockBehavior.Strict);
             mockSchemaManager
@@ -60,6 +61,38 @@ namespace Services.Tests
 
             Installer installer = new(mockSchemaManager.Object, new Mock<IUserRepository>(MockBehavior.Strict).Object, new Mock<IConfig>(MockBehavior.Strict).Object);
             Assert.That(installer.Status, Is.EqualTo($"INSTALLED (Last Migration: {lastMigration})"));
+        }
+
+        [Test]
+        public void Status_ShouldSignalIfTheAppHasNotBeenInstalled()
+        {
+            var mockSchemaManager = new Mock<IDbSchemaManager>(MockBehavior.Strict);
+            mockSchemaManager
+                .SetupGet(sm => sm.IsInitialized)
+                .Returns(false);
+
+            Installer installer = new(mockSchemaManager.Object, new Mock<IUserRepository>(MockBehavior.Strict).Object, new Mock<IConfig>(MockBehavior.Strict).Object);
+            Assert.That(installer.Status, Is.EqualTo("NOT INSTALLED"));
+        }
+
+        [Test]
+        public void Migrate_ShouldReadTheMigrationScripts()
+        {
+            var mockSchemaManager = new Mock<IDbSchemaManager>(MockBehavior.Strict);
+            mockSchemaManager
+                .Setup(sm => sm.Migrate(File.GetCreationTimeUtc("Migration\\migration_script_1.sql"), string.Empty, "migration_script_1.sql"))
+                .Returns(true);
+
+            var mockConfig = new Mock<IConfig>(MockBehavior.Strict);
+            mockConfig
+                .SetupGet(c => c.Database)
+                .Returns(new DatabaseConfig { MigrationDir = "Migration" });
+
+            Installer installer = new(mockSchemaManager.Object, new Mock<IUserRepository>(MockBehavior.Strict).Object, mockConfig.Object);
+
+            string[] scripts = installer.Migrate().ToArray();
+            Assert.That(scripts.Length, Is.EqualTo(1));
+            Assert.That(scripts[0], Is.EqualTo("Migration\\migration_script_1.sql [INSTALLED]"));
         }
     }
 }

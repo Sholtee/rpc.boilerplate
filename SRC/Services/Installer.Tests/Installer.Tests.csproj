@@ -17,5 +17,14 @@
     <ProjectReference Include="..\Installer.API\Installer.API.csproj" />
     <ProjectReference Include="..\Installer\Installer.csproj" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <None Update="Migration\migration_script_1.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Migration\not_an_sql.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 
 </Project>

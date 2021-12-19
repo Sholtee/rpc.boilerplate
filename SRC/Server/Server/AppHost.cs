@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 
 using Solti.Utils.DI;
 using Solti.Utils.DI.Interfaces;
+using Solti.Utils.Primitives;
 using Solti.Utils.Rpc;
 using Solti.Utils.Rpc.Hosting;
 using Solti.Utils.Rpc.Interfaces;
@@ -117,6 +118,8 @@ namespace Server
         public void OnPrintStatus() => InvokeInstaller(installer => Console.Out.WriteLine(installer.Status));
 
         [Verb("migrate")]
-        public void OnMigrate() => InvokeInstaller(installer => installer.Migrate());
+        public void OnMigrate() => InvokeInstaller(installer => installer
+            .Migrate()
+            .ForEach((status, _) => Console.Out.WriteLine(status)));
     }
 }

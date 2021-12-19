@@ -70,7 +70,7 @@ namespace Services.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (Last migration: {0}).
+        ///   Looks up a localized string similar to (Last Migration: {0}).
         /// </summary>
         internal static string LAST_MIGRATION {
             get {
