@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<Import Project="..\..\Tests.Common.targets" />
+
+	<PropertyGroup>
+		<AssemblyName>$(AppName).DAL.SessionRepository.Tests</AssemblyName>
+		<RootNamespace>DAL.Tests</RootNamespace>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Injector.NET.Interfaces" Version="6.0.0" />
+		<PackageReference Include="RPC.NET.Interfaces" Version="5.0.1" />
+		<PackageReference Include="ServiceStack.OrmLite.Core" Version="5.13.2" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\Services\DbSchemaManager.API\DbSchemaManager.API.csproj" />
+		<ProjectReference Include="..\SessionRepository.API\SessionRepository.API.csproj" />
+		<ProjectReference Include="..\SessionRepository\SessionRepository.csproj" />
+		<ProjectReference Include="..\..\Services\DbConnection\DbConnection.csproj" />
+		<ProjectReference Include="..\..\Services\DbSchemaManager.API\DbSchemaManager.API.csproj" />
+		<ProjectReference Include="..\..\Services\DbSchemaManager\DbSchemaManager.csproj" />
+	</ItemGroup>
+
+</Project>

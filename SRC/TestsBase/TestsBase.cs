@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Data;
-
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 
 using Solti.Utils.DI.Interfaces;
@@ -24,9 +21,7 @@ namespace Tests.Base
             svcs
                 .Service<ICache, MemoryCache>(Lifetime.Singleton)
                 .Instance<IConfig>(Config.Read("config.test.json"))
-                .Factory<ILogger>(i => TraceLogger.Create<TestsBase>(), Lifetime.Singleton)
-                .Provider<IDbConnection, MySqlDbConnectionProvider>(Lifetime.Scoped)
-                .Service<IDbSchemaManager, SqlDbSchemaManager>(explicitArgs: new Dictionary<string, object?> { ["dbTag"] = null }, Lifetime.Scoped);
+                .Factory<ILogger>(i => TraceLogger.Create<TestsBase>(), Lifetime.Singleton);
             OneTimeSetup(svcs);
         });
 

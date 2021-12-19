@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Security.Authentication;
@@ -14,6 +15,8 @@ using Solti.Utils.DI.Interfaces;
 namespace DAL.Tests
 {
     using API;
+    using DAL;
+    using Services;
     using Services.API;
 
     [TestFixture]
@@ -25,7 +28,10 @@ namespace DAL.Tests
 
         public IDbConnection Connection { get; set; }
 
-        public override void OneTimeSetup(IServiceCollection svcs) => svcs.Service<IUserRepository, SqlUserRepository>(Lifetime.Scoped);
+        public override void OneTimeSetup(IServiceCollection svcs) => svcs
+            .Provider<IDbConnection, MySqlDbConnectionProvider>(Lifetime.Scoped)
+            .Service<IUserRepository, SqlUserRepository>(Lifetime.Scoped)
+            .Service<IDbSchemaManager, SqlDbSchemaManager>(explicitArgs: new Dictionary<string, object> { ["dbTag"] = null }, Lifetime.Scoped);
 
         public override void Setup()
         {
