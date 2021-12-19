@@ -23,11 +23,15 @@ namespace Server
     using Modules;
     using Modules.API;
 
+    using Properties;
+
     using Services;
     using Services.API;
 
     public sealed class AppHost : AppHostBase
     {
+        const string dbTag = nameof(dbTag);
+
         private IConfig Config { get; }
 
         public AppHost(IReadOnlyList<string> args) : base(args) => Config = Services.Config.Read("config.json");
@@ -44,7 +48,7 @@ namespace Server
                 .Instance<IConfig>(Config)
                 .Instance<ILogger>(TraceLogger.Create<AppHost>()) // required due to Logger aspects
                 .Provider<IDbConnection, MySqlDbConnectionProvider>(Lifetime.Scoped)
-                .Service<IDbSchemaManager, SqlDbSchemaManager>(explicitArgs: new Dictionary<string, object?> { ["dbTag"] = null }, Lifetime.Singleton)
+                .Service<IDbSchemaManager, SqlDbSchemaManager>(explicitArgs: new Dictionary<string, object?> { [dbTag] = null }, Lifetime.Singleton)
                 .Service<IUserRepository, SqlUserRepository>(Lifetime.Scoped)
                 .Service<IInstaller, Installer>(Lifetime.Scoped));
 
@@ -77,7 +81,7 @@ namespace Server
                     .Instance<ILogger>(ConsoleLogger.Create<AppHost>())
                     .Provider<IDbConnection, MySqlDbConnectionProvider>(Lifetime.Scoped)
                     .Provider<IDbConnection, SQLiteDbConnectionProvider>(SQLiteDbConnectionProvider.ServiceName, Lifetime.Scoped)
-                    .Service<IDbSchemaManager, SqlDbSchemaManager>(SQLiteDbConnectionProvider.ServiceName, explicitArgs: new Dictionary<string, object?> { ["dbTag"] = SQLiteDbConnectionProvider.ServiceName }, Lifetime.Singleton)
+                    .Service<IDbSchemaManager, SqlDbSchemaManager>(SQLiteDbConnectionProvider.ServiceName, explicitArgs: new Dictionary<string, object?> { [dbTag] = SQLiteDbConnectionProvider.ServiceName }, Lifetime.Singleton)
                     .Service<ICache, RedisCache>(Lifetime.Scoped)
                     .Service<IRoleManager, RoleManager>(Lifetime.Scoped)
                     .Service<IUserRepository, SqlUserRepository>(Lifetime.Scoped));
@@ -102,9 +106,9 @@ namespace Server
 
         public override void OnUnhandledException(Exception ex)
         {
-            string msg = ex?.Message ?? "Unknown error";
+            string msg = ex?.Message ?? Resources.UNKNOWN_ERROR;
             if (ex is ValidationException validationException)
-                msg += $"{Environment.NewLine}Target: {validationException.TargetName}";
+                msg += $"{Environment.NewLine}{Resources.TARGET}: {validationException.TargetName}";
 
             Console.Error.WriteLine(msg);
         }
