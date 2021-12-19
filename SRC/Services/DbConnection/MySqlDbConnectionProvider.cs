@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Data;
 
-using MySql.Data.MySqlClient;
 using ServiceStack.OrmLite;
 
 namespace Services
@@ -19,12 +18,8 @@ namespace Services
             if (serviceType != typeof(IDbConnection))
                 throw new NotSupportedException();
 
-            OrmLiteConfig.DialectProvider = MySqlDialect.Provider; // thread static
-
-            IDbConnection conn = new MySqlConnection(Config.ConnectionString);
-            conn.Open();
-
-            return conn;
+            OrmLiteConnectionFactory connectionFactory = new(Config.ConnectionString, MySqlDialect.Provider);
+            return connectionFactory.OpenDbConnection();
         }
     }
 }
