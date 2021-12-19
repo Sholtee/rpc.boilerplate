@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace Services
 {
@@ -13,10 +16,13 @@ namespace Services
 
         public IDbSchemaManager Schema { get; }
 
-        public Installer(IDbSchemaManager schemaManager, IUserRepository userRepository)
+        public IConfig Config { get; }
+
+        public Installer(IDbSchemaManager schemaManager, IUserRepository userRepository, IConfig config)
         {
             UserRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
             Schema = schemaManager ?? throw new ArgumentNullException(nameof(schemaManager));
+            Config = config ?? throw new ArgumentNullException(nameof(config));
         }
 
         public void Install(InstallArguments args)
@@ -47,9 +53,21 @@ namespace Services
         }
 
         public string Status => Schema.IsInitialized
-            ? string.Format(null, Resources.INSTALLED, Schema.GetLastMigrationUtc())
+            ? string.Format(null, $"{Resources.INSTALLED} {Resources.LAST_MIGRATION}", Schema.GetLastMigrationUtc())
             : Resources.NOT_INSTALLED;
 
-        public void Migrate(string migrationFilesDir) => throw new NotImplementedException();
+        public IEnumerable<string> Migrate()
+        {
+            foreach (string sqlFile in Directory.EnumerateFiles(Config.Database.MigrationDir, "*.sql", SearchOption.TopDirectoryOnly).OrderBy(f => f))
+            {
+                bool installed = Schema.Migrate
+                (
+                    File.GetCreationTimeUtc(sqlFile),
+                    File.ReadAllText(sqlFile),
+                    Path.GetFileName(sqlFile)
+                );
+                yield return $"{sqlFile} [{(installed ? Resources.INSTALLED : Resources.NOT_INSTALLED)}]";
+            }
+        }
     }
 }

@@ -32,7 +32,7 @@ namespace Services.Tests
 
             typeof(DAL.User).GetHashCode(); // force loading the containing assembly
 
-            Installer installer = new(mockSchemaManager.Object, mockUserRepo.Object);
+            Installer installer = new(mockSchemaManager.Object, mockUserRepo.Object, new Mock<IConfig>(MockBehavior.Strict).Object);
 
             Assert.DoesNotThrow(() => installer.Install(new InstallArguments 
             {
@@ -58,7 +58,7 @@ namespace Services.Tests
                 .Setup(sm => sm.GetLastMigrationUtc())
                 .Returns(lastMigration);
 
-            Installer installer = new(mockSchemaManager.Object, new Mock<IUserRepository>(MockBehavior.Strict).Object);
+            Installer installer = new(mockSchemaManager.Object, new Mock<IUserRepository>(MockBehavior.Strict).Object, new Mock<IConfig>(MockBehavior.Strict).Object);
             Assert.That(installer.Status, Is.EqualTo($"INSTALLED (Last Migration: {lastMigration})"));
         }
     }

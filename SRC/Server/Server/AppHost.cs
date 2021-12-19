@@ -42,7 +42,7 @@ namespace Server
         {
             using IScopeFactory scopeFactory = ScopeFactory.Create(svcs => svcs
                 .Instance<IConfig>(Config)
-                .Instance<ILogger>(ConsoleLogger.Create<AppHost>())
+                .Instance<ILogger>(TraceLogger.Create<AppHost>()) // required due to Logger aspects
                 .Provider<IDbConnection, MySqlDbConnectionProvider>(Lifetime.Scoped)
                 .Service<IDbSchemaManager, SqlDbSchemaManager>(explicitArgs: new Dictionary<string, object?> { ["dbTag"] = null }, Lifetime.Singleton)
                 .Service<IUserRepository, SqlUserRepository>(Lifetime.Scoped)
@@ -111,5 +111,8 @@ namespace Server
 
         [Verb("status")]
         public void OnPrintStatus() => InvokeInstaller(installer => Console.Out.WriteLine(installer.Status));
+
+        [Verb("migrate")]
+        public void OnMigrate() => InvokeInstaller(installer => installer.Migrate());
     }
 }

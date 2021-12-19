@@ -11,7 +11,7 @@ namespace Services
     {
         public ServerConfig Server { get; set; }
 
-        public string ConnectionString { get; set; }
+        public DatabaseConfig Database { get; set; }
 
         public RedisConfig Redis { get; set; }
 

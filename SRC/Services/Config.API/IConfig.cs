@@ -3,7 +3,9 @@
     public interface IConfig
     {
         ServerConfig Server { get; }
-        string ConnectionString { get; } 
+        
+        DatabaseConfig Database { get; }
+
         RedisConfig Redis { get; }
     }
 }

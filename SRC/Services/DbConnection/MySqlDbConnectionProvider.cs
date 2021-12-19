@@ -18,7 +18,7 @@ namespace Services
             if (serviceType != typeof(IDbConnection))
                 throw new NotSupportedException();
 
-            OrmLiteConnectionFactory connectionFactory = new(Config.ConnectionString, MySqlDialect.Provider);
+            OrmLiteConnectionFactory connectionFactory = new(Config.Database.ConnectionString, MySqlDialect.Provider);
             return connectionFactory.OpenDbConnection();
         }
     }

@@ -61,11 +61,20 @@ namespace Services.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to INSTALLED (Last Migration: {0}).
+        ///   Looks up a localized string similar to INSTALLED.
         /// </summary>
         internal static string INSTALLED {
             get {
                 return ResourceManager.GetString("INSTALLED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (Last migration: {0}).
+        /// </summary>
+        internal static string LAST_MIGRATION {
+            get {
+                return ResourceManager.GetString("LAST_MIGRATION", resourceCulture);
             }
         }
         

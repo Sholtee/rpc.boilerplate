@@ -1,4 +1,6 @@
-﻿using Solti.Utils.Rpc.Interfaces;
+﻿using System.Collections.Generic;
+
+using Solti.Utils.Rpc.Interfaces;
 
 namespace Services.API
 {
@@ -9,7 +11,7 @@ namespace Services.API
         void Install(InstallArguments args);
 
         [Transactional]
-        void Migrate(string migrationFilesDir);
+        IEnumerable<string> Migrate();
 
         string Status { get; }
     }

@@ -1,10 +1,12 @@
 {
-    "Redis":  {
-        "Host":  "redis",
-        "Port":  6379
-    },
-    "Server":  {
-        "SessionTimeoutInMinutes":  10
-    },
-    "ConnectionString":  "Server=db;Port=3306;Database=myapp_test;UId=root;PWd=secret"
+  "Redis":  {
+    "Host": "redis",
+    "Port": 6379
+  },
+  "Server": {
+    "SessionTimeoutInMinutes": 10
+  },
+  "Database": {
+    "ConnectionString": "Server=db;Port=3306;Database=myapp_test;UId=root;PWd=secret"
+  }
 }
