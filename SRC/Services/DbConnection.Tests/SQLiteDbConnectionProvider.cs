@@ -8,6 +8,8 @@ using ServiceStack.DataAnnotations;
 
 using Tests.Base;
 
+using Solti.Utils.DI.Interfaces;
+
 namespace Services.Tests
 {
     [TestFixture]
@@ -28,13 +30,13 @@ namespace Services.Tests
 
             Guid id = Guid.NewGuid();
 
-            using (IDbConnection conn = (IDbConnection) provider.GetService(typeof(IDbConnection)))
+            using (IDbConnection conn = provider.GetService<IDbConnection>())
             {
                 conn.CreateTable<MyTable>();
                 conn.Insert(new MyTable { Id = id, Data = "cica" });
             }
 
-            using (IDbConnection conn = (IDbConnection) provider.GetService(typeof(IDbConnection)))
+            using (IDbConnection conn = provider.GetService<IDbConnection>())
             {
                 Assert.That(conn.TableExists<MyTable>());
 
@@ -51,12 +53,12 @@ namespace Services.Tests
 
             Guid id = Guid.NewGuid();
 
-            using (IDbConnection conn = (IDbConnection)provider.GetService(typeof(IDbConnection)))
+            using (IDbConnection conn = provider.GetService<IDbConnection>())
             {
                 conn.CreateTable<MyTable>();
                 conn.Insert(new MyTable { Id = id, Data = "cica" });
 
-                using (IDbConnection conn2 = (IDbConnection)provider.GetService(typeof(IDbConnection)))
+                using (IDbConnection conn2 = provider.GetService<IDbConnection>())
                 {
                     Assert.That(conn2.TableExists<MyTable>());
 
