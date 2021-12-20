@@ -39,9 +39,10 @@ RUN \
   Start-Process './mysql.exe' -ArgumentList ('--user=root --execute=\"CREATE USER ''root''@''%'' IDENTIFIED BY ''{0}''; GRANT ALL ON *.* TO ''root''@''%''\"' -f $ENV:MYSQL_PWD) -Wait -NoNewWindow;
   
 ENTRYPOINT \
-  Start-Process './mysqladmin.exe' -ArgumentList '--user=root ping' -Wait -NoNewWindow;\
+  Start-Process './mysqladmin.exe' -ArgumentList '--default-character-set utf8 --user=root ping' -Wait -NoNewWindow;\
   while((Get-Service MySQL).Status -eq 'Running') {\
-    Start-Sleep 1\
+    Write-Host '['(Get-Date)'] '((./mysqladmin.exe --default-character-set utf8 --user=root version) -Split [Environment]::NewLine)[-1];\
+    Start-Sleep 3\
   }
 
 EXPOSE 3306
