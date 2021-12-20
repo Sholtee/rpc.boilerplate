@@ -1,15 +1,15 @@
 ﻿{
   "Server": {
-    "Host": "http://localhost:1986/",
+    "Host": "https://+:1986/",
     "SessionTimeoutInMinutes": 10,
-    "AllowedOrigins": [ "http://127.0.0.1:8080/" ]
+    "AllowedOrigins": []
   },
   "Database": {
     "ConnectionString": "Server=db;Port=3306;Database=myapp;UId=root;PWd=secret",
     "MigrationDir":  "./Migration"
   },
   "Redis": {
-    "Host": "127.0.0.1",
+    "Host": "redis",
     "Port": 6379
   }
 }

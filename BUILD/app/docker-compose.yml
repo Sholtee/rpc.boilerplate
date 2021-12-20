@@ -7,12 +7,12 @@ services:
       args:
         MYSQL_PWD: secret
         MYSQL_DB: myapp
-    container_name: "app-db"
+    container_name: app-db
   redis:
     build:
       context: .
       dockerfile: ..\redis.dockerfile
-    container_name: "app-redis"
+    container_name: app-redis
   app:
     build:
       context: .\..\..
@@ -26,4 +26,6 @@ services:
     links:
       - db
       - redis
-    container_name: "app"
+    container_name: app
+    ports:
+      - 1986:1986

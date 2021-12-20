@@ -7,12 +7,12 @@ services:
       args:
         MYSQL_PWD: secret
         MYSQL_DB: myapp_test
-    container_name: "test-db"
+    container_name: test-db
   redis:
     build:
       context: .
       dockerfile: ..\redis.dockerfile
-    container_name: "test-redis"
+    container_name: test-redis
   test_env:
     image: mcr.microsoft.com/dotnet/sdk:5.0.404-nanoserver-1809
     links:
@@ -21,4 +21,4 @@ services:
     working_dir: \App
     volumes:
       - ..\..\:C:\App
-    container_name: "test-env"
+    container_name: test-env

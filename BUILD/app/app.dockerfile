@@ -31,8 +31,7 @@ COPY $CERT_PATH ./certificate.p12
 RUN\
   Write-Host 'Registering certificate...';\
   $hash=(Import-PfxCertificate -FilePath './certificate.p12' Cert:\LocalMachine\My -Password (ConvertTo-SecureString -String $Env:CERT_PWD -Force -AsPlainText)).Thumbprint;\
-  $appId=(New-Guid).ToString('B');\
-  netsh http add sslcert ipport=127.0.0.1:1986 certhash=$hash appid=$appId;\
+  netsh http add sslcert ipport=0.0.0.0:1986 certhash=$hash appid=$((New-Guid).ToString('B'));\
   Remove-Item -Path './certificate.p12' -Force;
 
 COPY --from=prep app/BIN/net5.0/publish ./Bin
