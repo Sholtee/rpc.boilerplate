@@ -1,0 +1,29 @@
+version: "2.4"
+services:
+  db:
+    build:
+      context: .
+      dockerfile: ..\mysql.dockerfile
+      args:
+        MYSQL_PWD: secret
+        MYSQL_DB: myapp
+    container_name: "app-db"
+  redis:
+    build:
+      context: .
+      dockerfile: ..\redis.dockerfile
+    container_name: "app-redis"
+  app:
+    build:
+      context: .\..\..
+      dockerfile: .\BUILD\app\app.dockerfile
+      args:
+        CONFIGURATION: Debug-NoTests
+        CERT_PATH: .\cert.self-signed\certificate.p12
+        CERT_PWD: cica
+        APP_ROOT: root@root.hu
+        APP_PWD: secret
+    links:
+      - db
+      - redis
+    container_name: "app"

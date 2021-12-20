@@ -11,12 +11,12 @@
     <ProjectReference Include="..\Config.API\Config.API.csproj" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(Configuration)' == 'Debug'">
+  <ItemGroup Condition="'$(Configuration)' == 'Debug' Or '$(Configuration)' == 'Debug-NoTests'">
     <None Update="config.dev.json">
       <Link>config.json</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Remove="config.live.json"/>
+    <None Remove="config.live.json" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(Configuration)' == 'Release'">
@@ -24,7 +24,7 @@
       <Link>config.json</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Remove="config.dev.json"/>
+    <None Remove="config.dev.json" />
   </ItemGroup>
 
 </Project>

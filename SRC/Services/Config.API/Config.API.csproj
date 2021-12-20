@@ -4,6 +4,7 @@
   <PropertyGroup>
     <AssemblyName>$(AppName).Services.Config.API</AssemblyName>
     <RootNamespace>Services.API</RootNamespace>
+    <Configurations>Debug;Release;Debug-NoTests</Configurations>
   </PropertyGroup>
 
 </Project>

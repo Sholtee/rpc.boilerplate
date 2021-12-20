@@ -1,6 +1,7 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <AppName>MyApp</AppName>
+	 <Configurations>Debug;</Configurations>
     <TargetFramework>net5.0</TargetFramework>
     <OutputPath>..\..\..\BIN</OutputPath>
     <IsTestProject>true</IsTestProject>
