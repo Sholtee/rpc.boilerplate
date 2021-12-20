@@ -19,12 +19,15 @@ function invoke-server([Parameter(Position = 0, Mandatory = $false)][string]$arg
 
 $status=invoke-server "status"
 
-if ($status.StartsWith("NOT INSTALLED")) {
+if ($status.StartsWith("not installed", [StringComparison]::OrdinalIgnoreCase)) {
   Write-Host "Installing the app..."
   invoke-server "install -User '$($Env:APP_ROOT)' -PasswordVariable APP_PWD"
-} elseif ($status.StartsWith("INSTALLED")) {
+} elseif ($status.StartsWith("installed", [StringComparison]::OrdinalIgnoreCase)) {
   Write-Host "Running the migration scripts..."
   invoke-server "migrate"
+} else {
+  Write-Warning "Unknown status: $($status)"
+  Exit -1
 }
 
 Write-Host "Starting the server..."
