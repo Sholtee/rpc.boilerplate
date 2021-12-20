@@ -66,7 +66,7 @@ namespace Services
                     File.ReadAllText(sqlFile),
                     Path.GetFileName(sqlFile)
                 );
-                yield return $"{sqlFile} [{(installed ? Resources.INSTALLED : Resources.NOT_INSTALLED)}]";
+                yield return $"{sqlFile} [{(installed ? Resources.INSTALLED : Resources.NOT_REQUIRED)}]";
             }
         }
     }

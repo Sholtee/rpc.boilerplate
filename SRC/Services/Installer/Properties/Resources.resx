@@ -118,13 +118,16 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="INSTALLED" xml:space="preserve">
-    <value>INSTALLED</value>
+    <value>Installed</value>
   </data>
   <data name="LAST_MIGRATION" xml:space="preserve">
     <value>(Last Migration: {0})</value>
   </data>
   <data name="NOT_INSTALLED" xml:space="preserve">
-    <value>NOT INSTALLED</value>
+    <value>Not installed</value>
+  </data>
+  <data name="NOT_REQUIRED" xml:space="preserve">
+    <value>Not required</value>
   </data>
   <data name="NO_PASSWORD" xml:space="preserve">
     <value>No password specified.</value>

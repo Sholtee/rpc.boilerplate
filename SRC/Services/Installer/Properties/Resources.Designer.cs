@@ -61,7 +61,7 @@ namespace Services.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to INSTALLED.
+        ///   Looks up a localized string similar to Installed.
         /// </summary>
         internal static string INSTALLED {
             get {
@@ -88,11 +88,20 @@ namespace Services.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to NOT INSTALLED.
+        ///   Looks up a localized string similar to Not installed.
         /// </summary>
         internal static string NOT_INSTALLED {
             get {
                 return ResourceManager.GetString("NOT_INSTALLED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Not required.
+        /// </summary>
+        internal static string NOT_REQUIRED {
+            get {
+                return ResourceManager.GetString("NOT_REQUIRED", resourceCulture);
             }
         }
     }
