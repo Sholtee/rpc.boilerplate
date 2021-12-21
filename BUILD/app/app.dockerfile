@@ -4,13 +4,13 @@ SHELL ["pwsh", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference
 
 WORKDIR /download
 RUN \
-  Invoke-WebRequest https://netix.dl.sourceforge.net/project/mcwin32/mcwin32-build204-bin.zip -OutFile './mcwin32-build204-bin.zip';\
-  Expand-Archive -Path './mcwin32-build204-bin.zip' -DestinationPath './mcwin32-build204/';\
+  Invoke-WebRequest https://kumisystems.dl.sourceforge.net/project/mcwin32/mcwin32-build222-setup.exe -OutFile './mcwin32-build222-setup.exe';\
   Invoke-WebRequest https://github.com/PowerShell/PowerShell/releases/download/v7.2.1/PowerShell-7.2.1-win-x64.zip -OutFile './PowerShell-7.2.1-win-x64.zip';\
   Expand-Archive -Path './PowerShell-7.2.1-win-x64.zip' -DestinationPath './PowerShell-7.2.1-win-x64/';
 
 WORKDIR /app
-COPY . .
+COPY ./SRC ./SRC
+COPY ./BUILD ./BUILD
 
 ARG CONFIGURATION=Debug-NoTests
 
@@ -20,12 +20,16 @@ RUN dotnet build ./SRC/MyApp.sln -c $Env:CONFIGURATION
 FROM mcr.microsoft.com/dotnet/sdk:6.0-windowsservercore-ltsc2022
 SHELL ["pwsh", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 
-COPY --from=prep download/mcwin32-build204 ./mcwin32-build204
-RUN [Environment]::SetEnvironmentVariable('Path', $Env:Path+';C:\mcwin32-build204\', [System.EnvironmentVariableTarget]::Machine)
-
 #required for "watch"
 COPY --from=prep download/PowerShell-7.2.1-win-x64 ./PowerShell-7.2.1-win-x64
 RUN [Environment]::SetEnvironmentVariable('Path', $Env:Path+';C:\PowerShell-7.2.1-win-x64\', [System.EnvironmentVariableTarget]::Machine)
+
+COPY --from=prep download/mcwin32-build222-setup.exe ./mcwin32-build222-setup.exe
+
+RUN\
+  Write-Host 'Installing Midnight Commander...';\
+  Start-Process './mcwin32-build222-setup.exe' -ArgumentList '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP- /TASKS=\"modifypath\"' -Wait -NoNewWindow;\
+  Remove-Item -Path './mcwin32-build222-setup.exe' -Force;
 
 ARG\
   CERT_PATH\
