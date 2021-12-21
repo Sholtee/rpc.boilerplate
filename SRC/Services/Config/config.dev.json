@@ -6,7 +6,7 @@
   },
   "Database": {
     "ConnectionString": "Server=db;Port=3306;Database=myapp;UId=root;PWd=secret",
-    "MigrationDir":  "./Migration"
+    "MigrationDir":  "./Bin/Migration"
   },
   "Redis": {
     "Host": "redis",

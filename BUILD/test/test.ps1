@@ -5,8 +5,8 @@ $ErrorActionPreference = "Stop"
 $root="." | Resolve-Path
 $binfolder=[System.IO.Path]::Combine($root, "BIN")
 
-if (Test-Path($binfolder)) {
-  Remove-Item $binfolder -recurse
+if (Test-Path $binfolder) {
+  Remove-Item $binfolder -recurse -force
 }
 
 Get-ChildItem -path $root -filter "*.sln" -recurse | foreach { 

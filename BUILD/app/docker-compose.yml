@@ -1,24 +1,25 @@
 version: "2.4"
 services:
   db:
+    container_name: app-db
     build:
       context: .
       dockerfile: ..\mysql.dockerfile
       args:
         MYSQL_PWD: secret
         MYSQL_DB: myapp
-    container_name: app-db
   redis:
+    container_name: app-redis
     build:
       context: .
       dockerfile: ..\redis.dockerfile
-    container_name: app-redis
   app:
+    container_name: app
     build:
       context: .\..\..
       dockerfile: .\BUILD\app\app.dockerfile
       args:
-        CONFIGURATION: Debug-NoTests
+        CONFIGURATION: Debug-NoTests #applies to "watch" builds too
         CERT_PATH: .\cert.self-signed\certificate.p12
         CERT_PWD: cica
         APP_ROOT: root@root.hu
@@ -26,6 +27,7 @@ services:
     links:
       - db
       - redis
-    container_name: app
+    volumes:
+      - .\..\..\:C:\App\Dev #remove this line to disable "watch" feature
     ports:
       - 1986:1986
