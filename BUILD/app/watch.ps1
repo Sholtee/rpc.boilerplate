@@ -24,16 +24,17 @@ try
 
     Write-Host "Solution has been changed, rebuild..."
 
-    try {
-      if (Test-Path $binfolder) {
-        Remove-Item $binfolder -recurse -force
-      }
-      dotnet build $solution -c $Env:CONFIGURATION
-      break
-    } catch {
-      Write-Warning $_
-      Write-Warning "Failed to rebuild the solution, watching for further changes..."
+    if (Test-Path $binfolder) {
+      Remove-Item $binfolder -recurse -force
     }
+
+    $build=Start-Process dotnet -ArgumentList "build $solution -c $Env:CONFIGURATION" -NoNewWindow -Wait -PassThru
+    if ($build.ExitCode -ne 0) {
+      Write-Host "Failed to rebuild the solution, watching for further changes..."
+      continue
+    }
+
+    break
   } while($true)
 }
 finally { $watcher.Dispose() }

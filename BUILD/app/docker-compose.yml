@@ -28,6 +28,7 @@ services:
       - db
       - redis
     volumes:
+      - .\..\..\Migration:C:\App\Migration
       - .\..\..\:C:\App\Dev #remove this line to disable "watch" feature
     ports:
       - 1986:1986

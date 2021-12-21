@@ -55,6 +55,6 @@ do {
   ./watch.ps1 "./Dev/SRC/MyApp.sln" -BinFolder "./Dev/BIN"
   $proc.StandardInput.Write([char]3)
   $proc.WaitForExit()
-  Remove-Item "./BIN" -recurse -force
+  Remove-Item "./Bin/*" -recurse -force
   Copy-Item -Path "./Dev/BIN/net5.0/*" -Destination "./Bin" -Recurse   
 } while($true)
