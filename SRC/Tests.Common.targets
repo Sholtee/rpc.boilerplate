@@ -2,7 +2,7 @@
   <PropertyGroup>
     <AppName>MyApp</AppName>
     <Configurations>Debug;</Configurations>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <OutputPath>..\..\..\BIN</OutputPath>
     <IsTestProject>true</IsTestProject>
     <LangVersion>9</LangVersion>

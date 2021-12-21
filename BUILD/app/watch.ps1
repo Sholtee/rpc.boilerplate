@@ -10,13 +10,11 @@ $watcher=New-Object -TypeName IO.FileSystemWatcher -ArgumentList ([IO.Path]::Get
 
 try
 {
-  if ($watcher.Filters -ne $Null) { #supported in PS6+ only
-    $watcher.Filters.Add("*.csproj")
-    $watcher.Filters.Add("*.cs")
-    $watcher.Filters.Add("*.sln")
-    $watcher.Filters.Add("*.sql")
-    $watcher.Filters.Add("*.targets")
-  }
+  $watcher.Filters.Add("*.csproj")
+  $watcher.Filters.Add("*.cs")
+  $watcher.Filters.Add("*.sln")
+  $watcher.Filters.Add("*.sql")
+  $watcher.Filters.Add("*.targets")
 
   do {
     $result=$watcher.WaitForChanged([IO.WatcherChangeTypes]::All, 1000) #provide a timeout to allow ctrl+c interupts
@@ -28,8 +26,8 @@ try
       Remove-Item $binfolder -recurse -force
     }
 
-    $build=Start-Process dotnet -ArgumentList "build $solution -c $Env:CONFIGURATION" -NoNewWindow -Wait -PassThru
-    if ($build.ExitCode -ne 0) {
+    dotnet build $solution -c $Env:CONFIGURATION
+    if ($LASTEXITCODE -ne 0) {
       Write-Host "Failed to rebuild the solution, watching for further changes..."
       continue
     }

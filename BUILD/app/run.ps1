@@ -56,5 +56,5 @@ do {
   $proc.StandardInput.Write([char]3)
   $proc.WaitForExit()
   Remove-Item "./Bin/*" -recurse -force
-  Copy-Item -Path "./Dev/BIN/net5.0/*" -Destination "./Bin" -Recurse   
+  Copy-Item -Path "./Dev/BIN/net6.0/*" -Destination "./Bin" -Recurse   
 } while($true)
