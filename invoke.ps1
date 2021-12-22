@@ -12,7 +12,10 @@ if ($sessionId -ne '') {
 }
 
 if ($args -eq $null) {
-  $args=@()
+  $args="[]"
+} else {
+  $args=$args | ConvertTo-Json
 }
 
-$response = Invoke-WebRequest -URI $uri -Body ($args | ConvertTo-Json) -Method 'POST' -SkipCertificateCheck
+$response = Invoke-WebRequest -URI $uri -Body $args -Method 'POST' -ContentType 'application/json' -SkipCertificateCheck
+Write-Host $response
