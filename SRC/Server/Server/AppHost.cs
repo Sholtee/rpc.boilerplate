@@ -85,6 +85,7 @@ namespace Server
                     .Service<IDbSchemaManager, SqlDbSchemaManager>(SQLiteDbConnectionProvider.ServiceName, explicitArgs: new Dictionary<string, object?> { [dbTag] = SQLiteDbConnectionProvider.ServiceName }, Lifetime.Singleton)
                     .Service<ICache, RedisCache>(Lifetime.Scoped)
                     .Service<IRoleManager, RoleManager>(Lifetime.Scoped)
+                    .Service<ISessionRepository, SqlSessionRepository>(Lifetime.Scoped)
                     .Service<IUserRepository, SqlUserRepository>(Lifetime.Scoped));
         }
 
