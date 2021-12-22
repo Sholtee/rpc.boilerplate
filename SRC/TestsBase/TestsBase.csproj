@@ -10,7 +10,7 @@
   <ItemGroup>
     <PackageReference Include="nunit" Version="3.13.2" />
     <PackageReference Include="Injector.NET" Version="6.0.0" />
-    <PackageReference Include="RPC.NET.Server" Version="5.0.1" />
+    <PackageReference Include="RPC.NET.Server" Version="5.0.2" />
   </ItemGroup>
       
   <ItemGroup>

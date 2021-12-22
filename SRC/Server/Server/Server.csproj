@@ -10,8 +10,8 @@
 
   <ItemGroup>
     <PackageReference Include="Injector.NET.Interfaces" Version="6.0.0" />
-    <PackageReference Include="RPC.NET.Interfaces" Version="5.0.1" />
-    <PackageReference Include="RPC.NET.Server" Version="5.0.1" />
+    <PackageReference Include="RPC.NET.Interfaces" Version="5.0.2" />
+    <PackageReference Include="RPC.NET.Server" Version="5.0.2" />
     <PackageReference Include="ServiceStack.Interfaces.Core" Version="5.13.2" />
     <PackageReference Include="Solti.Utils.Primitives" Version="6.1.2" />
   </ItemGroup>
