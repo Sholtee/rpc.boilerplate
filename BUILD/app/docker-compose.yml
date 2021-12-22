@@ -8,6 +8,8 @@ services:
       args:
         MYSQL_PWD: secret
         MYSQL_DB: myapp
+    ports:
+      - 3306:3306
   redis:
     container_name: app-redis
     build:
