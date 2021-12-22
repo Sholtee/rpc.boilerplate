@@ -35,7 +35,7 @@ do {
 
   if ($status.StartsWith("not installed", [StringComparison]::OrdinalIgnoreCase)) {
     Write-Host "Installing the app..."
-    InvokeServer "install -User '$($Env:APP_ROOT)' -PasswordVariable APP_PWD"
+    InvokeServer "install -User ""$($Env:APP_ROOT)"" -PasswordVariable APP_PWD"
   } elseif ($status.StartsWith("installed", [StringComparison]::OrdinalIgnoreCase)) {
     Write-Host "Running the migration scripts..."
     InvokeServer "migrate"
