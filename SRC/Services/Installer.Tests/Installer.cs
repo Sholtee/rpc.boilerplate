@@ -33,7 +33,7 @@ namespace Services.Tests
 
             typeof(DAL.User).GetHashCode(); // force loading the containing assembly
 
-            Installer installer = new(mockSchemaManager.Object, mockUserRepo.Object, new Mock<IConfig>(MockBehavior.Strict).Object);
+            Installer installer = new(mockSchemaManager.Object, mockUserRepo.Object, new Mock<IConfig<DatabaseConfig>>(MockBehavior.Strict).Object);
 
             Assert.DoesNotThrow(() => installer.Install(new InstallArguments 
             {
@@ -59,7 +59,7 @@ namespace Services.Tests
                 .Setup(sm => sm.GetLastMigrationUtc())
                 .Returns(lastMigration);
 
-            Installer installer = new(mockSchemaManager.Object, new Mock<IUserRepository>(MockBehavior.Strict).Object, new Mock<IConfig>(MockBehavior.Strict).Object);
+            Installer installer = new(mockSchemaManager.Object, new Mock<IUserRepository>(MockBehavior.Strict).Object, new Mock<IConfig<DatabaseConfig>>(MockBehavior.Strict).Object);
             Assert.That(installer.Status, Is.EqualTo($"INSTALLED (Last Migration: {lastMigration})"));
         }
 
@@ -71,7 +71,7 @@ namespace Services.Tests
                 .SetupGet(sm => sm.IsInitialized)
                 .Returns(false);
 
-            Installer installer = new(mockSchemaManager.Object, new Mock<IUserRepository>(MockBehavior.Strict).Object, new Mock<IConfig>(MockBehavior.Strict).Object);
+            Installer installer = new(mockSchemaManager.Object, new Mock<IUserRepository>(MockBehavior.Strict).Object, new Mock<IConfig<DatabaseConfig>>(MockBehavior.Strict).Object);
             Assert.That(installer.Status, Is.EqualTo("NOT INSTALLED"));
         }
 
@@ -83,9 +83,9 @@ namespace Services.Tests
                 .Setup(sm => sm.Migrate(File.GetCreationTimeUtc("Migration\\migration_script_1.sql"), string.Empty, "migration_script_1.sql"))
                 .Returns(true);
 
-            var mockConfig = new Mock<IConfig>(MockBehavior.Strict);
+            var mockConfig = new Mock<IConfig<DatabaseConfig>>(MockBehavior.Strict);
             mockConfig
-                .SetupGet(c => c.Database)
+                .SetupGet(c => c.Value)
                 .Returns(new DatabaseConfig { MigrationDir = "Migration" });
 
             Installer installer = new(mockSchemaManager.Object, new Mock<IUserRepository>(MockBehavior.Strict).Object, mockConfig.Object);
