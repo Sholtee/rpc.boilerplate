@@ -27,12 +27,12 @@ namespace Services
         private static string GetKey(string key) => KEY_PREFIX + key;
 
         [ServiceActivator]
-        public RedisCache(IConfig config)
+        public RedisCache(IConfig<RedisConfig> config)
         {
             if (config == null)
                 throw new ArgumentNullException(nameof(config));
 
-            FClient = new RedisClient(config.Redis.Host, config.Redis.Port);
+            FClient = new RedisClient(config.Value.Host, config.Value.Port);
         }
 
         public RedisCache(string host, int port) => FClient = new RedisClient(host, port);

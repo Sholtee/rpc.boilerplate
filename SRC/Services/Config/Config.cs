@@ -1,25 +1,65 @@
-﻿using System.Text.Json;
+﻿using System;
 using System.IO;
-
-#pragma warning disable CS8618
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Text.Json;
 
 namespace Services
 {
     using API;
+    using Properties;
 
-    public class Config : IConfig
+    public class Config<TNode> : IConfig<TNode>
     {
-        public ServerConfig Server { get; set; }
-
-        public DatabaseConfig Database { get; set; }
-
-        public RedisConfig Redis { get; set; }
-
-        public static Config Read(string configFile) 
+        private static TNode Read(ref Utf8JsonReader reader)
         {
-            string path = Path.Combine(Path.GetDirectoryName(typeof(Config).Assembly.Location)!, configFile);
+            if (reader.TokenType != JsonTokenType.StartObject)
+                throw new JsonException();
 
-            return JsonSerializer.Deserialize<Config>(File.ReadAllText(path))!;
+            string node = typeof(TNode).GetCustomAttribute<ConfigNodeAttribute>()?.Node ?? throw new InvalidOperationException(Resources.NOT_A_CONFIG_ENTITY);
+
+            while (reader.Read())
+            {
+                if (reader.TokenType == JsonTokenType.PropertyName)
+                {
+                    if (reader.GetString() != node)
+                    {
+                        if (!reader.Read())
+                            break;
+
+                        if (new[] { JsonTokenType.StartObject, JsonTokenType.StartArray }.Contains(reader.TokenType))
+                            reader.Skip();
+
+                        continue;
+                    }
+
+                    TNode? result = (TNode?) JsonSerializer.Deserialize(ref reader, typeof(TNode), options: null);
+                    return result ?? throw new JsonException();
+                }
+            }
+
+            throw new JsonException();
+        }
+    
+
+        public TNode Value { get; }
+
+        public Config(string configFile) 
+        {
+            string path = Path.Combine(Path.GetDirectoryName(typeof(Config<>).Assembly.Location)!, configFile);
+
+            Utf8JsonReader reader = new
+            (
+                Encoding.UTF8.GetBytes
+                (
+                    File.ReadAllText(path)
+                )
+            );
+
+            reader.Read();
+
+            Value = Read(ref reader);
         }
     }
 }

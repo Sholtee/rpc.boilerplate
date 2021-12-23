@@ -1,11 +1,7 @@
 ﻿namespace Services.API
 {
-    public interface IConfig
+    public interface IConfig<TNode>
     {
-        ServerConfig Server { get; }
-        
-        DatabaseConfig Database { get; }
-
-        RedisConfig Redis { get; }
+        TNode Value { get; }
     }
 }

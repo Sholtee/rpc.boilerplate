@@ -65,6 +65,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SessionRepository.API", "DA
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SessionRepository.Tests", "DAL\SessionRepository.Tests\SessionRepository.Tests.csproj", "{781BB244-3572-4B3E-AFAC-60FA3D6A6E65}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbConnection.API", "Services\DbConnection.API\DbConnection.API.csproj", "{AAA956DD-DABE-44B8-80A4-3FBA2E0943A1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -218,6 +220,12 @@ Global
 		{781BB244-3572-4B3E-AFAC-60FA3D6A6E65}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{781BB244-3572-4B3E-AFAC-60FA3D6A6E65}.Debug-NoTests|Any CPU.ActiveCfg = Debug|Any CPU
 		{781BB244-3572-4B3E-AFAC-60FA3D6A6E65}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AAA956DD-DABE-44B8-80A4-3FBA2E0943A1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AAA956DD-DABE-44B8-80A4-3FBA2E0943A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AAA956DD-DABE-44B8-80A4-3FBA2E0943A1}.Debug-NoTests|Any CPU.ActiveCfg = Debug|Any CPU
+		{AAA956DD-DABE-44B8-80A4-3FBA2E0943A1}.Debug-NoTests|Any CPU.Build.0 = Debug|Any CPU
+		{AAA956DD-DABE-44B8-80A4-3FBA2E0943A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AAA956DD-DABE-44B8-80A4-3FBA2E0943A1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -249,6 +257,7 @@ Global
 		{9CF107F2-ABFD-40B9-9156-13FB05F53D41} = {A9C0B100-0758-4200-9C1A-D799D3FD1859}
 		{2DB23E56-73C8-4923-9ACD-8A649C6BEC9C} = {A9C0B100-0758-4200-9C1A-D799D3FD1859}
 		{781BB244-3572-4B3E-AFAC-60FA3D6A6E65} = {A9C0B100-0758-4200-9C1A-D799D3FD1859}
+		{AAA956DD-DABE-44B8-80A4-3FBA2E0943A1} = {F8E0A7AF-F133-4975-8792-CB46C345F1D5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {12977405-909D-4F7A-9C43-856D52ACB84A}

@@ -21,12 +21,12 @@ namespace DAL
     {
         public IDbConnection Connection { get; }
 
-        public IConfig Config { get; }
+        public SessionConfig Config { get; }
 
-        public SqlSessionRepository([Options(Name = "memory")] IDbConnection connection, IConfig config)
+        public SqlSessionRepository([Options(Name = "memory")] IDbConnection connection, IConfig<SessionConfig> config)
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
-            Config = config ?? throw new ArgumentNullException(nameof(config));
+            Config = (config ?? throw new ArgumentNullException(nameof(config))).Value;
         }
 
         public Task Clean(CancellationToken cancellation) => Connection.DeleteAsync<DAL.Session>(sess => sess.ExpiresUtc <= DateTime.UtcNow, token: cancellation);
@@ -46,7 +46,7 @@ namespace DAL
                 )
             ).SingleOrDefault();
 
-            DateTime expiry = DateTime.UtcNow.AddMinutes(Config.Server.SessionTimeoutInMinutes);
+            DateTime expiry = DateTime.UtcNow.AddMinutes(Config.TimeoutInMinutes);
 
             if (session is not null)
                 await Connection.UpdateOnlyAsync<DAL.Session>(new Dictionary<string, object> { [nameof(DAL.Session.ExpiresUtc)] = expiry }, where: s => s.Id == session.Id, token: cancellation);

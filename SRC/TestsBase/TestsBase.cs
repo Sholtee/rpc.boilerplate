@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Collections.Generic;
+
+using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 
 using Solti.Utils.DI.Interfaces;
@@ -20,7 +22,7 @@ namespace Tests.Base
         {
             svcs
                 .Service<ICache, MemoryCache>(Lifetime.Singleton)
-                .Instance<IConfig>(Config.Read("config.test.json"))
+                .Service(typeof(IConfig<>), typeof(Config<>), new Dictionary<string, object?> { ["configFile"] = "config.test.json" }, Lifetime.Singleton)
                 .Factory<ILogger>(i => TraceLogger.Create<TestsBase>(), Lifetime.Singleton);
             OneTimeSetup(svcs);
         });

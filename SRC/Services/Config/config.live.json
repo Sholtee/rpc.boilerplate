@@ -1,8 +1,10 @@
 ﻿{
   "Server": {
     "Host": "https://+:1986/",
-    "SessionTimeoutInMinutes": 10,
     "AllowedOrigins": []
+  },
+  "Session": {
+    "TimeoutInMinutes": 10
   },
   "Database": {
     "ConnectionString": "Server=db;Port=3306;Database=myapp;UId=root;PWd=secret",

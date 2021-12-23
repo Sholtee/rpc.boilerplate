@@ -31,11 +31,11 @@ namespace Server
 
     public sealed class AppHost : AppHostBase
     {
-        const string dbTag = nameof(dbTag);
+        const string
+            dbTag = nameof(dbTag),
+            configFile = "config.json";
 
-        private IConfig Config { get; }
-
-        public AppHost(IReadOnlyList<string> args) : base(args) => Config = Services.Config.Read("config.json");
+        public AppHost(IReadOnlyList<string> args) : base(args) { }
 
         private sealed class LowerCasePolicy : JsonNamingPolicy
         {
@@ -43,12 +43,12 @@ namespace Server
             public override string ConvertName(string name) => name.ToLowerInvariant();
         }
 
-        private void InvokeInstaller(Action<IInstaller> invocation)
+        private static void InvokeInstaller(Action<IInstaller> invocation)
         {
             using IScopeFactory scopeFactory = ScopeFactory.Create(svcs => svcs
-                .Instance<IConfig>(Config)
                 .Instance<ILogger>(TraceLogger.Create<AppHost>()) // required due to Logger aspects
                 .Provider<IDbConnection, MySqlDbConnectionProvider>(Lifetime.Scoped)
+                .Service(typeof(IConfig<>), typeof(Config<>), new Dictionary<string, object?> { [nameof(configFile)] = configFile }, Lifetime.Singleton)
                 .Service<IDbSchemaManager, SqlDbSchemaManager>(explicitArgs: new Dictionary<string, object?> { [dbTag] = null }, Lifetime.Singleton)
                 .Service<IUserRepository, SqlUserRepository>(Lifetime.Scoped)
                 .Service<IInstaller, Installer>(Lifetime.Scoped));
@@ -65,11 +65,13 @@ namespace Server
 
             base.OnConfigure(serviceBuilder);
 
+            ServerConfig serverConfig = new Config<ServerConfig>(configFile).Value;
+
             serviceBuilder
                 .ConfigureWebService(new WebServiceDescriptor
                  {
-                     Url = Config.Server.Host,
-                     AllowedOrigins = new List<string>(Config.Server.AllowedOrigins ?? Array.Empty<string>())
+                     Url = serverConfig.Host,
+                     AllowedOrigins = new List<string>(serverConfig.AllowedOrigins ?? Array.Empty<string>())
                  })
                 .ConfigureSerializer(new JsonSerializerOptions
                 {
@@ -78,10 +80,10 @@ namespace Server
                 .ConfigureModules(registry => registry
                     .Register<IUserManager, UserManager>())
                 .ConfigureServices(svcs => svcs
-                    .Instance<IConfig>(Config)
                     .Instance<ILogger>(ConsoleLogger.Create<AppHost>())
                     .Provider<IDbConnection, MySqlDbConnectionProvider>(Lifetime.Scoped)
                     .Provider<IDbConnection, SQLiteDbConnectionProvider>(SQLiteDbConnectionProvider.ServiceName, Lifetime.Scoped)
+                    .Service(typeof(IConfig<>), typeof(Config<>), new Dictionary<string, object?> { [nameof(configFile)] = configFile }, Lifetime.Singleton)
                     .Service<IDbSchemaManager, SqlDbSchemaManager>(SQLiteDbConnectionProvider.ServiceName, explicitArgs: new Dictionary<string, object?> { [dbTag] = SQLiteDbConnectionProvider.ServiceName }, Lifetime.Singleton)
                     .Service<ICache, RedisCache>(Lifetime.Scoped)
                     .Service<IRoleManager, RoleManager>(Lifetime.Scoped)
@@ -115,10 +117,10 @@ namespace Server
             Console.Error.WriteLine(msg);
         }
 
-        [Verb("status")]
+        [Verb("status"), SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "Verb attribute must be placed on an instance method")]
         public void OnPrintStatus() => InvokeInstaller(installer => Console.Out.WriteLine(installer.Status));
 
-        [Verb("migrate")]
+        [Verb("migrate"), SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "Verb attribute must be placed on an instance method")]
         public void OnMigrate() => InvokeInstaller(installer => installer
             .Migrate()
             .ForEach((status, _) => Console.Out.WriteLine(status)));

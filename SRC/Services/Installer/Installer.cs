@@ -16,13 +16,13 @@ namespace Services
 
         public IDbSchemaManager Schema { get; }
 
-        public IConfig Config { get; }
+        public DatabaseConfig Config { get; }
 
-        public Installer(IDbSchemaManager schemaManager, IUserRepository userRepository, IConfig config)
+        public Installer(IDbSchemaManager schemaManager, IUserRepository userRepository, IConfig<DatabaseConfig> config)
         {
             UserRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
             Schema = schemaManager ?? throw new ArgumentNullException(nameof(schemaManager));
-            Config = config ?? throw new ArgumentNullException(nameof(config));
+            Config = (config ?? throw new ArgumentNullException(nameof(config))).Value;
         }
 
         public void Install(InstallArguments args)
@@ -58,7 +58,7 @@ namespace Services
 
         public IEnumerable<string> Migrate()
         {
-            foreach (string sqlFile in Directory.EnumerateFiles(Config.Database.MigrationDir, "*.sql", SearchOption.TopDirectoryOnly).OrderBy(f => f))
+            foreach (string sqlFile in Directory.EnumerateFiles(Config.MigrationDir, "*.sql", SearchOption.TopDirectoryOnly).OrderBy(f => f))
             {
                 bool installed = Schema.Migrate
                 (

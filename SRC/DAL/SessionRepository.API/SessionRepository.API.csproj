@@ -12,4 +12,9 @@
     <PackageReference Include="RPC.NET.Interfaces" Version="5.0.2" />
   </ItemGroup>
 
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Services\Config.API\Config.API.csproj" />
+  </ItemGroup>
+
 </Project>

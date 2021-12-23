@@ -9,16 +9,16 @@ namespace Services
 
     public class MySqlDbConnectionProvider : IServiceProvider
     {
-        public IConfig Config { get; }
+        public DatabaseConfig Config { get; }
 
-        public MySqlDbConnectionProvider(IConfig config) => Config = config ?? throw new ArgumentNullException(nameof(config));
+        public MySqlDbConnectionProvider(IConfig<DatabaseConfig> config) => Config = (config ?? throw new ArgumentNullException(nameof(config))).Value;
 
         public object GetService(Type serviceType)
         {
             if (serviceType != typeof(IDbConnection))
                 throw new NotSupportedException();
 
-            OrmLiteConnectionFactory connectionFactory = new(Config.Database.ConnectionString, MySqlDialect.Provider);
+            OrmLiteConnectionFactory connectionFactory = new(Config.ConnectionString, MySqlDialect.Provider);
             return connectionFactory.OpenDbConnection();
         }
     }

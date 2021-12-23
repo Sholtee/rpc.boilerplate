@@ -29,14 +29,11 @@ namespace DAL
     {
         public IDbConnection Connection { get; }
 
-        public IConfig Config { get; }
-
         public IMapper Mapper { get; }
 
-        public SqlUserRepository(IDbConnection connection, IConfig config) 
+        public SqlUserRepository(IDbConnection connection) 
         {
             Connection = connection ?? throw new ArgumentNullException(nameof(connection));
-            Config = config ?? throw new ArgumentNullException(nameof(config));
             Mapper = new MapperConfiguration(cfg => cfg.AddProfiles(new Profile[]
             {
                 new UserProfile()

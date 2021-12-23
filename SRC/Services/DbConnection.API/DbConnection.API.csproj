@@ -1,12 +1,13 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
+<Project Sdk="Microsoft.NET.Sdk">
+	
   <Import Project="..\..\Common.targets" />
-  
+
   <PropertyGroup>
-    <AssemblyName>$(AppName).Services.Cache.API</AssemblyName>
+    <AssemblyName>$(AppName).Services.DbConnection.API</AssemblyName>
     <RootNamespace>Services.API</RootNamespace>
+    <Configurations>Debug;Release;Debug-NoTests</Configurations>
   </PropertyGroup>
-  
+
   <ItemGroup>
     <ProjectReference Include="..\Config.API\Config.API.csproj" />
   </ItemGroup>
