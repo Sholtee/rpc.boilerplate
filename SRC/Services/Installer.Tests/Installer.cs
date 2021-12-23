@@ -31,9 +31,14 @@ namespace Services.Tests
                 .Setup(r => r.Create(It.Is<DAL.API.User>(u => u.FullName == "Superuser" && u.EmailOrUserName == "root@root.hu"), "cica12", It.Is<string[]>(grps => grps.Single() == "Admins"), default))
                 .Returns(Task.FromResult(Guid.NewGuid()));
 
+            var mockConfig = new Mock<IConfig<DatabaseConfig>>(MockBehavior.Strict);
+            mockConfig
+                .SetupGet(c => c.Value)
+                .Returns(value: null);
+
             typeof(DAL.User).GetHashCode(); // force loading the containing assembly
 
-            Installer installer = new(mockSchemaManager.Object, mockUserRepo.Object, new Mock<IConfig<DatabaseConfig>>(MockBehavior.Strict).Object);
+            Installer installer = new(mockSchemaManager.Object, mockUserRepo.Object, mockConfig.Object);
 
             Assert.DoesNotThrow(() => installer.Install(new InstallArguments 
             {
@@ -59,8 +64,13 @@ namespace Services.Tests
                 .Setup(sm => sm.GetLastMigrationUtc())
                 .Returns(lastMigration);
 
-            Installer installer = new(mockSchemaManager.Object, new Mock<IUserRepository>(MockBehavior.Strict).Object, new Mock<IConfig<DatabaseConfig>>(MockBehavior.Strict).Object);
-            Assert.That(installer.Status, Is.EqualTo($"INSTALLED (Last Migration: {lastMigration})"));
+            var mockConfig = new Mock<IConfig<DatabaseConfig>>(MockBehavior.Strict);
+            mockConfig
+                .SetupGet(c => c.Value)
+                .Returns(value: null);
+
+            Installer installer = new(mockSchemaManager.Object, new Mock<IUserRepository>(MockBehavior.Strict).Object, mockConfig.Object);
+            Assert.That(installer.Status, Is.EqualTo($"Installed (Last Migration: {lastMigration})"));
         }
 
         [Test]
@@ -71,8 +81,13 @@ namespace Services.Tests
                 .SetupGet(sm => sm.IsInitialized)
                 .Returns(false);
 
-            Installer installer = new(mockSchemaManager.Object, new Mock<IUserRepository>(MockBehavior.Strict).Object, new Mock<IConfig<DatabaseConfig>>(MockBehavior.Strict).Object);
-            Assert.That(installer.Status, Is.EqualTo("NOT INSTALLED"));
+            var mockConfig = new Mock<IConfig<DatabaseConfig>>(MockBehavior.Strict);
+            mockConfig
+                .SetupGet(c => c.Value)
+                .Returns(value: null);
+
+            Installer installer = new(mockSchemaManager.Object, new Mock<IUserRepository>(MockBehavior.Strict).Object, mockConfig.Object);
+            Assert.That(installer.Status, Is.EqualTo("Not installed"));
         }
 
         [Test]
@@ -92,7 +107,7 @@ namespace Services.Tests
 
             string[] scripts = installer.Migrate().ToArray();
             Assert.That(scripts.Length, Is.EqualTo(1));
-            Assert.That(scripts[0], Is.EqualTo("Migration\\migration_script_1.sql [INSTALLED]"));
+            Assert.That(scripts[0], Is.EqualTo("Migration\\migration_script_1.sql [Installed]"));
         }
     }
 }
