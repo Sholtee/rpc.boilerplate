@@ -3,7 +3,7 @@
   <Import Project="..\..\Tests.Common.targets" />
 
   <PropertyGroup>
-    <AssemblyName>$(AppName).Services.RoleManager.Tests</AssemblyName>
+    <AssemblyName>$(AppName).Services.Installer.Tests</AssemblyName>
     <RootNamespace>Services.Tests</RootNamespace>
   </PropertyGroup>
 
