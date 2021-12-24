@@ -12,7 +12,7 @@ WORKDIR /app
 COPY ./SRC ./SRC
 COPY ./BUILD ./BUILD
 
-ARG CONFIGURATION=Debug-NoTests
+ARG CONFIGURATION
 
 RUN dotnet build ./SRC/MyApp.sln -c $Env:CONFIGURATION
 
@@ -52,11 +52,9 @@ COPY --from=prep app/BIN/net6.0/ ./Bin
 COPY --from=prep app/BUILD/app/run.ps1 .
 COPY --from=prep app/BUILD/app/watch.ps1 .
 
-ENV\
-  APP_ROOT=root@root.hu\
-  APP_PWD=secret\
-  #for watch builds
-  CONFIGURATION=Debug-NoTests
+# "watch" feature requires this environment variable
+ARG CONFIGURATION
+ENV CONFIGURATION=$CONFIGURATION
 
 ENTRYPOINT ["pwsh", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';", "./run.ps1"]
 

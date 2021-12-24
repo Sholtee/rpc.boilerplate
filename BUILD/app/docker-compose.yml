@@ -24,8 +24,9 @@ services:
         CONFIGURATION: Debug-NoTests #applies to "watch" builds too
         CERT_PATH: .\cert.self-signed\certificate.p12
         CERT_PWD: cica
-        APP_ROOT: root@root.hu
-        APP_PWD: secret
+    environment:
+      APP_ROOT: root@root.hu
+      APP_PWD: secret
     links:
       - db
       - redis
