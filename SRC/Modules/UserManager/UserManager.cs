@@ -38,11 +38,17 @@ namespace Modules
         public async Task<Guid> Create(API.User user, string pw, string[] groups) => await UserRepository
             .Create(Mapper.Map<DAL.API.User>(user), pw, groups, RequestContext.Cancellation);
 
-        public async Task<Guid> Login(string emailOrUserName, string pw)
+        public async Task<API.UserEx> Login(string emailOrUserName, string pw)
         {
-            DAL.API.UserEx user = await UserRepository.GetByCredentials(emailOrUserName, pw, RequestContext.Cancellation);
+            API.UserEx user = Mapper.Map<DAL.API.UserEx, API.UserEx>
+            (
+                await UserRepository.GetByCredentials(emailOrUserName, pw, RequestContext.Cancellation)
+            );
 
-            return await SessionRepository.GetOrCreate(user.Id, RequestContext.Cancellation);
+            user.SessionId = await SessionRepository.GetOrCreate(user.Id!.Value, RequestContext.Cancellation);
+            user.Id = null;
+
+            return user;
         }
 
         public async Task Logout()

@@ -20,7 +20,8 @@ namespace Modules.API
     public class UserEx : User
     #pragma warning restore CA1711
     {
-        public Guid Id { get; set; }
+        public Guid? Id { get; set; }
+        public Guid? SessionId { get; set; }
         public Roles Roles { get; set; }
     }
 }

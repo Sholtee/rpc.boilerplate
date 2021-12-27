@@ -83,9 +83,9 @@ namespace Modules.Tests
 
             var userManager = new UserManager(new Lazy<IUserRepository>(() => mockUserRepo.Object), new Lazy<ISessionRepository>(() => mockSessionRepo.Object), mockContext.Object);
 
-            Guid sessionId = Guid.Empty;
-            Assert.DoesNotThrowAsync(async () => sessionId = await userManager.Login("cica", "kutya"));
-            Assert.That(sessionId, Is.Not.EqualTo(Guid.Empty));
+            API.UserEx returned = null;
+            Assert.DoesNotThrowAsync(async () => returned = await userManager.Login("cica", "kutya"));
+            Assert.That(returned.SessionId, Is.Not.EqualTo(Guid.Empty));
 
             mockUserRepo.Verify(r => r.GetByCredentials("cica", "kutya", default), Times.Once);
             mockSessionRepo.Verify(r => r.GetOrCreate(user.Id, default), Times.Once);

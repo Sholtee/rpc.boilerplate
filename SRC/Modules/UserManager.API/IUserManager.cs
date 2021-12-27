@@ -24,7 +24,7 @@ namespace Modules.API
         Task<PartialUserList> List(int skip, int count);
 
         [RequiredRoles(Roles.AnonymousUser), Loggers(typeof(ModuleMethodScopeLogger), typeof(ExceptionLogger), typeof(StopWatchLogger))] // don't log parameteres (would contain sensitive data)
-        Task<Guid> Login([NotNull, LengthBetween(min: 5)] string emailOrUserName, [NotNull, LengthBetween(min: 5)] string pw);
+        Task<UserEx> Login([NotNull, LengthBetween(min: 5)] string emailOrUserName, [NotNull, LengthBetween(min: 5)] string pw);
 
         [RequiredRoles(Roles.AuthenticatedUser)]
         Task Logout();
