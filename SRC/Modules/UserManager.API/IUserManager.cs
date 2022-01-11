@@ -11,7 +11,7 @@ namespace Modules.API
     [ParameterValidatorAspect, RoleValidatorAspect, TransactionAspect, ModuleLoggerAspect]
     public interface IUserManager
     {
-        [RequiredRoles(Roles.Admin), Transactional, Loggers(typeof(ModuleMethodScopeLogger), typeof(ExceptionLogger), typeof(StopWatchLogger))] // don't log parameteres (would contain sensitive data)
+        [RequiredRoles(Roles.Admin), Transactional, Loggers(typeof(ModuleMethodScopeLogger), typeof(ExceptionLogger), typeof(StopWatchLogger))] // don't log parameteres (may contain sensitive data)
         Task<Guid> Create([NotNull, ValidateProperties] User user, [NotNull, LengthBetween(min: 5)] string pw, [NotNull] string[] groups);
 
         [RequiredRoles(Roles.Admin), Transactional]
@@ -23,7 +23,7 @@ namespace Modules.API
         [RequiredRoles(Roles.Admin), Transactional(IsolationLevel = IsolationLevel.Serializable)]
         Task<PartialUserList> List(int skip, int count);
 
-        [RequiredRoles(Roles.AnonymousUser), Loggers(typeof(ModuleMethodScopeLogger), typeof(ExceptionLogger), typeof(StopWatchLogger))] // don't log parameteres (would contain sensitive data)
+        [RequiredRoles(Roles.AnonymousUser), Loggers(typeof(ModuleMethodScopeLogger), typeof(ExceptionLogger), typeof(StopWatchLogger))] // don't log parameteres (may contain sensitive data)
         Task<UserEx> Login([NotNull, LengthBetween(min: 5)] string emailOrUserName, [NotNull, LengthBetween(min: 5)] string pw);
 
         [RequiredRoles(Roles.AuthenticatedUser)]
