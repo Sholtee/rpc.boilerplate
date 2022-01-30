@@ -18,11 +18,11 @@ namespace Modules
         private readonly Lazy<ISessionRepository> FSessionRepository;
         public ISessionRepository SessionRepository => FSessionRepository.Value;
 
-        public IRequestContext RequestContext { get; }
+        public IRpcRequestContext RequestContext { get; }
 
         public IMapper Mapper { get; }
 
-        public UserManager(Lazy<IUserRepository> userRepository, Lazy<ISessionRepository> sessionRepository, IRequestContext requestContext) 
+        public UserManager(Lazy<IUserRepository> userRepository, Lazy<ISessionRepository> sessionRepository, IRpcRequestContext requestContext) 
         {
             FUserRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
             FSessionRepository = sessionRepository ?? throw new ArgumentNullException(nameof(sessionRepository));

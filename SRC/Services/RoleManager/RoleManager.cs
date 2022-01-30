@@ -27,7 +27,7 @@ namespace Services
 
         public async Task<Enum> GetAssignedRolesAsync(string? sessionId, CancellationToken cancellation)
         {
-            if (sessionId is null)
+            if (string.IsNullOrEmpty(sessionId))
                 return Roles.AnonymousUser;
 
             UserEx user = await UserRepository.GetById

@@ -6,13 +6,14 @@ using System.Text.Json;
 
 using Microsoft.Extensions.Logging;
 
-using Solti.Utils.DI;
 using Solti.Utils.DI.Interfaces;
 using Solti.Utils.Primitives;
 using Solti.Utils.Rpc;
 using Solti.Utils.Rpc.Hosting;
 using Solti.Utils.Rpc.Interfaces;
 using Solti.Utils.Rpc.Internals;
+using Solti.Utils.Rpc.Pipeline;
+using Solti.Utils.Rpc.Servers;
 
 namespace Server
 {
@@ -41,72 +42,84 @@ namespace Server
         {
             [SuppressMessage("Globalization", "CA1308:Normalize strings to uppercase")]
             public override string ConvertName(string name) => name.ToLowerInvariant();
+
+            public static LowerCasePolicy Instance { get; } = new LowerCasePolicy();
         }
 
-        private static void InvokeInstaller(Action<IInstaller> invocation)
-        {
-            using IScopeFactory scopeFactory = ScopeFactory.Create(svcs => svcs
-                .Instance<ILogger>(TraceLogger.Create<AppHost>()) // required due to Logger aspects
-                .Provider<IDbConnection, MySqlDbConnectionProvider>(Lifetime.Scoped)
-                .Service(typeof(IConfig<>), typeof(Config<>), new Dictionary<string, object?> { [nameof(configFile)] = configFile }, Lifetime.Singleton)
-                .Service<IDbSchemaManager, SqlDbSchemaManager>(explicitArgs: new Dictionary<string, object?> { [dbTag] = null }, Lifetime.Singleton)
-                .Service<IUserRepository, SqlUserRepository>(Lifetime.Scoped)
-                .Service<IInstaller, Installer>(Lifetime.Scoped));
-
-            using IInjector injector = scopeFactory.CreateScope();
-
-            invocation(injector.Get<IInstaller>());
-        }
-
-        public override void OnConfigure(RpcServiceBuilder serviceBuilder)
+        public override void OnConfigure(WebServiceBuilder serviceBuilder)
         {
             if (serviceBuilder is null)
                 throw new ArgumentNullException(nameof(serviceBuilder));
 
-            base.OnConfigure(serviceBuilder);
-
             ServerConfig serverConfig = new Config<ServerConfig>(configFile).Value;
 
             serviceBuilder
-                .ConfigureWebService(new WebServiceDescriptor
-                 {
-                     Url = serverConfig.Host,
-                     AllowedOrigins = new List<string>(serverConfig.AllowedOrigins ?? Array.Empty<string>())
-                 })
-                .ConfigureSerializer(new JsonSerializerOptions
+                .ConfigureBackend(_ => new HttpListenerBackend(serverConfig.Host)
                 {
-                    PropertyNamingPolicy = new LowerCasePolicy()
+                    ReserveUrl = true
                 })
-                .ConfigureModules(registry => registry
-                    .Register<IUserManager, UserManager>())
-                .ConfigureServices(svcs => svcs
-                    .Instance<ILogger>(ConsoleLogger.Create<AppHost>())
-                    .Provider<IDbConnection, MySqlDbConnectionProvider>(Lifetime.Scoped)
-                    .Provider<IDbConnection, SQLiteDbConnectionProvider>(SQLiteDbConnectionProvider.ServiceName, Lifetime.Scoped)
-                    .Service(typeof(IConfig<>), typeof(Config<>), new Dictionary<string, object?> { [nameof(configFile)] = configFile }, Lifetime.Singleton)
-                    .Service<IDbSchemaManager, SqlDbSchemaManager>(SQLiteDbConnectionProvider.ServiceName, explicitArgs: new Dictionary<string, object?> { [dbTag] = SQLiteDbConnectionProvider.ServiceName }, Lifetime.Singleton)
-                    .Service<ICache, RedisCache>(Lifetime.Scoped)
-                    .Service<IRoleManager, RoleManager>(Lifetime.Scoped)
-                    .Service<ISessionRepository, SqlSessionRepository>(Lifetime.Scoped)
-                    .Service<IUserRepository, SqlUserRepository>(Lifetime.Scoped));
+                .ConfigureRpcService((RequestHandlerBuilder conf) =>
+                {
+                    switch (conf)
+                    {
+                        case Solti.Utils.Rpc.Pipeline.Modules modules:
+                            modules
+                                .ConfigureSerializer(_ =>
+                                {
+                                    JsonSerializerBackend serializer = new();
+                                    serializer.Options.PropertyNamingPolicy = LowerCasePolicy.Instance;
+                                    return serializer;
+                                })
+                                .Register<IUserManager, UserManager>();
+                            break;
+                        case RpcAccessControl rpcAc:
+                            foreach (string origin in serverConfig.AllowedOrigins)
+                            {
+                                rpcAc.AllowedOrigins.Add(origin);
+                            }
+                            break;
+                    }
+                }, useDefaultLogger: false)
+                .ConfigureServices(svcs => { /*WebService exclusive services go here*/ });
         }
+
+        public override void OnConfigureServices(IServiceCollection services) => services
+            .Factory<ILogger>(_ => ConsoleLogger.Create<AppHost>(), Lifetime.Scoped) // cannot be Singleton due to log scopes
+            .Provider<IDbConnection, MySqlDbConnectionProvider>(Lifetime.Scoped)
+            .Provider<IDbConnection, SQLiteDbConnectionProvider>(SQLiteDbConnectionProvider.ServiceName, Lifetime.Scoped)
+            .Service(typeof(IConfig<>), typeof(Config<>), new Dictionary<string, object?> { [nameof(configFile)] = configFile }, Lifetime.Singleton)
+            .Service<IDbSchemaManager, SqlDbSchemaManager>(SQLiteDbConnectionProvider.ServiceName, explicitArgs: new Dictionary<string, object?> { [dbTag] = SQLiteDbConnectionProvider.ServiceName }, Lifetime.Singleton)
+            .Service<IDbSchemaManager, SqlDbSchemaManager>(explicitArgs: new Dictionary<string, object?> { [dbTag] = null }, Lifetime.Singleton)
+            .Service<ICache, RedisCache>(Lifetime.Scoped)
+            .Service<IRoleManager, RoleManager>(Lifetime.Scoped)
+            .Service<ISessionRepository, SqlSessionRepository>(Lifetime.Scoped)
+            .Service<IUserRepository, SqlUserRepository>(Lifetime.Scoped)
+            .Service<IInstaller, Installer>(Lifetime.Scoped);
 
         public override void OnBuilt()
         {
-            base.OnBuilt();
+            //
+            // Since this handler is called right after the OnConfigureServices() method, we cannot use the InvokeInScope() helper
+            //
 
-            using IInjector injector = RpcService!.ScopeFactory.CreateScope();
+            using IInjector scope = WebService!.ScopeFactory.CreateScope();
 
-            IDbSchemaManager schemaManager = injector.Get<IDbSchemaManager>(SQLiteDbConnectionProvider.ServiceName);
+            IDbSchemaManager schemaManager = scope.Get<IDbSchemaManager>(SQLiteDbConnectionProvider.ServiceName);
             schemaManager.Initialize();
         }
 
-        public override void OnInstall()
-        {
-            base.OnInstall();
+        public override void OnInstall() => InvokeInScope((IInjector scope) => scope
+            .Get<IInstaller>()
+            .Install(GetParsedArguments<InstallArguments>()));
 
-            InvokeInstaller(installer => installer.Install(GetParsedArguments<InstallArguments>()));
-        }
+        [Verb("status")]
+        public void OnPrintStatus() => InvokeInScope((IInjector scope) => Console.Out.WriteLine(scope.Get<IInstaller>().Status));
+
+        [Verb("migrate")]
+        public void OnMigrate() => InvokeInScope((IInjector scope) => scope
+            .Get<IInstaller>()
+            .Migrate()
+            .ForEach((status, _) => Console.Out.WriteLine(status)));
 
         public override void OnUnhandledException(Exception ex)
         {
@@ -116,13 +129,5 @@ namespace Server
 
             Console.Error.WriteLine(msg);
         }
-
-        [Verb("status"), SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "Verb attribute must be placed on an instance method")]
-        public void OnPrintStatus() => InvokeInstaller(installer => Console.Out.WriteLine(installer.Status));
-
-        [Verb("migrate"), SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "Verb attribute must be placed on an instance method")]
-        public void OnMigrate() => InvokeInstaller(installer => installer
-            .Migrate()
-            .ForEach((status, _) => Console.Out.WriteLine(status)));
     }
 }

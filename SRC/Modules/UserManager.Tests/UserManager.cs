@@ -26,7 +26,7 @@ namespace Modules.Tests
                 .Setup(r => r.Create(It.Is<DAL.API.User>(u => u.EmailOrUserName == "cica@mica.hu" && u.FullName == "cica"), "kutya", Array.Empty<string>(), default))
                 .Returns(Task.FromResult(Guid.NewGuid()));
 
-            var mockContext = new Mock<IRequestContext>(MockBehavior.Strict);
+            var mockContext = new Mock<IRpcRequestContext>(MockBehavior.Strict);
             mockContext
                 .SetupGet(c => c.Cancellation)
                 .Returns(default(CancellationToken));
@@ -46,7 +46,7 @@ namespace Modules.Tests
                 .Setup(r => r.GetByCredentials(It.IsAny<string>(), It.IsAny<string>(), default))
                 .ThrowsAsync(new InvalidCredentialException());
 
-            var mockContext = new Mock<IRequestContext>(MockBehavior.Strict);
+            var mockContext = new Mock<IRpcRequestContext>(MockBehavior.Strict);
             mockContext
                 .SetupGet(c => c.Cancellation)
                 .Returns(default(CancellationToken));
@@ -76,7 +76,7 @@ namespace Modules.Tests
                 .Setup(r => r.GetOrCreate(user.Id, default))
                 .Returns(() => Task.FromResult(Guid.NewGuid()));
 
-            var mockContext = new Mock<IRequestContext>(MockBehavior.Strict);
+            var mockContext = new Mock<IRpcRequestContext>(MockBehavior.Strict);
             mockContext
                 .SetupGet(c => c.Cancellation)
                 .Returns(default(CancellationToken));
@@ -97,7 +97,7 @@ namespace Modules.Tests
         {
             Guid sessionId = Guid.NewGuid();
 
-            var mockContext = new Mock<IRequestContext>(MockBehavior.Strict);
+            var mockContext = new Mock<IRpcRequestContext>(MockBehavior.Strict);
             mockContext
                 .Setup(ctx => ctx.SessionId)
                 .Returns(sessionId.ToString());
@@ -121,7 +121,7 @@ namespace Modules.Tests
         {
             Guid userId = Guid.NewGuid();
 
-            var mockContext = new Mock<IRequestContext>(MockBehavior.Strict);
+            var mockContext = new Mock<IRpcRequestContext>(MockBehavior.Strict);
             mockContext
                 .Setup(ctx => ctx.Cancellation)
                 .Returns(() => default);
@@ -150,7 +150,7 @@ namespace Modules.Tests
                 userId = Guid.NewGuid(),
                 sessionId = Guid.NewGuid();
 
-            var mockContext = new Mock<IRequestContext>(MockBehavior.Strict);
+            var mockContext = new Mock<IRpcRequestContext>(MockBehavior.Strict);
             mockContext
                 .Setup(ctx => ctx.SessionId)
                 .Returns(sessionId.ToString());
@@ -182,7 +182,7 @@ namespace Modules.Tests
         [Test]
         public async Task List_ShouldReturnTheDesiredList() 
         {
-            var mockContext = new Mock<IRequestContext>(MockBehavior.Strict);
+            var mockContext = new Mock<IRpcRequestContext>(MockBehavior.Strict);
             mockContext
                 .Setup(ctx => ctx.Cancellation)
                 .Returns(() => default);
