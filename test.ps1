@@ -10,6 +10,6 @@ if ($logFile -ne '') {
 }
 
 $wd='./BUILD/test'
-$proc = Start-Process docker-compose -ArgumentList "run test_env pwsh -command $remoteCommand" -WorkingDirectory $wd -Wait -NoNewWindow -PassThru;
-Write-Host "Docker returned $($proc.ExitCode)";
-Start-Process docker-compose -ArgumentList 'down' -WorkingDirectory $wd -Wait -NoNewWindow;
+$proc = Start-Process docker-compose -ArgumentList "run test_env pwsh -command $remoteCommand" -WorkingDirectory $wd -Wait -NoNewWindow -PassThru
+Write-Host "Docker returned $($proc.ExitCode)"
+Start-Process docker-compose -ArgumentList 'down' -WorkingDirectory $wd -Wait -NoNewWindow
