@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics.CodeAnalysis;
-using System.Text.Json;
 
 using Microsoft.Extensions.Logging;
 
@@ -38,14 +36,6 @@ namespace Server
 
         public AppHost(IReadOnlyList<string> args) : base(args) { }
 
-        private sealed class LowerCasePolicy : JsonNamingPolicy
-        {
-            [SuppressMessage("Globalization", "CA1308:Normalize strings to uppercase")]
-            public override string ConvertName(string name) => name.ToLowerInvariant();
-
-            public static LowerCasePolicy Instance { get; } = new LowerCasePolicy();
-        }
-
         public override void OnConfigure(WebServiceBuilder serviceBuilder)
         {
             if (serviceBuilder is null)
@@ -63,19 +53,12 @@ namespace Server
                     switch (conf)
                     {
                         case Solti.Utils.Rpc.Pipeline.Modules modules:
-                            modules
-                                .ConfigureSerializer(_ =>
-                                {
-                                    JsonSerializerBackend serializer = new();
-                                    serializer.Options.PropertyNamingPolicy = LowerCasePolicy.Instance;
-                                    return serializer;
-                                })
-                                .Register<IUserManager, UserManager>();
+                            modules.Register<IUserManager, UserManager>();
                             break;
-                        case RpcAccessControl rpcAc:
+                        case HttpAccessControl hac:
                             foreach (string origin in serverConfig.AllowedOrigins)
                             {
-                                rpcAc.AllowedOrigins.Add(origin);
+                                hac.AllowedOrigins.Add(origin);
                             }
                             break;
                     }

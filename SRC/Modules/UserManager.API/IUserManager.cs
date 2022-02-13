@@ -8,6 +8,7 @@ namespace Modules.API
 {
     using Services.API;
 
+    [PublishSchema]
     [ParameterValidatorAspect, RoleValidatorAspect, TransactionAspect, ModuleLoggerAspect]
     public interface IUserManager
     {

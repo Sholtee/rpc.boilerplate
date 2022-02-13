@@ -9,7 +9,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Injector.NET.Interfaces" Version="6.1.0" />
-		<PackageReference Include="RPC.NET.Interfaces" Version="6.0.0-preview1" />
+		<PackageReference Include="RPC.NET.Interfaces" Version="6.0.0-preview2" />
 		<PackageReference Include="ServiceStack.OrmLite.Core" Version="5.13.2" />
 	</ItemGroup>
 
